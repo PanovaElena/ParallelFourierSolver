@@ -1,4 +1,4 @@
 #pragma once
-class Grid2d;
+class Grid3d;
 
-void FieldSolver(Grid2d& gr, double dt);
+void FieldSolver(Grid3d& gr, double dt);

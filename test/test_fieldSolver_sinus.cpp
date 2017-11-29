@@ -5,8 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "particle.h"
-#include "grid2d.h"
+#include "grid3d.h"
 
 static std::ofstream file;
 static const std::string strE = "../../files/field_solver_test_E";
@@ -18,9 +17,9 @@ const int maxIt = 2;
 class TestSinus:public testing::Test {
 public:
 	double dt;
-	Grid2d gr;
+	Grid3d gr;
 
-	TestSinus():gr(n,n,a,a,b,b) {
+	TestSinus():gr(n,n,n,a,a,a,b,b,b) {
 		dt = gr.gdx() / (constants::c*sqrt(2)*8);
 	}
 
@@ -37,15 +36,16 @@ public:
 		case 2: B = vec3(0, 1, 0); break;
 		case 3: B = vec3(0, 0, 1); break;
 		}
-		int i, j;
-		int* ind = (main == 1) ? &i : &j;
+		int i, j, k;
+		int* ind = (main == 1) ? &i : ((main == 2) ? &j : &k);
 
 		for (i = 0; i <= n; i++)
-			for (j = 0; j <= n; j++) {
-				double s = sin(2 * constants::pi*(*ind) / b);
-				gr(i, j).E = E*s;
-				gr(i, j).B = B*s;
-			}
+			for (j = 0; j <= n; j++) 
+				for (k = 0; k <= n; k++) {
+					double s = sin(2 * constants::pi*(*ind) / b);
+					gr(i, j, k).E = E*s;
+					gr(i, j, k).B = B*s;
+				}
 	}
 
 	double f(double x, double t) {
@@ -56,7 +56,7 @@ public:
 
 
 TEST_F(TestSinus, other_components_is_null_Ey_Bz) {
-	SetEB(2, 3,1);
+	SetEB(2, 3, 1);
 	for (int j = 0; j < maxIt; j++) {
 		FieldSolver(gr, j*dt);
 
