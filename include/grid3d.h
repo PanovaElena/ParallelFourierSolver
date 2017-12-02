@@ -1,6 +1,5 @@
 #pragma once
 #include "vec.h"
-#include <complex>
 
 struct node
 {
@@ -8,8 +7,8 @@ struct node
 	vec3<double> E;
 	//vec3 J;
 
-	vec3<std::complex<double> > BF;
-	vec3<std::complex<double> > EF;
+	vec3<MyComplex> BF;
+	vec3<MyComplex> EF;
 
 	node() :B(), E() {}
 	node(const node& n) :B(n.B), E(n.E) {}
