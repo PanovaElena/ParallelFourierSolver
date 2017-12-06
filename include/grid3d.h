@@ -1,5 +1,6 @@
 #pragma once
 #include "vec.h"
+#include "my_complex.h"
 
 struct node
 {
@@ -10,7 +11,7 @@ struct node
 	vec3<MyComplex> BF;
 	vec3<MyComplex> EF;
 
-	node() :B(), E() {}
+	node() :B(0,0,0), E(0, 0, 0) {}
 	node(const node& n) :B(n.B), E(n.E) {}
 };
 
@@ -43,6 +44,7 @@ private:
 	}
 public:
 	Grid3d();
+	Grid3d(const Grid3d& gr);
 	Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
 	~Grid3d();
 	//сравнение только по вещественным полям

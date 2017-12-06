@@ -6,6 +6,10 @@ Grid3d::Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, do
 {
 	Initialize(_nx, _ny, _nz, _ax, _bx, _ay, _by, _az, _bz);
 }
+Grid3d::Grid3d(const Grid3d& gr)
+{
+	Initialize(gr.nx, gr.ny, gr.nz, gr.ax, gr.bx, gr.ay, gr.by, gr.az, gr.bz);
+}
 void Grid3d::clearGrid()
 {
 	if (nodes)
@@ -15,10 +19,12 @@ void Grid3d::clearGrid()
 		delete[] nodes;
 	}
 }
+
 Grid3d::~Grid3d()
 {
 	clearGrid();
 }
+
 
 void Grid3d::Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz)
 {
@@ -51,7 +57,7 @@ int Grid3d::operator==(const Grid3d& gr) {
 
 	for (int i = 0; i < (nx + 1)*(ny + 1)*(nz + 1); i++) {
 		if ((*this)(i).B != gr(i).B) return 0;
-		if ((*this)(i).E != gr(i).E) return 1;
+		if ((*this)(i).E != gr(i).E) return 0;
 	}
 	return 1;
 

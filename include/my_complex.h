@@ -22,8 +22,33 @@ public:
 	double GetImag() {
 		return data[1];
 	}
-	
+	friend MyComplex operator*(const MyComplex z, const double a) {
+		return MyComplex(z.data[0] * a, z.data[1] * a);
+	}
+	friend MyComplex operator*(const double a, const MyComplex z) {
+		return MyComplex(z.data[0] * a, z.data[1] * a);
+	}
+	friend MyComplex operator*(const MyComplex z1, const MyComplex z2) {
+		return MyComplex(z1.data[0] * z2.data[0]-z1.data[1]*z2.data[1], z1.data[0] * z2.data[1] + z2.data[0] * z1.data[1]);
+	}
+	friend MyComplex operator+(const MyComplex z1, const MyComplex z2) {
+		return MyComplex(z1.data[0] + z2.data[0], z1.data[1] + z2.data[1]);
+	}
+	MyComplex& operator+=(const MyComplex z2) {
+		data[0] += z2.data[0];
+		data[1] += z2.data[1];
+		return *this;
+	}
+	MyComplex& operator-=(const MyComplex z2) {
+		data[0] -= z2.data[0];
+		data[1] -= z2.data[1];
+		return *this;
+	}
+	friend MyComplex operator-(const MyComplex z1, const MyComplex z2) {
+		return z1 + (-1)*z2;
+	}
+
 
 };
 
-const MyComplex compl_i(0, 1);
+const MyComplex complex_i(0, 1);

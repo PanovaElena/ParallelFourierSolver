@@ -1,30 +1,32 @@
 #pragma once
 #include <cmath>
 
-template <class T>
+template <class Type>
 struct vec3
 {
-	T data[3];
+	Type data[3];
 
-	vec3(){
-		data[0] = 0;
-		data[1] = 0;
-		data[2] = 0;
-	}
-	vec3(T a, T b, T c)vec3() {
+	vec3() {};
+
+	vec3(Type a, Type b, Type c) {
 		data[0] = a;
 		data[1] = b;
 		data[2] = c;
 	};
-	vec3(const vec3 &c) vec3() {
+
+	Type& operator[](int i) {
+		return data[i];
+	}
+
+	Type x() const { return data[0]; }
+	Type y() const { return data[1]; }
+	Type z() const { return data[2]; }
+
+	vec3(const vec3<Type> &c) {
 		data[0] = c.data[0];
 		data[1] = c.data[1];
 		data[2] = c.data[2];
 	}
-
-	T x() { return data[0]; }
-	T y() { return data[1]; }
-	T z() { return data[2]; }
 
 	vec3 operator+(const vec3 &v)  const {
 		return vec3(x() + v.x(), y() + v.y(), z() + v.z());
@@ -68,9 +70,6 @@ struct vec3
 		}
 		throw "DIV BY 0!";
 	}
-	T& operator[](int i) {
-		return data[i]
-	}
 
 	double getSqLength()  const
 	{
@@ -85,7 +84,7 @@ struct vec3
 		return ((a.x() == b.x()) && (a.y() == b.y()) && (a.z() == b.z()));
 	}
 	friend bool operator!=(const vec3& a, const vec3& b) {
-		return !(a() == b());
+		return !(a == b);
 	}
 };
 

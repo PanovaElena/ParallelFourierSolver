@@ -6,9 +6,6 @@
 #include "fourier_transformation.h"
 using namespace std;
 
-int GetIndex(int i, int j, int k, int Nx, int Ny, int Nz) {
-	return (i*Ny*Nz + j*Nz + k);
-}
 int GetSize(int Nx, int Ny, int Nz) {
 	return (Nx*Ny*Nz);
 }
@@ -18,11 +15,13 @@ void UseFFTW(vector<double>& arr1, vector<MyComplex>& arr2, int Nx, int Ny, int 
 	switch (dir) {
 	case RtoC:
 		plan = fftw_plan_dft_r2c_3d(Nx, Ny, Nz, &(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_ESTIMATE);
-		fftw_execute_dft_r2c(plan, &(arr1[0]), (fftw_complex*)&(arr2[0]));
+		fftw_execute(plan);
 		break;
 	case CtoR:
 		plan = fftw_plan_dft_c2r_3d(Nx, Ny, Nz, (fftw_complex*)&(arr2[0]), &(arr1[0]), FFTW_ESTIMATE);
-		fftw_execute_dft_c2r(plan, (fftw_complex*)&(arr2[0]), &(arr1[0]));
+		fftw_execute(plan);
+		for (int i = 0; i < GetSize(Nx, Ny, Nz); i++)
+			arr1[i] /= Nx*Ny*Nz;
 		break;
 	}
 	fftw_destroy_plan(plan);
@@ -30,15 +29,15 @@ void UseFFTW(vector<double>& arr1, vector<MyComplex>& arr2, int Nx, int Ny, int 
 
 void FourierTransformation(Grid3d & gr, field _field, int dir)
 {
-	vector<double> arrD(GetSize(gr.gnx(), gr.gny(), gr.gnz()));
-	vector<MyComplex> arrC(GetSize(gr.gnx(), gr.gny(), gr.gnz()));
+	vector<double> arrD(GetSize(gr.gnx()+1, gr.gny()+1, gr.gnz()+1));
+	vector<MyComplex> arrC(GetSize(gr.gnx()+1, gr.gny()+1, gr.gnz()+1));
 
 	switch (dir) {
 	case RtoC:
-		WriteFromGridToArr(gr, arrD, _field);
+		OperationWithArrays::WriteFromGridToArr(gr, arrD, _field);
 		break;
 	case  CtoR:
-		WriteFromGridToArr(gr, arrC, _field);
+		OperationWithArrays::WriteFromGridToArr(gr, arrC, _field);
 		break;
 	}
 
@@ -46,10 +45,10 @@ void FourierTransformation(Grid3d & gr, field _field, int dir)
 
 	switch (dir) {
 	case RtoC:
-		WriteFromArrToGrid(gr, arrD, _field);
+		OperationWithArrays::WriteFromArrToGrid(gr, arrC, _field);
 		break;
 	case  CtoR:
-		WriteFromArrToGrid(gr, arrC, _field);
+		OperationWithArrays::WriteFromArrToGrid(gr, arrD, _field);
 		break;
 	}
 }
