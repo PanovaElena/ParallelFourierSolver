@@ -54,9 +54,13 @@ public:
 
 	void Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
 
-	int gnx() const;//get nx 
-	int gny() const;//get ny
-	int gnz() const;//get nz
+	int gnxCells() const;//get nx 
+	int gnyCells() const;//get ny
+	int gnzCells() const;//get nz
+
+	int gnxNodes() const;//get nx+1
+	int gnyNodes() const;//get ny+1
+	int gnzNodes() const;//get nz+1
 
 	double gdx() const; //get dx
 	double gdy() const;//get dy

@@ -27,28 +27,38 @@ void UseFFTW(vector<double>& arr1, vector<MyComplex>& arr2, int Nx, int Ny, int 
 	fftw_destroy_plan(plan);
 }
 
-void FourierTransformation(Grid3d & gr, field _field, int dir)
+void FourierTransformation(Grid3d & gr, Field _field, int dir)
 {
-	vector<double> arrD(GetSize(gr.gnx()+1, gr.gny()+1, gr.gnz()+1));
-	vector<MyComplex> arrC(GetSize(gr.gnx()+1, gr.gny()+1, gr.gnz()+1));
+	vector<double> arrD(GetSize(gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes()));
+	vector<MyComplex> arrC(GetSize(gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes()));
 
 	switch (dir) {
 	case RtoC:
-		OperationWithArrays::WriteFromGridToArr(gr, arrD, _field);
+		OperationWithArrays<double>::Write(gr,_field,FromGridToArray,Double, arrD);
 		break;
 	case  CtoR:
-		OperationWithArrays::WriteFromGridToArr(gr, arrC, _field);
+		OperationWithArrays<MyComplex>::Write(gr, _field, FromGridToArray, Complex, arrC);
 		break;
 	}
 
-	UseFFTW(arrD, arrC, gr.gnx(), gr.gny(), gr.gnz(), dir);
+	UseFFTW(arrD, arrC, gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes(), dir);
 
 	switch (dir) {
 	case RtoC:
-		OperationWithArrays::WriteFromArrToGrid(gr, arrC, _field);
+		OperationWithArrays<MyComplex>::Write(gr, _field, FromArrayToGrid, Complex, arrC);
 		break;
 	case  CtoR:
-		OperationWithArrays::WriteFromArrToGrid(gr, arrD, _field);
+		OperationWithArrays<double>::Write(gr, _field, FromArrayToGrid, Double, arrD);
 		break;
 	}
+}
+
+void FourierTransformation(Grid3d & gr, int dir)
+{
+	FourierTransformation(gr, Ex, dir);
+	FourierTransformation(gr, Ey, dir);
+	FourierTransformation(gr, Ez, dir);
+	FourierTransformation(gr, Bx, dir);
+	FourierTransformation(gr, By, dir);
+	FourierTransformation(gr, Bz, dir);
 }

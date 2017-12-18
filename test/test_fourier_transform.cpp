@@ -34,10 +34,10 @@ TEST_F(TestFourierTransform, transform_correctly_Ex) {
 	FourierTransformation(grid, Ex, RtoC);
 	FourierTransformation(grid, Ex, CtoR);
 
-	for (int i=0; i<=grid.gnx(); i++)
-		for (int j = 0; j <= grid.gny(); j++)
-			for (int k = 0; k <= grid.gnz(); k++)
-				ASSERT_NEAR(grid(i,j,k).E.x(), grid2(i, j, k).E.x(), 0.1);
+	for (int i = 0; i <= grid.gnxCells(); i++)
+		for (int j = 0; j <= grid.gnyCells(); j++)
+			for (int k = 0; k <= grid.gnzCells(); k++)
+				ASSERT_NEAR(grid(i, j, k).E.x(), grid2(i, j, k).E.x(), 0.1);
 }
 
 TEST_F(TestFourierTransform, transform_correctly_Ey) {
@@ -45,9 +45,9 @@ TEST_F(TestFourierTransform, transform_correctly_Ey) {
 	FourierTransformation(grid, Ey, RtoC);
 	FourierTransformation(grid, Ey, CtoR);
 
-	for (int i = 0; i <= grid.gnx(); i++)
-		for (int j = 0; j <= grid.gny(); j++)
-			for (int k = 0; k <= grid.gnz(); k++)
+	for (int i = 0; i <= grid.gnxCells(); i++)
+		for (int j = 0; j <= grid.gnyCells(); j++)
+			for (int k = 0; k <= grid.gnzCells(); k++)
 				ASSERT_NEAR(grid(i, j, k).E.y(), grid2(i, j, k).E.y(), 0.1);
 }
 
@@ -56,9 +56,9 @@ TEST_F(TestFourierTransform, transform_correctly_Ez) {
 	FourierTransformation(grid, Ez, RtoC);
 	FourierTransformation(grid, Ez, CtoR);
 
-	for (int i = 0; i <= grid.gnx(); i++)
-		for (int j = 0; j <= grid.gny(); j++)
-			for (int k = 0; k <= grid.gnz(); k++)
+	for (int i = 0; i <= grid.gnxCells(); i++)
+		for (int j = 0; j <= grid.gnyCells(); j++)
+			for (int k = 0; k <= grid.gnzCells(); k++)
 				ASSERT_NEAR(grid(i, j, k).E.z(), grid2(i, j, k).E.z(), 0.1);
 }
 
@@ -67,9 +67,9 @@ TEST_F(TestFourierTransform, transform_correctly_Bx) {
 	FourierTransformation(grid, Bx, RtoC);
 	FourierTransformation(grid, Bx, CtoR);
 
-	for (int i = 0; i <= grid.gnx(); i++)
-		for (int j = 0; j <= grid.gny(); j++)
-			for (int k = 0; k <= grid.gnz(); k++)
+	for (int i = 0; i <= grid.gnxCells(); i++)
+		for (int j = 0; j <= grid.gnyCells(); j++)
+			for (int k = 0; k <= grid.gnzCells(); k++)
 				ASSERT_NEAR(grid(i, j, k).B.x(), grid2(i, j, k).B.x(), 0.1);
 }
 
@@ -78,9 +78,9 @@ TEST_F(TestFourierTransform, transform_correctly_By) {
 	FourierTransformation(grid, By, RtoC);
 	FourierTransformation(grid, By, CtoR);
 
-	for (int i = 0; i <= grid.gnx(); i++)
-		for (int j = 0; j <= grid.gny(); j++)
-			for (int k = 0; k <= grid.gnz(); k++)
+	for (int i = 0; i <= grid.gnxCells(); i++)
+		for (int j = 0; j <= grid.gnyCells(); j++)
+			for (int k = 0; k <= grid.gnzCells(); k++)
 				ASSERT_NEAR(grid(i, j, k).B.y(), grid2(i, j, k).B.y(), 0.1);
 }
 
@@ -89,8 +89,8 @@ TEST_F(TestFourierTransform, transform_correctly_Bz) {
 	FourierTransformation(grid, Bz, RtoC);
 	FourierTransformation(grid, Bz, CtoR);
 
-	for (int i = 0; i <= grid.gnx(); i++)
-		for (int j = 0; j <= grid.gny(); j++)
-			for (int k = 0; k <= grid.gnz(); k++)
+	for (int i = 0; i <= grid.gnxCells(); i++)
+		for (int j = 0; j <= grid.gnyCells(); j++)
+			for (int k = 0; k <= grid.gnzCells(); k++)
 				ASSERT_NEAR(grid(i, j, k).B.z(), grid2(i, j, k).B.z(), 0.1);
 }

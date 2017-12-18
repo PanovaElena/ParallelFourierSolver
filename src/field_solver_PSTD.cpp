@@ -8,12 +8,12 @@ int mod(int a, int b) {
 
 
 void RefreshE(Grid3d& gr, double dt) {
-	for (int i = 0; i <= gr.gnx(); i++)
-		for (int j = 0; j <= gr.gny(); j++)
-			for (int k = 0; k <= gr.gnz(); k++) {
-				double omegaX = (2 * constants::pi*((i <= gr.gnx() / 2) ? i : i - gr.gnx())) / (gr.gdx()*gr.gnx());
-				double omegaY = (2 * constants::pi*((j <= gr.gny() / 2) ? j : j - gr.gny())) / (gr.gdy()*gr.gny());
-				double omegaZ = (2 * constants::pi*((k <= gr.gnz() / 2) ? k : k - gr.gnz())) / (gr.gdz()*gr.gnz());
+	for (int i = 0; i <= gr.gnxCells(); i++)
+		for (int j = 0; j <= gr.gnyCells(); j++)
+			for (int k = 0; k <= gr.gnzCells(); k++) {
+				double omegaX = (2 * constants::pi*((i <= gr.gnxCells() / 2) ? i : i - gr.gnxCells())) / (gr.gdx()*gr.gnxCells());
+				double omegaY = (2 * constants::pi*((j <= gr.gnyCells() / 2) ? j : j - gr.gnyCells())) / (gr.gdy()*gr.gnyCells());
+				double omegaZ = (2 * constants::pi*((k <= gr.gnzCells() / 2) ? k : k - gr.gnzCells())) / (gr.gdz()*gr.gnzCells());
 
 				gr(i, j, k).EF[0] += complex_i*constants::c*dt*(omegaY*gr(i, j, k).BF.z() - omegaZ*gr(i, j, k).BF.y());
 				gr(i, j, k).EF[1] -= complex_i*constants::c*dt*(omegaX*gr(i, j, k).BF.z() - omegaZ*gr(i, j, k).BF.x());
@@ -24,12 +24,12 @@ void RefreshE(Grid3d& gr, double dt) {
 }
 
 void RefreshB(Grid3d& gr, double dt) {
-	for (int i = 0; i <= gr.gnx(); i++)
-		for (int j = 0; j <= gr.gny(); j++)
-			for (int k = 0; k <= gr.gnz(); k++) {
-				double omegaX = (2 * constants::pi*((i <= gr.gnx() / 2) ? i : i - gr.gnx())) / (gr.gdx()*gr.gnx());
-				double omegaY = (2 * constants::pi*((j <= gr.gny() / 2) ? j : j - gr.gny())) / (gr.gdy()*gr.gny());
-				double omegaZ = (2 * constants::pi*((k <= gr.gnz() / 2) ? k : k - gr.gnz())) / (gr.gdz()*gr.gnz());
+	for (int i = 0; i <= gr.gnxCells(); i++)
+		for (int j = 0; j <= gr.gnyCells(); j++)
+			for (int k = 0; k <= gr.gnzCells(); k++) {
+				double omegaX = (2 * constants::pi*((i <= gr.gnxCells() / 2) ? i : i - gr.gnxCells())) / (gr.gdx()*gr.gnxCells());
+				double omegaY = (2 * constants::pi*((j <= gr.gnyCells() / 2) ? j : j - gr.gnyCells())) / (gr.gdy()*gr.gnyCells());
+				double omegaZ = (2 * constants::pi*((k <= gr.gnzCells() / 2) ? k : k - gr.gnzCells())) / (gr.gdz()*gr.gnzCells());
 
 				gr(i, j, k).BF[0] -= complex_i*constants::c*dt*(omegaY*gr(i, j, k).EF.z() - omegaZ*gr(i, j, k).EF.y());
 				gr(i, j, k).BF[1] += complex_i*constants::c*dt*(omegaX*gr(i, j, k).EF.z() - omegaZ*gr(i, j, k).EF.x());

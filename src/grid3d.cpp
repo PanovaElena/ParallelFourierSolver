@@ -9,6 +9,9 @@ Grid3d::Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, do
 Grid3d::Grid3d(const Grid3d& gr)
 {
 	Initialize(gr.nx, gr.ny, gr.nz, gr.ax, gr.bx, gr.ay, gr.by, gr.az, gr.bz);
+
+	for (int i = 0; i < (nx + 1)*(ny + 1)*(nz + 1); i++)
+		(*this)(i) = gr(i);
 }
 void Grid3d::clearGrid()
 {
@@ -80,15 +83,27 @@ void Grid3d::operator=(const Grid3d & gr)
 	
 }
 
-int Grid3d::gnx() const
+int Grid3d::gnxCells() const
 {
 	return nx;
 }
-int Grid3d::gny() const
+int Grid3d::gnxNodes() const
+{
+	return nx+1;
+}
+int Grid3d::gnyNodes() const
+{
+	return ny+1;
+}
+int Grid3d::gnzNodes() const
+{
+	return nz+1;
+}
+int Grid3d::gnyCells() const
 {
 	return ny;
 }
-int Grid3d::gnz() const
+int Grid3d::gnzCells() const
 {
 	return nz;
 }

@@ -4,93 +4,71 @@
 #include "operations_with_arrays.h"
 using namespace std;
 
-int OperationWithArrays::GetIndex(int i, int j, int k, int Nx, int Ny, int Nz) {
+template <class T>
+int OperationWithArrays<T>::GetIndex(int i, int j, int k, int Nx, int Ny, int Nz) {
 	return (i*Ny*Nz + j*Nz + k);
 }
 
-void OperationWithArrays::WriteFromGridToArr(Grid3d& gr, vector<double>& arr, field _field) {
-	if (_field / 3 == 0) WriteFromGridToArrE(gr, arr, _field % 3);
-	else WriteFromGridToArrB(gr, arr, _field % 3);
+template<class T>
+vec3<T> node::* OperationWithArrays<T>::DetP(Type type, Field field) {
+	vec3<T>(node::*p);
+	switch (field / 3) {
+	case 0:
+		switch (type) {
+		case Double:
+			p = &node::E;
+			break;
+		case Complex:
+			p = &node::EF;
+			break;
+		}
+		break;
+	case 1:
+		switch (type) {
+		case Double:
+			p = &node::B;
+			break;
+		case Complex:
+			p = &node::BF;
+			break;
+		}
+		break;
+
+	}
+	return p;
 }
-void OperationWithArrays::WriteFromGridToArrE(Grid3d& gr, vector<double>& arr, int coord) {
-		for (int i = 0; i <= gr.gnx(); i++)
-			for (int j = 0; j <= gr.gny(); j++)
-				for (int k = 0; k <= gr.gnz(); k++)
-				{
-					arr[GetIndex(i, j, k, gr.gnx(), gr.gny(), gr.gnz())] = gr(i, j, k).E[coord];
-				}
+
+template<class T> 
+void OperationWithArrays<T>::Write(Grid3d& gr, Field _field, Dir direction, Type type, vector<T>& arr) {
+	vec3<T>(node::*p);
+	p = DetP(type, _field);
+
+	switch (direction) {
+	case FromGridToArray:
+		WriteFromGridToArr(gr, arr, _field%3, p);
+		break;
+	case FromArrayToGrid:
+		WriteFromArrToGrid(gr, arr, _field%3, p);
+		break;
+	}
 }
-void OperationWithArrays::WriteFromGridToArrB(Grid3d& gr, vector<double>& arr, int coord) {
-	for (int i = 0; i <= gr.gnx(); i++)
-		for (int j = 0; j <= gr.gny(); j++)
-			for (int k = 0; k <= gr.gnz(); k++)
+
+template<class T>
+void OperationWithArrays<T>::WriteFromGridToArr(Grid3d& gr, vector<T>& arr, int coord, vec3<double> (node::*p)) {
+	for (int i = 0; i <= gr.gnxCells(); i++)
+		for (int j = 0; j <= gr.gnyCells(); j++)
+			for (int k = 0; k <= gr.gnzCells(); k++)
 			{
-				arr[GetIndex(i, j, k, gr.gnx(), gr.gny(), gr.gnz())] = gr(i, j, k).B[coord];
+				(gr(i, j, k).*p)[coord] = arr[GetIndex(i, j, k, gr.gnxCells(), gr.gnyCells(), gr.gnzCells())];
 			}
 }
 
-void OperationWithArrays::WriteFromGridToArr(Grid3d& gr, vector<MyComplex>& arr, field _field) {
-	if (_field / 3 == 0) WriteFromGridToArrE(gr, arr, _field % 3);
-	else WriteFromGridToArrB(gr, arr, _field % 3);
-}
-void OperationWithArrays::WriteFromGridToArrE(Grid3d& gr, vector<MyComplex>& arr, int coord) {
-	for (int i = 0; i <= gr.gnx(); i++)
-		for (int j = 0; j <= gr.gny(); j++)
-			for (int k = 0; k <= gr.gnz(); k++)
+template<class T>
+void OperationWithArrays<T>::WriteFromArrToGrid(Grid3d& gr, vector<T>& arr, int coord, vec3<double>(node::*p)) {
+	for (int i = 0; i <= gr.gnxCells(); i++)
+		for (int j = 0; j <= gr.gnyCells(); j++)
+			for (int k = 0; k <= gr.gnzCells(); k++)
 			{
-				arr[GetIndex(i, j, k, gr.gnx(), gr.gny(), gr.gnz())] = gr(i, j, k).EF[coord];
+				(gr(i, j, k).*p)[coord] = arr[GetIndex(i, j, k, gr.gnxCells(), gr.gnyCells(), gr.gnzCells())];
 			}
 }
-void OperationWithArrays::WriteFromGridToArrB(Grid3d& gr, vector<MyComplex>& arr, int coord) {
-	for (int i = 0; i <= gr.gnx(); i++)
-		for (int j = 0; j <= gr.gny(); j++)
-			for (int k = 0; k <= gr.gnz(); k++)
-			{
-				arr[GetIndex(i, j, k, gr.gnx(), gr.gny(), gr.gnz())] = gr(i, j, k).BF[coord];
-			}
-}
-
-void OperationWithArrays::WriteFromArrToGrid(Grid3d& gr, vector<MyComplex>& arr, field _field) {
-	if (_field / 3 == 0) WriteFromArrToGridE(gr, arr, _field % 3);
-	else WriteFromArrToGridB(gr, arr, _field % 3);
-}
-void OperationWithArrays::WriteFromArrToGridE(Grid3d& gr, vector<MyComplex>& arr, int coord) {
-	for (int i = 0; i <= gr.gnx(); i++)
-		for (int j = 0; j <= gr.gny(); j++)
-			for (int k = 0; k <= gr.gnz(); k++)
-			{
-				gr(i, j, k).EF[coord] = arr[GetIndex(i, j, k, gr.gnx(), gr.gny(), gr.gnz())];
-			}
-}
-void OperationWithArrays::WriteFromArrToGridB(Grid3d& gr, vector<MyComplex>& arr, int coord) {
-	for (int i = 0; i <= gr.gnx(); i++)
-		for (int j = 0; j <= gr.gny(); j++)
-			for (int k = 0; k <= gr.gnz(); k++)
-			{
-				gr(i, j, k).BF[coord] = arr[GetIndex(i, j, k, gr.gnx(), gr.gny(), gr.gnz())];
-			}
-}
-
-void OperationWithArrays::WriteFromArrToGrid(Grid3d& gr, vector<double>& arr, field _field) {
-	if (_field / 3 == 0) WriteFromArrToGridE(gr, arr, _field % 3);
-	else WriteFromArrToGridB(gr, arr, _field % 3);
-}
-void OperationWithArrays::WriteFromArrToGridE(Grid3d& gr, vector<double>& arr, int coord) {
-	for (int i = 0; i <= gr.gnx(); i++)
-		for (int j = 0; j <= gr.gny(); j++)
-			for (int k = 0; k <= gr.gnz(); k++)
-			{
-				gr(i, j, k).E[coord] = arr[GetIndex(i, j, k, gr.gnx(), gr.gny(), gr.gnz())];
-			}
-}
-void OperationWithArrays::WriteFromArrToGridB(Grid3d& gr, vector<double>& arr, int coord) {
-	for (int i = 0; i <= gr.gnx(); i++)
-		for (int j = 0; j <= gr.gny(); j++)
-			for (int k = 0; k <= gr.gnz(); k++)
-			{
-				gr(i, j, k).B[coord] = arr[GetIndex(i, j, k, gr.gnx(), gr.gny(), gr.gnz())];
-			}
-}
-
-
-
