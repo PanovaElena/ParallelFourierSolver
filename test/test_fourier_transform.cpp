@@ -5,7 +5,7 @@
 
 class TestFourierTransform : public testing::Test {
 public:
-	int nx = 2, ny = 3, nz = 4;
+	int nx = 4, ny = 5, nz = 6;
 	double X = 6, Y = 8, Z = 10;
 	Grid3d grid;
 
@@ -14,9 +14,9 @@ public:
 		for (int i = 0; i <= nx; i++)
 			for (int j = 0; j <= ny; j++)
 				for (int k = 0; k <= nz; k++) {
-					double x = A * sin(2 * constants::pi*j / ny);
-					double y = A * sin(2 * constants::pi*j / ny);
-					double z = A * sin(2 * constants::pi*j / ny);
+					double x = A * sin(2 * constants::pi*i / nx);
+					double y = A * sin(2 * constants::pi*i / nx);
+					double z = A * sin(2 * constants::pi*i / nx);
 
 					grid(i, j, k).E[0] = grid(i, j, k).B[0] = x;
 					grid(i, j, k).E[1] = grid(i, j, k).B[1] = y;
@@ -31,6 +31,7 @@ TEST_F(TestFourierTransform, no_throws) {
 
 TEST_F(TestFourierTransform, transform_correctly_Ex) {
 	Grid3d grid2 = grid;
+
 	FourierTransformation(grid, Ex, RtoC);
 	FourierTransformation(grid, Ex, CtoR);
 

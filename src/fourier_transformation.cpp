@@ -34,7 +34,7 @@ void FourierTransformation(Grid3d & gr, Field _field, int dir)
 
 	switch (dir) {
 	case RtoC:
-		OperationWithArrays<double>::Write(gr,_field,FromGridToArray,Double, arrD);
+		OperationWithArrays<double>::Write(gr, _field, FromGridToArray, Double, arrD);
 		break;
 	case  CtoR:
 		OperationWithArrays<MyComplex>::Write(gr, _field, FromGridToArray, Complex, arrC);

@@ -83,7 +83,7 @@ void OperationWithArrays<T>::WriteFromGridToArr(Grid3d& gr, std::vector<T>& arr,
 		for (int j = 0; j <= gr.gnyCells(); j++)
 			for (int k = 0; k <= gr.gnzCells(); k++)
 			{
-				(gr(i, j, k).*p)[coord] = arr[GetIndex(i, j, k, gr.gnxCells(), gr.gnyCells(), gr.gnzCells())];
+				arr[GetIndex(i, j, k, gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes())] = (gr(i, j, k).*p)[coord] ;
 			}
 }
 
@@ -93,6 +93,6 @@ void OperationWithArrays<T>::WriteFromArrToGrid(Grid3d& gr, std::vector<T>& arr,
 		for (int j = 0; j <= gr.gnyCells(); j++)
 			for (int k = 0; k <= gr.gnzCells(); k++)
 			{
-				(gr(i, j, k).*p)[coord] = arr[GetIndex(i, j, k, gr.gnxCells(), gr.gnyCells(), gr.gnzCells())];
+				(gr(i, j, k).*p)[coord] = arr[GetIndex(i, j, k, gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes())];
 			}
 }
