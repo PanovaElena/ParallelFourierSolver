@@ -1,19 +1,7 @@
 #pragma once
 #include "grid3d.h"
 #include "my_complex.h"
-
-typedef int Type;
-typedef int Dir;
-typedef const int Field;
-
-static const Dir FromGridToArray = -1;
-static const Dir FromArrayToGrid = 1;
-
-static const Type Complex = -1;
-static const Type Double = 1;
-
-static const Field Ex = 0, Ey = 1, Ez = 2;
-static const Field Bx = 3, By = 4, Bz = 5;
+#include "simple_types.h"
 
 template <class T>
 class OperationWithArrays {

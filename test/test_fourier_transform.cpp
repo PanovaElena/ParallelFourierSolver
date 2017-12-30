@@ -2,9 +2,7 @@
 #include "grid3d.h"
 #include "fourier_transformation.h"
 #include "constants.h"
-
-typedef double (vec3<double>::*MethodCoord)() const;
-typedef vec3<double> node::* MemberOfNode;
+#include "class_member_ptr.h"
 
 class TestFourierTransform : public testing::Test {
 public:
@@ -27,25 +25,7 @@ public:
 				}
 	}
 
-	MemberOfNode GetField(int f) {
-		switch (f) {
-		case 0:
-			return &node::E;
-		case 1:
-			return &node::B;
-		}
-	}
-
-	MethodCoord GetMethod(int coord) {
-		switch (coord) {
-		case 0:
-			return &vec3<double>::x;
-		case 1:
-			return &vec3<double>::y;
-		case 2:
-			return &vec3<double>::z;
-		}
-	}
+	
  
 	void MyTestBody(Field field) {
 

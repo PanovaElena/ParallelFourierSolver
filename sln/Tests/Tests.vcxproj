@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\test\test_fieldSolver_sinus.cpp" />
     <ClCompile Include="..\..\test\test_fourier_transform.cpp" />
     <ClCompile Include="..\..\test\test_grid3d.cpp" />
     <ClCompile Include="..\..\test\test_main.cpp" />
@@ -30,6 +31,9 @@
     <ProjectReference Include="..\gtest\gtest.vcxproj">
       <Project>{41744fbe-db62-4e66-a109-986f0148ee29}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\test\class_member_ptr.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

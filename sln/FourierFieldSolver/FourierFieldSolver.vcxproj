@@ -30,6 +30,7 @@
     <ClInclude Include="..\..\include\fourier_transformation.h" />
     <ClInclude Include="..\..\include\grid3d.h" />
     <ClInclude Include="..\..\include\operations_with_arrays.h" />
+    <ClInclude Include="..\..\include\simple_types.h" />
     <ClInclude Include="..\..\include\vec.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

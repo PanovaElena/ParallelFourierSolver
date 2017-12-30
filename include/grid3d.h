@@ -1,6 +1,7 @@
 #pragma once
 #include "vec.h"
 #include "my_complex.h"
+#include "iostream"
 
 struct node
 {
