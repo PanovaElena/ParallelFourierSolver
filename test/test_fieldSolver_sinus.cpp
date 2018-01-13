@@ -71,8 +71,10 @@ public:
 
 			for (int i = 0; i <= n; i++)
 				std::cout << gr(i, 0, 0).E.x() << std::endl;
+			std::cout << std::endl;
 			for (int i = 0; i <= n; i++)
 				std::cout << gr(i, 0, 0).E.y() << std::endl;
+			std::cout << std::endl;
 			for (int i = 0; i <= n; i++)
 				std::cout << gr(i, 0, 0).E.z() << std::endl;
 			std::cout << std::endl;

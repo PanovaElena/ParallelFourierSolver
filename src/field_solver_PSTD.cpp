@@ -11,9 +11,9 @@ void RefreshE(Grid3d& gr, double dt) {
 	for (int i = 0; i <= gr.gnxCells(); i++)
 		for (int j = 0; j <= gr.gnyCells(); j++)
 			for (int k = 0; k <= gr.gnzCells(); k++) {
-				double omegaX = (2 * constants::pi*((i <= gr.gnxCells() / 2) ? i : i - gr.gnxCells())) / (gr.gdx()*gr.gnxCells());
-				double omegaY = (2 * constants::pi*((j <= gr.gnyCells() / 2) ? j : j - gr.gnyCells())) / (gr.gdy()*gr.gnyCells());
-				double omegaZ = (2 * constants::pi*((k <= gr.gnzCells() / 2) ? k : k - gr.gnzCells())) / (gr.gdz()*gr.gnzCells());
+				double omegaX = (2 * constants::pi*((i <= gr.gnxCells() / 2) ? i : i - gr.gnxCells())) / (gr.gbx() - gr.gax());
+				double omegaY = (2 * constants::pi*((j <= gr.gnyCells() / 2) ? j : j - gr.gnyCells())) / (gr.gby() - gr.gay());
+				double omegaZ = (2 * constants::pi*((k <= gr.gnzCells() / 2) ? k : k - gr.gnzCells())) / (gr.gbz() - gr.gaz());
 
 				gr(i, j, k).EF[0] += complex_i*constants::c*dt*(omegaY*gr(i, j, k).BF.z() - omegaZ*gr(i, j, k).BF.y());
 				gr(i, j, k).EF[1] -= complex_i*constants::c*dt*(omegaX*gr(i, j, k).BF.z() - omegaZ*gr(i, j, k).BF.x());
