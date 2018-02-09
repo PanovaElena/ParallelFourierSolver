@@ -30,7 +30,7 @@ public:
 	void MyTestBody(Field field) {
 
 		MemberOfNode p = GetField(field/3);
-		MethodCoord m= GetMethod(field % 3);
+		MethodCoord m= GetCoord(field % 3);
 
 		Grid3d grid2 = grid;
 

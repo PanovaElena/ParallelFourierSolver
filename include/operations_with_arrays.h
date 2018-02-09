@@ -8,7 +8,7 @@ class OperationWithArrays {
 public:
 	static int GetIndex(int i, int j, int k, int Nx, int Ny, int Nz);
 	static void Write(Grid3d& gr, Field _field, Dir direction, Type type, std::vector<T>& arr);
-private:
+
 	static void WriteFromGridToArr(Grid3d& gr, std::vector<T>& arr, int coord, vec3<T>(node::*p));
 	static void WriteFromArrToGrid(Grid3d& gr, std::vector<T>& arr, int coord, vec3<T>(node::*p));
 

@@ -18,3 +18,5 @@ static const Field Bx = 3, By = 4, Bz = 5;
 static const Coords x = 0;
 static const Coords y = 1;
 static const Coords z = 2;
+
+	

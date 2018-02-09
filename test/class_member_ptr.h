@@ -14,7 +14,7 @@ inline MemberOfNode GetField(int f) {
 	}
 }
 
-inline MethodCoord GetMethod(int coord) {
+inline MethodCoord GetCoord(int coord) {
 	switch (coord) {
 	case 0:
 		return &vec3<double>::x;

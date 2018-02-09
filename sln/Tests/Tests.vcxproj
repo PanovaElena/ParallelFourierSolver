@@ -23,6 +23,7 @@
     <ClCompile Include="..\..\test\test_fourier_transform.cpp" />
     <ClCompile Include="..\..\test\test_grid3d.cpp" />
     <ClCompile Include="..\..\test\test_main.cpp" />
+    <ClCompile Include="..\..\test\test_myComplex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FourierFieldSolver\FourierFieldSolver.vcxproj">
