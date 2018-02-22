@@ -39,6 +39,10 @@ public:
 		data[1] += z2.data[1];
 		return *this;
 	}
+	MyComplex& operator*=(const MyComplex& z2) {
+		(*this) = (*this)*z2;
+		return *this;
+	}
 	MyComplex& operator-=(const MyComplex& z2) {
 		data[0] -= z2.data[0];
 		data[1] -= z2.data[1];

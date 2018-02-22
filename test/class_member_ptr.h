@@ -22,5 +22,7 @@ inline MethodCoord GetCoord(int coord) {
 		return &vec3<double>::y;
 	case 2:
 		return &vec3<double>::z;
+	default:
+		return &vec3<double>::x;
 	}
 }
