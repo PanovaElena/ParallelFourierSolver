@@ -271,5 +271,8 @@ paket-files/
 __pycache__/
 *.pyc
 
+# Output files
+*.xls
+
 # Cake - Uncomment if you are using it
 # tools/
