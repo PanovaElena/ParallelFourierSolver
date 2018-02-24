@@ -11,6 +11,8 @@ inline MemberOfNode GetField(int f) {
 		return &node::E;
 	case 1:
 		return &node::B;
+	default:
+		return &node::E;
 	}
 }
 
@@ -22,5 +24,7 @@ inline MethodCoord GetCoord(int coord) {
 		return &vec3<double>::y;
 	case 2:
 		return &vec3<double>::z;
+	default:
+		return &vec3<double>::x;
 	}
 }

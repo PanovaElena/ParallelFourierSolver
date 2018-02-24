@@ -45,7 +45,7 @@ public:
 		for (i = 0; i <= n; i++)
 			for (j = 0; j <= n; j++)
 				for (k = 0; k <= n; k++) {
-					double s = sin(2 * constants::pi*(*ind) / b);
+					double s = sin(2 * constants::pi*(*ind) / n);
 					gr(i, j, k).E = E*s;
 					gr(i, j, k).B = B*s;
 				}
@@ -69,36 +69,36 @@ public:
 			Coords othCoordB1 = (fB + 1) % 3, othCoordB2 = (fB + 2) % 3;
 			Coords othCoordE1 = (fE + 1) % 3, othCoordE2 = (fE + 2) % 3;
 
-			/*int ix=0, iy=0, iz=0;
+			int ix=0, iy=0, iz=0;
 
 			for (int* i = (mainC==x?&ix:(mainC==y?&iy:&iz)); (*i) <= gr.gnxCells(); (*i)++) {
-				ASSERT_NEAR(0, (gr(ix, iy, iz).*GetField(B).*GetCoord(othCoordB1))(), 1E-5);
-				ASSERT_NEAR(0, (gr(ix, iy, iz).*GetField(B).*GetCoord(othCoordB2))(), 1E-5);
-				ASSERT_NEAR(0, (gr(ix, iy, iz).*GetField(E).*GetCoord(othCoordE1))(), 1E-5);
-				ASSERT_NEAR(0, (gr(ix, iy, iz).*GetField(E).*GetCoord(othCoordE2))(), 1E-5);
+				EXPECT_NEAR(0, (gr(ix, iy, iz).*GetField(B).*GetCoord(othCoordB1))(), 1E-5);
+				EXPECT_NEAR(0, (gr(ix, iy, iz).*GetField(B).*GetCoord(othCoordB2))(), 1E-5);
+				EXPECT_NEAR(0, (gr(ix, iy, iz).*GetField(E).*GetCoord(othCoordE1))(), 1E-5);
+				EXPECT_NEAR(0, (gr(ix, iy, iz).*GetField(E).*GetCoord(othCoordE2))(), 1E-5);
 			}
-			*/
+			
 
-			WriteFile(B, othCoordB1, j, strB + "test_zeros_");
-			WriteFile(B, othCoordB2, j, strB + "test_zeros_");
-			WriteFile(E, othCoordE1, j, strE + "test_zeros_");
-			WriteFile(E, othCoordE2, j, strE + "test_zeros_");
+			WriteFile(B, othCoordB1, mainC, j, strB + "test_zeros_");
+			WriteFile(B, othCoordB2, mainC, j, strB + "test_zeros_");
+			WriteFile(E, othCoordE1, mainC, j, strE + "test_zeros_");
+			WriteFile(E, othCoordE2, mainC, j, strE + "test_zeros_");
 		}
 	}
 
-	void WriteFile(Field field, Coords coord, int j, std::string name) {
-		file.open(name + "iter_" + std::to_string(j) +"_coord_"+std::to_string(coord)+ ".xls");//freopen?
+	void WriteFile(Field field, Coords fieldCoord, Coords iterC, int j, std::string name) {
+		file.open(name + "iter_" + std::to_string(j) +"_coord_"+std::to_string(fieldCoord)+ ".xls");//freopen?
 
 		int ix = 0, iy = 0, iz = 0;
 
-		for (int* i = (coord == x ? &ix : (coord == y ? &iy : &iz)); (*i) <= gr.gnxCells(); (*i)++) {
-			file << (double)(gr(ix, iy, iz).*GetField(field).*GetCoord(coord))() << std::endl;
+		for (int* i = (iterC == x ? &ix : (iterC == y ? &iy : &iz)); (*i) <= gr.gnxCells(); (*i)++) {
+			file << (double)(gr(ix, iy, iz).*GetField(field).*GetCoord(fieldCoord))() << std::endl;
 		}
 		file.close();
 	}
 
-	void MyTestBodyWriteFile(Field fE, Field fB, Coords main) {
-		SetEB(fE, fB, main);
+	void MyTestBodyWriteFile(Field fE, Field fB, Coords mainC) {
+		SetEB(fE, fB, mainC);
 
 		for (int j = 0; j < maxIt; j++) {
 			FieldSolver(gr, j*dt);
@@ -106,15 +106,15 @@ public:
 			if (j%itTransform == 0) {
 				FourierTransformation(gr, CtoR);
 
-				//WriteFile(E, x, j, strE);
-				//WriteFile(B, x, j, strB);
+				WriteFile(E, fE, mainC, j, strE);
+				WriteFile(B, fB, mainC, j, strB);
 
 				//std::cout << "#############" << j << std::endl;
-				/*for (int i = 0; i <= n; i++)
+				for (int i = 0; i <= n; i++)
 				{
-				ASSERT_NEAR(f(i,j*dt), gr(i, 0, 0).B.z(), 1E-2 * (j + 1)*(j + 1));
-				ASSERT_NEAR(f(i, j*dt), gr(i, 0, 0).E.y(), 1E-2 * (j + 1)*(j + 1));
-				}*/
+					ASSERT_NEAR(f(i, j*dt), gr(i, 0, 0).B.z(), 1E-2 * (j + 1)*(j + 1));
+					ASSERT_NEAR(f(i, j*dt), gr(i, 0, 0).E.y(), 1E-2 * (j + 1)*(j + 1));
+				}
 			}
 		}
 
@@ -127,11 +127,11 @@ public:
 TEST_F(TestSinus, other_components_is_null_Ey_Bz) {
 	MyTestBodyCheckOnNull(Ey, Bz, x);
 }
-/*
+
 TEST_F(TestSinus, res_is_sinus_Ey_Bz) {
 	MyTestBodyWriteFile(Ey, Bz, x);
 }
-
+/*
 TEST_F(TestSinus, other_components_is_null_Ez_By) {
 	SetEB(3, 2, 1);
 	for (int j = 0; j < maxIt; j++) {

@@ -63,6 +63,10 @@ public:
 	int gnyNodes() const;//get ny+1
 	int gnzNodes() const;//get nz+1
 
+	int gnxComplexNodes() const;//get nx+1
+	int gnyComplexNodes() const;//get ny+1
+	int gnzComplexNodes() const;//get nz+1
+
 	double gdx() const; //get dx
 	double gdy() const;//get dy
 	double gdz() const;//get dz
