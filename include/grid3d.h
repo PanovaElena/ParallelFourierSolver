@@ -87,4 +87,12 @@ public:
 		return nodes[i][j][k]; 
 	}
 
+	node& operator()(vec3<int> ind) {
+		if (ind[0] > nx || ind[1] > ny || ind[2]>nz)
+		{
+			throw "bad index";
+		}
+		return nodes[ind[0]][ind[1]][ind[2]];
+	}
+
 };
