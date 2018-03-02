@@ -63,6 +63,10 @@ public:
 	int gnyNodes() const;//get ny+1
 	int gnzNodes() const;//get nz+1
 
+	int gnxComplexNodes() const;//get nx+1
+	int gnyComplexNodes() const;//get ny+1
+	int gnzComplexNodes() const;//get nz+1
+
 	double gdx() const; //get dx
 	double gdy() const;//get dy
 	double gdz() const;//get dz
@@ -81,6 +85,14 @@ public:
 			throw "bad index";
 		}
 		return nodes[i][j][k]; 
+	}
+
+	node& operator()(vec3<int> ind) {
+		if (ind[0] > nx || ind[1] > ny || ind[2]>nz)
+		{
+			throw "bad index";
+		}
+		return nodes[ind[0]][ind[1]][ind[2]];
 	}
 
 };

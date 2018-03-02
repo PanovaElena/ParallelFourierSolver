@@ -7,7 +7,7 @@
 
 class TestFourierTransform : public testing::Test {
 public:
-	int nx = 4, ny = 5, nz = 6;
+	int nx = 1, ny = 2, nz = 1;
 	double X = 6, Y = 8, Z = 10;
 	Grid3d grid;
 
@@ -45,8 +45,12 @@ public:
 	}
 };
 
-TEST_F(TestFourierTransform, no_throws) {
+TEST_F(TestFourierTransform, no_throws_RtoC) {
 	ASSERT_NO_THROW(FourierTransformation(grid, Ex, RtoC));
+}
+
+TEST_F(TestFourierTransform, no_throws_CtoR) {
+	ASSERT_NO_THROW(FourierTransformation(grid, Ex, CtoR));
 }
 
 TEST_F(TestFourierTransform, transform_correctly_Ex) {

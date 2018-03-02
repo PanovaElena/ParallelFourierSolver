@@ -6,3 +6,7 @@ class Grid3d;
 
 void FourierTransformation(Grid3d& gr, Field _field, int dir);
 void FourierTransformation(Grid3d& gr, int dir);
+
+double OmegaX(int i, const Grid3d& gr);
+double OmegaY(int j, const Grid3d& gr);
+double OmegaZ(int k, const Grid3d& gr);

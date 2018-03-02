@@ -4,10 +4,22 @@
 #include "operations_with_arrays.h"
 #include "my_complex.h"
 #include "fourier_transformation.h"
+#include "constants.h"
 using namespace std;
 
 int GetSize(int Nx, int Ny, int Nz) {
 	return (Nx*Ny*Nz);
+}
+
+
+double OmegaX(int i, const Grid3d& gr) {
+	return (2 * constants::pi*((i <= gr.gnxCells() / 2) ? i : i - gr.gnxCells())) / (gr.gbx() - gr.gax());
+}
+double OmegaY(int j, const Grid3d& gr) {
+	return (2 * constants::pi*((j <= gr.gnyCells() / 2) ? j : j - gr.gnyCells())) / (gr.gby() - gr.gay());
+}
+double OmegaZ(int k, const Grid3d& gr) {
+	return (2 * constants::pi*((k <= gr.gnzCells() / 2) ? k : k - gr.gnzCells())) / (gr.gbz() - gr.gaz());
 }
 
 void UseFFTW(vector<double>& arr1, vector<MyComplex>& arr2, int Nx, int Ny, int Nz, int dir) {
@@ -34,10 +46,10 @@ void FourierTransformation(Grid3d & gr, Field _field, int dir)
 
 	switch (dir) {
 	case RtoC:
-		OperationWithArrays<double>::Write(gr, _field, FromGridToArray, Double, arrD);
+		OperationWithArrays::WriteDouble(gr, _field, FromGridToArray, arrD);
 		break;
 	case  CtoR:
-		OperationWithArrays<MyComplex>::Write(gr, _field, FromGridToArray, Complex, arrC);
+		OperationWithArrays::WriteComplex(gr, _field, FromGridToArray, arrC);
 		break;
 	}
 
@@ -45,10 +57,10 @@ void FourierTransformation(Grid3d & gr, Field _field, int dir)
 
 	switch (dir) {
 	case RtoC:
-		OperationWithArrays<MyComplex>::Write(gr, _field, FromArrayToGrid, Complex, arrC);
+		OperationWithArrays::WriteComplex(gr, _field, FromArrayToGrid, arrC);
 		break;
 	case  CtoR:
-		OperationWithArrays<double>::Write(gr, _field, FromArrayToGrid, Double, arrD);
+		OperationWithArrays::WriteDouble(gr, _field, FromArrayToGrid, arrD);
 		break;
 	}
 }

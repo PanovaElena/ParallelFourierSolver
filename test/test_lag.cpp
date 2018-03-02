@@ -31,9 +31,9 @@ TEST_F(test_lag, lag_is_correct) {
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < n; j++)
 			for (int k = 0; k < n/2+1; k++) {
-				double omegaX = (2 * constants::pi*((i <= gr.gnxCells() / 2) ? i : i - gr.gnxCells())) / (gr.gbx() - gr.gax());
-				double omegaY = (2 * constants::pi*((j <= gr.gnyCells() / 2) ? j : j - gr.gnyCells())) / (gr.gby() - gr.gay());
-				double omegaZ = (2 * constants::pi*((k <= gr.gnzCells() / 2) ? k : k - gr.gnzCells())) / (gr.gbz() - gr.gaz());
+				double omegaX = OmegaX(i, gr);
+				double omegaY = OmegaY(j, gr);
+				double omegaZ = OmegaZ(k, gr);
 
 				gr(i, j, k).EF[0] *= MyComplex(cos(-c*(omegaX + omegaY + omegaZ)) ,sin(-c*(omegaX + omegaY + omegaZ)));
 			}

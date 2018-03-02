@@ -22,6 +22,7 @@
     <ClCompile Include="..\..\src\field_solver_PSTD.cpp" />
     <ClCompile Include="..\..\src\fourier_transformation.cpp" />
     <ClCompile Include="..\..\src\grid3d.cpp" />
+    <ClCompile Include="..\..\src\operations_with_arrays.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\my_complex.h" />

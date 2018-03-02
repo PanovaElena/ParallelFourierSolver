@@ -87,18 +87,6 @@ int Grid3d::gnxCells() const
 {
 	return nx;
 }
-int Grid3d::gnxNodes() const
-{
-	return nx+1;
-}
-int Grid3d::gnyNodes() const
-{
-	return ny+1;
-}
-int Grid3d::gnzNodes() const
-{
-	return nz+1;
-}
 int Grid3d::gnyCells() const
 {
 	return ny;
@@ -107,6 +95,33 @@ int Grid3d::gnzCells() const
 {
 	return nz;
 }
+
+int Grid3d::gnxNodes() const
+{
+	return nx + 1;
+}
+int Grid3d::gnyNodes() const
+{
+	return ny + 1;
+}
+int Grid3d::gnzNodes() const
+{
+	return nz + 1;
+}
+
+int Grid3d::gnxComplexNodes() const
+{
+	return nx + 1;
+}
+int Grid3d::gnyComplexNodes() const
+{
+	return ny + 1;
+}
+int Grid3d::gnzComplexNodes() const
+{
+	return (nz + 1) / 2 + 1;
+}
+
 double Grid3d::gdx() const
 {
 	return dx;
@@ -119,6 +134,7 @@ double Grid3d::gdz() const
 {
 	return dz;
 }
+
 double Grid3d::gax() const
 {
 	return ax;
@@ -131,6 +147,7 @@ double Grid3d::gaz() const
 {
 	return az;
 }
+
 double Grid3d::gbx() const
 {
 	return bx;
