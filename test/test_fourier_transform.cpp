@@ -3,6 +3,7 @@
 #include "fourier_transformation.h"
 #include "constants.h"
 #include "class_member_ptr.h"
+#include "my_complex.h"
 
 class TestFourierTransform : public testing::Test {
 public:
@@ -70,4 +71,12 @@ TEST_F(TestFourierTransform, transform_correctly_By) {
 
 TEST_F(TestFourierTransform, transform_correctly_Bz) {
 	MyTestBody(Bz);
+}
+
+
+TEST_F(TestFourierTransform, fourier_transform_write_data_correctly_to_grid) {
+	std::vector<MyComplex> arr(grid.gnxNodes()*grid.gnyNodes()*grid.gnzNodes());
+
+	FourierTransformation(grid, Ex, RtoC);
+
 }
