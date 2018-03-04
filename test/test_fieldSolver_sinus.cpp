@@ -71,7 +71,7 @@ public:
 
 			int ix=0, iy=0, iz=0;
 
-			for (int* i = (mainC==x?&ix:(mainC==y?&iy:&iz)); (*i) <= gr.gnxCells(); (*i)++) {
+			for (int* i = (mainC==x?&ix:(mainC==y?&iy:&iz)); (*i) <= gr.gnxReal(); (*i)++) {
 				EXPECT_NEAR(0, (gr(ix, iy, iz).*GetField(B).*GetCoord(othCoordB1))(), 1E-5);
 				EXPECT_NEAR(0, (gr(ix, iy, iz).*GetField(B).*GetCoord(othCoordB2))(), 1E-5);
 				EXPECT_NEAR(0, (gr(ix, iy, iz).*GetField(E).*GetCoord(othCoordE1))(), 1E-5);
@@ -91,7 +91,7 @@ public:
 
 		int ix = 0, iy = 0, iz = 0;
 
-		for (int* i = (iterC == x ? &ix : (iterC == y ? &iy : &iz)); (*i) <= gr.gnxCells(); (*i)++) {
+		for (int* i = (iterC == x ? &ix : (iterC == y ? &iy : &iz)); (*i) <= gr.gnxReal(); (*i)++) {
 			file << (double)(gr(ix, iy, iz).*GetField(field).*GetCoord(fieldCoord))() << std::endl;
 		}
 		file.close();
@@ -138,7 +138,7 @@ TEST_F(TestSinus, other_components_is_null_Ez_By) {
 		FieldSolver(gr, j*dt);
 		FourierTransformation(gr, CtoR);
 
-		for (int i = 0; i <= gr.gnxCells(); i++) {
+		for (int i = 0; i <= gr.gnxReal(); i++) {
 			ASSERT_DOUBLE_EQ(0, gr(i, 0, 0).B.x());
 			ASSERT_DOUBLE_EQ(0, gr(i, 0, 0).B.z());
 			ASSERT_DOUBLE_EQ(0, gr(i, 0, 0).E.y());
@@ -163,7 +163,7 @@ TEST_F(TestSinus, other_components_is_null_Ez_Bx) {
 		FieldSolver(gr, j*dt);
 		FourierTransformation(gr, CtoR);
 
-		for (int i = 0; i <= gr.gnyCells(); i++) {
+		for (int i = 0; i <= gr.gnyReal(); i++) {
 			ASSERT_DOUBLE_EQ(0, gr(0, i, 0).B.y());
 			ASSERT_DOUBLE_EQ(0, gr(0, i, 0).B.z());
 			ASSERT_DOUBLE_EQ(0, gr(0, i, 0).E.x());

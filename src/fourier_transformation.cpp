@@ -9,13 +9,13 @@
 using namespace std;
 
 double OmegaX(int i, const Grid3d& gr) {
-	return (2 * constants::pi*((i <= gr.gnxCells() / 2) ? i : i - gr.gnxCells())) / (gr.gbx() - gr.gax());
+	return (2 * constants::pi*((i <= gr.gnxReal() / 2) ? i : i - gr.gnxReal())) / (gr.gbx() - gr.gax());
 }
 double OmegaY(int j, const Grid3d& gr) {
-	return (2 * constants::pi*((j <= gr.gnyCells() / 2) ? j : j - gr.gnyCells())) / (gr.gby() - gr.gay());
+	return (2 * constants::pi*((j <= gr.gnyReal() / 2) ? j : j - gr.gnyReal())) / (gr.gby() - gr.gay());
 }
 double OmegaZ(int k, const Grid3d& gr) {
-	return (2 * constants::pi*((k <= gr.gnzCells() / 2) ? k : k - gr.gnzCells())) / (gr.gbz() - gr.gaz());
+	return (2 * constants::pi*((k <= gr.gnzReal() / 2) ? k : k - gr.gnzReal())) / (gr.gbz() - gr.gaz());
 }
 
 void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, int Nz, int dir) {
@@ -37,8 +37,8 @@ void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, in
 
 void FourierTransformation(Grid3d & gr, Field _field, int dir)
 {
-	Array3d<double> arrD(gr.gnxCells(), gr.gnyCells(), gr.gnzCells());
-	Array3d<MyComplex> arrC(gr.gnxCells(), gr.gnyCells(), gr.gnzCells() / 2 + 1);
+	Array3d<double> arrD(gr.gnxReal(), gr.gnyReal(), gr.gnzReal());
+	Array3d<MyComplex> arrC(gr.gnxComplex(), gr.gnyComplex(), gr.gnzComplex());
 
 	switch (dir) {
 	case RtoC:
@@ -49,7 +49,7 @@ void FourierTransformation(Grid3d & gr, Field _field, int dir)
 		break;
 	}
 
-	UseFFTW(arrD, arrC, gr.gnxCells(), gr.gnyCells(), gr.gnzCells(), dir);
+	UseFFTW(arrD, arrC, gr.gnxReal(), gr.gnyReal(), gr.gnzReal(), dir);
 
 	switch (dir) {
 	case RtoC:

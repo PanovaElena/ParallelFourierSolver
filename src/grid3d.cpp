@@ -54,20 +54,35 @@ Grid3d& Grid3d::operator=(const Grid3d & gr)
 	return *this;
 }
 
-int Grid3d::gnxCells() const
+int Grid3d::gnxReal() const
 {
 	return nx;
 }
-int Grid3d::gnyCells() const
+int Grid3d::gnyReal() const
 {
 	return ny;
 }
-int Grid3d::gnzCells() const
+int Grid3d::gnzReal() const
 {
 	return nz;
 }
 
-int Grid3d::gnxNodes() const
+int Grid3d::gnxComplex() const
+{
+	return nx;
+}
+
+int Grid3d::gnyComplex() const
+{
+	return ny;
+}
+
+int Grid3d::gnzComplex() const
+{
+	return nz/2+1;
+}
+
+/*int Grid3d::gnxNodes() const
 {
 	return nx + 1;
 }
@@ -79,7 +94,7 @@ int Grid3d::gnzNodes() const
 {
 	return nz + 1;
 }
-
+*/
 
 double Grid3d::gdx() const
 {

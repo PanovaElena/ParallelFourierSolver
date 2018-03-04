@@ -82,8 +82,8 @@ inline void OperationWithArrays::WriteFromComplexArrToGrid(Grid3d & gr, Array3d<
 		for (int j = 0; j < arr.gny(); j++) {
 			for (int k = 0; k < arr.gnz(); k++)
 				(gr(i, j, k).*p)[coord] = arr(i, j, k);
-			//for (int k = gr.gnzCells() - 1; k > gr.gnzCells() / 2; k--)
-				//(gr(i, j, k).*p)[coord] = arr(i, j, gr.gnzCells() - k).Conjugate();
+			//for (int k = gr.gnzReal() - 1; k > gr.gnzReal() / 2; k--)
+				//(gr(i, j, k).*p)[coord] = arr(i, j, gr.gnzReal() - k).Conjugate();
 		}
 }
 

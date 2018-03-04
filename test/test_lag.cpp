@@ -16,7 +16,7 @@ public:
 		for (int i = 0; i < n; i++)
 			for (int j = 0; j < n; j++)
 				for (int k = 0; k < n; k++)
-					gr(i, j, k).E[0] = f(i,j,k);
+					gr(i, j, k).E[0] = f(i, j, k);
 	}
 
 	double f(int i, int j, int k) {
