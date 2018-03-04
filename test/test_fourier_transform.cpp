@@ -8,7 +8,7 @@
 
 class TestFourierTransform : public testing::Test {
 public:
-	int nx = 4, ny = 4, nz = 4;
+	int nx = 10, ny = 5, nz = 3;
 	double X = 6, Y = 8, Z = 10;
 	Grid3d grid;
 
@@ -80,20 +80,20 @@ TEST_F(TestFourierTransform, transform_correctly_Bz) {
 
 
 TEST_F(TestFourierTransform, fourier_transform_write_data_correctly_to_grid) {
-	Array3d<MyComplex> arr1(grid.gnxNodes(),grid.gnyNodes(),grid.gnzNodes()), arr2(grid.gnxNodes(),grid.gnyNodes(),grid.gnzNodes());
+	Array3d<MyComplex> arr1(grid.gnxCells(),grid.gnyCells(),grid.gnzCells()), arr2(grid.gnxCells(),grid.gnyCells(),grid.gnzCells());
 	for (int i = 0; i < arr1.gnx(); i++)
 		for (int j = 0; j < arr1.gny(); j++)
 			for (int k = 0; k < arr1.gnz(); k++)
 				arr1(i,j,k).SetReal(grid(i, j, k).E.x());
 
-	fftw_plan plan = fftw_plan_dft_3d(grid.gnxNodes(), grid.gnyNodes(), grid.gnzNodes(), (fftw_complex*)&(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_FORWARD, FFTW_ESTIMATE);
+	fftw_plan plan = fftw_plan_dft_3d(grid.gnxCells(), grid.gnyCells(), grid.gnzCells(), (fftw_complex*)&(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_FORWARD, FFTW_ESTIMATE);
 	fftw_execute(plan);
 
 	FourierTransformation(grid, Ex, RtoC);
 
-	for (int i = 0; i <= grid.gnxCells(); i++)
-		for (int j = 0; j <= grid.gnyCells(); j++)
-			for (int k = 0; k <= grid.gnzCells(); k++) {
+	for (int i = 0; i < grid.gnxCells(); i++)
+		for (int j = 0; j < grid.gnyCells(); j++)
+			for (int k = 0; k < grid.gnzCells()/2+1; k++) {
 				ASSERT_EQ(grid(i, j, k).EF[0], arr2(i, j, k));
 			}
 

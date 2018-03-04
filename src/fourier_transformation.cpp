@@ -37,8 +37,8 @@ void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, in
 
 void FourierTransformation(Grid3d & gr, Field _field, int dir)
 {
-	Array3d<double> arrD(gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes());
-	Array3d<MyComplex> arrC(gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes() / 2 + 1);
+	Array3d<double> arrD(gr.gnxCells(), gr.gnyCells(), gr.gnzCells());
+	Array3d<MyComplex> arrC(gr.gnxCells(), gr.gnyCells(), gr.gnzCells() / 2 + 1);
 
 	switch (dir) {
 	case RtoC:
@@ -49,7 +49,7 @@ void FourierTransformation(Grid3d & gr, Field _field, int dir)
 		break;
 	}
 
-	UseFFTW(arrD, arrC, gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes(), dir);
+	UseFFTW(arrD, arrC, gr.gnxCells(), gr.gnyCells(), gr.gnzCells(), dir);
 
 	switch (dir) {
 	case RtoC:

@@ -1,4 +1,6 @@
 #pragma once
+#include "cmath"
+
 class MyComplex {
 	double data[2];
 public:
@@ -9,6 +11,12 @@ public:
 	MyComplex(double real, double imag) {
 		data[0] = real;
 		data[1] = imag;
+	}
+	static MyComplex GetTrig(double r, double fi) {
+		MyComplex z;
+		z.data[0] = r*cos(fi);
+		z.data[1] = r*sin(fi);
+		return z;
 	}
 	void SetReal(double real) {
 		data[0] = real;

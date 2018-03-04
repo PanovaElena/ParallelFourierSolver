@@ -63,7 +63,7 @@ void OperationWithArrays::WriteFromGridToDoubleArr(Grid3d& gr, Array3d<double>& 
 		for (int j = 0; j < arr.gny(); j++)
 			for (int k = 0; k < arr.gnz(); k++)
 			{
-				arr(i,j,k) = (gr(i, j, k).*p)[coord];
+				arr(i, j, k) = (gr(i, j, k).*p)[coord];
 			}
 }
 
@@ -82,8 +82,8 @@ inline void OperationWithArrays::WriteFromComplexArrToGrid(Grid3d & gr, Array3d<
 		for (int j = 0; j < arr.gny(); j++) {
 			for (int k = 0; k < arr.gnz(); k++)
 				(gr(i, j, k).*p)[coord] = arr(i, j, k);
-			for (int k = gr.gnzNodes() - 1; k > gr.gnzNodes() / 2; k--)
-				(gr(i, j, k).*p)[coord] = arr(i, j, gr.gnzNodes() - k).Conjugate();
+			//for (int k = gr.gnzCells() - 1; k > gr.gnzCells() / 2; k--)
+				//(gr(i, j, k).*p)[coord] = arr(i, j, gr.gnzCells() - k).Conjugate();
 		}
 }
 
@@ -92,6 +92,6 @@ inline void OperationWithArrays::WriteFromGridToComplexArr(Grid3d & gr, Array3d<
 	for (int i = 0; i < arr.gnx(); i++)
 		for (int j = 0; j < arr.gny(); j++) 
 			for (int k = 0; k < arr.gnz(); k++) {
-				arr(i,j,k) = (gr(i, j, k).*p)[coord];
+				arr(i, j, k) = (gr(i, j, k).*p)[coord];
 			}
 }
