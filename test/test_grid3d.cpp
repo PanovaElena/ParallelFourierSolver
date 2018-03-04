@@ -20,7 +20,7 @@ TEST(TestGrid, copy_constructor) {
 	ASSERT_TRUE(grid2 == grid);
 }
 
-TEST(TestGrid, copy) {
+TEST(TestGrid, copy_operator) {
 	Grid3d grid(10, 20, 30, 1, 2, 3, 11, 22, 33);
 	Grid3d grid3(10, 20, 30, 1, 2, 3, 11, 22, 33);
 	grid3 = grid;

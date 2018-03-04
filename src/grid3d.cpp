@@ -10,8 +10,7 @@ Grid3d::Grid3d(const Grid3d& gr)
 {
 	Initialize(gr.nx, gr.ny, gr.nz, gr.ax, gr.bx, gr.ay, gr.by, gr.az, gr.bz);
 
-	for (int i = 0; i < (nx + 1)*(ny + 1)*(nz + 1); i++)
-		(*this).nodes[i] = gr.nodes(i);
+	nodes = gr.nodes;
 }
 void Grid3d::clearGrid()
 {
@@ -26,6 +25,8 @@ Grid3d::~Grid3d()
 
 void Grid3d::Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz)
 {
+	clearGrid();
+
 	nx = _nx; ny = _ny; nz = _nz; ax = _ax; ay = _ay; az = _az; bx = _bx; by = _by; bz = _bz;
 
 	dx = (bx - ax) / nx;
@@ -36,9 +37,6 @@ void Grid3d::Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, doubl
 }
 
 int Grid3d::operator==(const Grid3d& gr) {
-	if (nx != gr.nx) return 0;
-	if (ny != gr.ny) return 0;
-	if (nz != gr.nz) return 0;
 	if (ax != gr.ax) return 0;
 	if (ay != gr.ay) return 0;
 	if (az != gr.az) return 0;
@@ -46,29 +44,14 @@ int Grid3d::operator==(const Grid3d& gr) {
 	if (by != gr.by) return 0;
 	if (bz != gr.bz) return 0;
 
-	for (int i = 0; i < (nx + 1)*(ny + 1)*(nz + 1); i++) {
-		if ((*this).nodes[i].B != gr.nodes(i).B) return 0;
-		if ((*this).nodes[i].E != gr.nodes(i).E) return 0;
-	}
-	return 1;
-
+	return nodes == gr.nodes;
 }
 
-void Grid3d::operator=(const Grid3d & gr)
+Grid3d& Grid3d::operator=(const Grid3d & gr)
 {
-	if (nx != gr.nx) return;
-	if (ny != gr.ny) return;
-	if (nz != gr.nz) return;
-	if (ax != gr.ax) return;
-	if (ay != gr.ay) return;
-	if (az != gr.az) return;
-	if (bx != gr.bx) return;
-	if (by != gr.by) return;
-	if (bz != gr.bz) return;
-
-	for (int i = 0; i < (nx + 1)*(ny + 1)*(nz + 1); i++)
-		(*this).nodes[i] = gr.nodes(i);
-	
+	Initialize(gr.nx, gr.ny, gr.nz, gr.ax, gr.bx, gr.ay, gr.by, gr.az, gr.bz);
+	nodes = gr.nodes;
+	return *this;
 }
 
 int Grid3d::gnxCells() const

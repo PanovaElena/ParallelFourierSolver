@@ -15,10 +15,26 @@ public:
 
 	void Initialize(int nx, int ny, int nz);
 	Array3d();
+	Array3d(const Array3d& arr);
 	Array3d(int nx, int ny, int nz);
+	~Array3d() { Clear(); }
+
+	friend int operator==(const Array3d<T>& arr1, const Array3d<T>& arr2) {
+		if (arr1.nx != arr2.nx || arr1.ny != arr2.ny || arr1.nz != arr2.nz) return 0;
+		for (int i = 0; i < arr1.nx; i++)
+			for (int j = 0; j < arr1.ny; j++)
+				for (int k = 0; k < arr1.nz; k++)
+					if (arr1.data[i][j][k] != arr2.data[i][j][k]) return 0;
+		return 1;
+	};
+	friend int operator!=(const Array3d<T>& arr1, const Array3d<T>& arr2) {
+		return !(arr1 == arr2);
+	};
 	T& operator()(int i, int j, int k);
 	T& operator[](int index);
 	T operator()(int index) const;
+	Array3d& operator=(const Array3d& arr);
+
 	T* getArray1d();
 
 	int gnx() const { return nx; };
@@ -32,6 +48,8 @@ public:
 template<class T>
 inline void Array3d<T>::Initialize(int _nx, int _ny, int _nz)
 {
+	Clear();
+
 	nx = _nx; ny = _ny; nz = _nz;
 
 	tmp1 = new T[nx*ny*nz];
@@ -50,6 +68,12 @@ inline Array3d<T>::Array3d()
 	tmp1 = 0;
 	tmp2 = 0; 
 	data = 0;
+}
+
+template<class T>
+inline Array3d<T>::Array3d(const Array3d & arr)
+{
+	*this = arr;
 }
 
 template<class T>
@@ -77,6 +101,19 @@ inline T Array3d<T>::operator()(int index) const
 }
 
 template<class T>
+inline Array3d<T> & Array3d<T>::operator=(const Array3d & arr)
+{
+	Initialize(arr.nx, arr.ny, arr.nz);
+
+	for (int i = 0; i < nx; i++)
+		for (int j = 0; j < ny; j++)
+			for (int k = 0; k < nz; k++)
+				(*this)(i, j, k) = arr.data[i][j][k];
+
+	return *this;
+}
+
+template<class T>
 inline T * Array3d<T>::getArray1d()
 {
 	return tmp1;
@@ -85,7 +122,8 @@ inline T * Array3d<T>::getArray1d()
 template<class T>
 inline void Array3d<T>::Clear()
 {
-	delete[] data;
-	delete[] tmp2;
-	delete[] tmp1;
+	if (data != 0) delete[] data;
+	if (tmp2 != 0) delete[] tmp2;
+	if (tmp1 != 0) delete[] tmp1;
+	tmp1 = 0; tmp2 = 0; data = 0;
 }

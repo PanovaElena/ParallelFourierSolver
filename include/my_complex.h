@@ -57,7 +57,7 @@ public:
 	friend bool operator!=(const MyComplex& z1, const MyComplex& z2) {
 		return !(z1==z2);
 	}
-	MyComplex Conjugate() {
+	MyComplex Conjugate() const{
 		return MyComplex(data[0], -data[1]);
 	}
 

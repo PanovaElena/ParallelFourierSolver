@@ -14,6 +14,13 @@ struct Node
 
 	Node() :B(0,0,0), E(0, 0, 0) {}
 	Node(const Node& n) :B(n.B), E(n.E) {}
+	//только вещественные поля
+	friend int operator==(const Node& n1, const Node& n2) {
+		return (n1.B == n2.B && n1.E == n2.E);
+	}
+	friend int operator!=(const Node& n1, const Node& n2) {
+		return !(n1==n2);
+	}
 };
 
 class Grid3d
@@ -45,7 +52,7 @@ public:
 	//сравнение только по вещественным полям
 	int operator==(const Grid3d& grid2);
 	//только сетки одинаковой размерности, присвоение поля
-	void operator=(const Grid3d& grid2);
+	Grid3d& operator=(const Grid3d& grid2);
 
 	void Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
 
