@@ -6,7 +6,7 @@
 
 class test_lag : public testing::Test {
 public:
-	int n = 20;
+	int n = 2;
 	double a = 0, b = 10;
 	Grid3d gr;
 

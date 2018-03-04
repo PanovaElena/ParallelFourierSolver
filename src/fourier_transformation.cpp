@@ -8,11 +8,6 @@
 #include "array3d.h"
 using namespace std;
 
-int GetSize(int Nx, int Ny, int Nz) {
-	return (Nx*Ny*Nz);
-}
-
-
 double OmegaX(int i, const Grid3d& gr) {
 	return (2 * constants::pi*((i <= gr.gnxCells() / 2) ? i : i - gr.gnxCells())) / (gr.gbx() - gr.gax());
 }
@@ -33,7 +28,7 @@ void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, in
 	case CtoR:
 		plan = fftw_plan_dft_c2r_3d(Nx, Ny, Nz, (fftw_complex*)&(arr2[0]), &(arr1[0]), FFTW_ESTIMATE);
 		fftw_execute(plan);
-		for (int i = 0; i < GetSize(Nx, Ny, Nz); i++)
+		for (int i = 0; i < Nx*Ny*Nz; i++)
 			arr1[i] /= Nx*Ny*Nz;
 		break;
 	}

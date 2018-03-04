@@ -80,11 +80,11 @@ TEST_F(TestFourierTransform, transform_correctly_Bz) {
 
 
 TEST_F(TestFourierTransform, fourier_transform_write_data_correctly_to_grid) {
-	std::vector<MyComplex> arr1(grid.gnxNodes()*grid.gnyNodes()*grid.gnzNodes()), arr2(grid.gnxNodes()*grid.gnyNodes()*grid.gnzNodes());
-	for (int i = 0; i <= grid.gnxCells(); i++)
-		for (int j = 0; j <= grid.gnyCells(); j++)
-			for (int k = 0; k <= grid.gnzCells(); k++)
-				arr1[i*grid.gnyCells()*grid.gnzCells() + j*grid.gnzCells() + k].SetReal(grid(i, j, k).E.x());
+	Array3d<MyComplex> arr1(grid.gnxNodes(),grid.gnyNodes(),grid.gnzNodes()), arr2(grid.gnxNodes(),grid.gnyNodes(),grid.gnzNodes());
+	for (int i = 0; i < arr1.gnx(); i++)
+		for (int j = 0; j < arr1.gny(); j++)
+			for (int k = 0; k < arr1.gnz(); k++)
+				arr1(i,j,k).SetReal(grid(i, j, k).E.x());
 
 	fftw_plan plan = fftw_plan_dft_3d(grid.gnxNodes(), grid.gnyNodes(), grid.gnzNodes(), (fftw_complex*)&(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_FORWARD, FFTW_ESTIMATE);
 	fftw_execute(plan);
@@ -94,7 +94,7 @@ TEST_F(TestFourierTransform, fourier_transform_write_data_correctly_to_grid) {
 	for (int i = 0; i <= grid.gnxCells(); i++)
 		for (int j = 0; j <= grid.gnyCells(); j++)
 			for (int k = 0; k <= grid.gnzCells(); k++) {
-				ASSERT_EQ(grid(i, j, k).EF[0], arr2[i*grid.gnyCells()*grid.gnzCells() + j*grid.gnzCells() + k]);
+				ASSERT_EQ(grid(i, j, k).EF[0], arr2(i, j, k));
 			}
 
 }
