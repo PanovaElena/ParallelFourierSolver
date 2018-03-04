@@ -14,9 +14,9 @@ public:
 
 	TestFourierTransform() : grid(nx, ny, nz, 0, X, 0, Y, 0, Z) {
 		double A = 10;
-		for (int i = 0; i <= nx; i++)
-			for (int j = 0; j <= ny; j++)
-				for (int k = 0; k <= nz; k++) {
+		for (int i = 0; i < nx; i++)
+			for (int j = 0; j < ny; j++)
+				for (int k = 0; k < nz; k++) {
 					double x = A * sin(2 * constants::pi*k / nx);
 					double y = A * sin(2 * constants::pi*i / nz);
 					double z = A * sin(2 * constants::pi*j / ny);

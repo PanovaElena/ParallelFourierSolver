@@ -8,9 +8,9 @@ int mod(int a, int b) {
 }
 
 void RefreshE(Grid3d& gr, double dt) {
-	for (int i = 0; i < gr.gnxReal(); i++)
-		for (int j = 0; j < gr.gnyReal(); j++)
-			for (int k = 0; k < gr.gnzReal(); k++) {
+	for (int i = 0; i < gr.gnxComplex(); i++)
+		for (int j = 0; j < gr.gnyComplex(); j++)
+			for (int k = 0; k < gr.gnzComplex(); k++) {
 
 				double ox = OmegaX(i, gr);
 				double oy = OmegaY(j, gr);
@@ -24,9 +24,9 @@ void RefreshE(Grid3d& gr, double dt) {
 }
 
 void RefreshB(Grid3d& gr, double dt) {
-	for (int i = 0; i < gr.gnxReal(); i++)
-		for (int j = 0; j < gr.gnyReal(); j++)
-			for (int k = 0; k < gr.gnzReal(); k++) {
+	for (int i = 0; i < gr.gnxComplex(); i++)
+		for (int j = 0; j < gr.gnyComplex(); j++)
+			for (int k = 0; k < gr.gnzComplex(); k++) {
 
 				double ox = OmegaX(i, gr);
 				double oy = OmegaY(j, gr);

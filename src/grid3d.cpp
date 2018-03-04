@@ -33,7 +33,7 @@ void Grid3d::Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, doubl
 	dy = (by - ay) / ny;
 	dz = (bz - az) / nz;
 
-	nodes.Initialize(nx + 1, ny + 1, nz + 1);
+	nodes.Initialize(nx /*+ 1*/ + 1, ny /*+ 1*/, nz /*+ 1*/);
 }
 
 int Grid3d::operator==(const Grid3d& gr) {
