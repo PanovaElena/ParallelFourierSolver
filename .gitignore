@@ -273,6 +273,7 @@ __pycache__/
 
 # Output files
 *.xls
+files/
 
 # Cake - Uncomment if you are using it
 # tools/
