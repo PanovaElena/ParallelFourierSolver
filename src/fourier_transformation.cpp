@@ -5,6 +5,7 @@
 #include "my_complex.h"
 #include "fourier_transformation.h"
 #include "constants.h"
+#include "array3d.h"
 using namespace std;
 
 int GetSize(int Nx, int Ny, int Nz) {
@@ -22,7 +23,7 @@ double OmegaZ(int k, const Grid3d& gr) {
 	return (2 * constants::pi*((k <= gr.gnzCells() / 2) ? k : k - gr.gnzCells())) / (gr.gbz() - gr.gaz());
 }
 
-void UseFFTW(vector<double>& arr1, vector<MyComplex>& arr2, int Nx, int Ny, int Nz, int dir) {
+void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, int Nz, int dir) {
 	fftw_plan plan = 0;
 	switch (dir) {
 	case RtoC:
@@ -41,8 +42,8 @@ void UseFFTW(vector<double>& arr1, vector<MyComplex>& arr2, int Nx, int Ny, int 
 
 void FourierTransformation(Grid3d & gr, Field _field, int dir)
 {
-	vector<double> arrD(GetSize(gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes()));
-	vector<MyComplex> arrC(GetSize(gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes()));
+	Array3d<double> arrD(gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes());
+	Array3d<MyComplex> arrC(gr.gnxNodes(), gr.gnyNodes(), gr.gnzNodes() / 2 + 1);
 
 	switch (dir) {
 	case RtoC:

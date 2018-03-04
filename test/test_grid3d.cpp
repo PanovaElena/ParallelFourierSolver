@@ -11,7 +11,7 @@ TEST(TestGrid, created_correctly_with_parameters) {
 
 TEST(TestGrid, index) {
 	Grid3d gr(10, 20, 30, 1, 2, 3, 11, 22, 33);
-	ASSERT_TRUE(gr(0,10,20).E==node().E);
+	ASSERT_TRUE(gr(0,10,20).E==Node().E);
 }
 
 TEST(TestGrid, copy_constructor) {

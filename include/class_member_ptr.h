@@ -3,16 +3,16 @@
 #include "grid3d.h"
 
 typedef double (vec3<double>::*MethodCoord)() const;
-typedef vec3<double> node::* MemberOfNode;
+typedef vec3<double> Node::* MemberOfNode;
 
 inline MemberOfNode GetField(int f) {
 	switch (f) {
 	case 0:
-		return &node::E;
+		return &Node::E;
 	case 1:
-		return &node::B;
+		return &Node::B;
 	default:
-		return &node::E;
+		return &Node::E;
 	}
 }
 

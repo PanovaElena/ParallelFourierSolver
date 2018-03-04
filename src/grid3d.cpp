@@ -1,6 +1,6 @@
 #include "grid3d.h"
 
-Grid3d::Grid3d():nodes(0){}
+Grid3d::Grid3d():nodes(){}
 
 Grid3d::Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz)
 {
@@ -11,16 +11,11 @@ Grid3d::Grid3d(const Grid3d& gr)
 	Initialize(gr.nx, gr.ny, gr.nz, gr.ax, gr.bx, gr.ay, gr.by, gr.az, gr.bz);
 
 	for (int i = 0; i < (nx + 1)*(ny + 1)*(nz + 1); i++)
-		(*this)(i) = gr(i);
+		(*this).nodes[i] = gr.nodes(i);
 }
 void Grid3d::clearGrid()
 {
-	if (nodes)
-	{
-		delete[] tmp1;
-		delete[] tmp2;
-		delete[] nodes;
-	}
+	nodes.Clear();
 }
 
 Grid3d::~Grid3d()
@@ -33,18 +28,11 @@ void Grid3d::Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, doubl
 {
 	nx = _nx; ny = _ny; nz = _nz; ax = _ax; ay = _ay; az = _az; bx = _bx; by = _by; bz = _bz;
 
-	tmp1 =new node[(nx + 1)*(ny + 1)*(nz + 1)];
-	tmp2 = new node*[(nx + 1)*(ny + 1)];
-	nodes = new node**[(nx + 1)];
-
-	for (int i = 0; i < (nx + 1)*(ny + 1); i++)
-		tmp2[i] = tmp1 + i*(nz + 1);
-	for (int i = 0; i < nx + 1; i++)
-		nodes[i] = tmp2 + i*(ny + 1);
-
 	dx = (bx - ax) / nx;
 	dy = (by - ay) / ny;
 	dz = (bz - az) / nz;
+
+	nodes.Initialize(nx + 1, ny + 1, nz + 1);
 }
 
 int Grid3d::operator==(const Grid3d& gr) {
@@ -59,8 +47,8 @@ int Grid3d::operator==(const Grid3d& gr) {
 	if (bz != gr.bz) return 0;
 
 	for (int i = 0; i < (nx + 1)*(ny + 1)*(nz + 1); i++) {
-		if ((*this)(i).B != gr(i).B) return 0;
-		if ((*this)(i).E != gr(i).E) return 0;
+		if ((*this).nodes[i].B != gr.nodes(i).B) return 0;
+		if ((*this).nodes[i].E != gr.nodes(i).E) return 0;
 	}
 	return 1;
 
@@ -79,7 +67,7 @@ void Grid3d::operator=(const Grid3d & gr)
 	if (bz != gr.bz) return;
 
 	for (int i = 0; i < (nx + 1)*(ny + 1)*(nz + 1); i++)
-		(*this)(i) = gr(i);
+		(*this).nodes[i] = gr.nodes(i);
 	
 }
 
@@ -109,18 +97,6 @@ int Grid3d::gnzNodes() const
 	return nz + 1;
 }
 
-int Grid3d::gnxComplexNodes() const
-{
-	return nx + 1;
-}
-int Grid3d::gnyComplexNodes() const
-{
-	return ny + 1;
-}
-int Grid3d::gnzComplexNodes() const
-{
-	return (nz + 1) / 2 + 1;
-}
 
 double Grid3d::gdx() const
 {
