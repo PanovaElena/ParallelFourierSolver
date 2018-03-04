@@ -8,7 +8,7 @@
 
 class TestFourierTransform : public testing::Test {
 public:
-	int nx = 1, ny = 2, nz = 1;
+	int nx = 4, ny = 4, nz = 4;
 	double X = 6, Y = 8, Z = 10;
 	Grid3d grid;
 

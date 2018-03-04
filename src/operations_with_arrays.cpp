@@ -79,20 +79,19 @@ void OperationWithArrays::WriteFromDoubleArrToGrid(Grid3d& gr, Array3d<double>& 
 inline void OperationWithArrays::WriteFromComplexArrToGrid(Grid3d & gr, Array3d<MyComplex>& arr, int coord, vec3<MyComplex>(Node::* p))
 {
 	for (int i = 0; i < arr.gnx(); i++)
-		for (int j = 0; j < arr.gny(); j++)
-			for (int k = 0; k < arr.gnz(); k++) {
-				(gr(i, j, k).*p)[coord] = arr(i, j, k);;
-				if (k != 0 && !(gr.gnzNodes() % 2 == 0 && k == gr.gnzNodes() / 2)) {
-					(gr(i,j,k).*p)[coord] = arr(i,j,gr.gnzNodes()-k).Conjugate();
-				}
-			}
+		for (int j = 0; j < arr.gny(); j++) {
+			for (int k = 0; k < arr.gnz(); k++)
+				(gr(i, j, k).*p)[coord] = arr(i, j, k);
+			for (int k = gr.gnzNodes() - 1; k > gr.gnzNodes() / 2; k--)
+				(gr(i, j, k).*p)[coord] = arr(i, j, gr.gnzNodes() - k).Conjugate();
+		}
 }
 
 inline void OperationWithArrays::WriteFromGridToComplexArr(Grid3d & gr, Array3d<MyComplex>& arr, int coord, vec3<MyComplex>(Node::* p))
 {
-	for (int i = 0; i<gr.gnxNodes(); i++)
-		for (int j = 0; j<gr.gnyNodes(); j++)
-			for (int k = 0; k < gr.gnzNodes() / 2 + 1; k++) {
-				arr[i,j,k] = (gr(i, j, k).*p)[coord];
+	for (int i = 0; i < arr.gnx(); i++)
+		for (int j = 0; j < arr.gny(); j++) 
+			for (int k = 0; k < arr.gnz(); k++) {
+				arr(i,j,k) = (gr(i, j, k).*p)[coord];
 			}
 }
