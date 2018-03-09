@@ -76,7 +76,7 @@ public:
 
 			int ix=0, iy=0, iz=0;
 
-			for (int* i = (mainC == x ? &ix : (mainC == y ? &iy : &iz)); (*i) < gr.gnxReal(); (*i)++) {
+			for (int* i = (mainC == x ? &ix : (mainC == y ? &iy : &iz)); (*i) < gr.gnxRealCells(); (*i)++) {
 				ASSERT_NEAR(0, (gr(ix, iy, iz).*GetField(B).*GetCoord(othCoordB1))(), 1E-5);
 				ASSERT_NEAR(0, (gr(ix, iy, iz).*GetField(B).*GetCoord(othCoordB2))(), 1E-5);
 				ASSERT_NEAR(0, (gr(ix, iy, iz).*GetField(E).*GetCoord(othCoordE1))(), 1E-5);
@@ -96,13 +96,13 @@ public:
 
 		int ix = 0, iy = 0, iz = 0;
 
-		for (int* i = (iterC == x ? &ix : (iterC == y ? &iy : &iz)); (*i) < gr.gnxReal(); (*i)++) {
+		for (int* i = (iterC == x ? &ix : (iterC == y ? &iy : &iz)); (*i) < gr.gnxRealCells(); (*i)++) {
 			file << (double)(gr(ix, iy, iz).*GetField(field).*GetCoord(fieldCoord))() << std::endl;
 		}
 
 		ix = 0, iy = 0, iz = 0;
 
-		for (int* i = (iterC == x ? &ix : (iterC == y ? &iy : &iz)); (*i) < gr.gnxReal(); (*i)++) {
+		for (int* i = (iterC == x ? &ix : (iterC == y ? &iy : &iz)); (*i) < gr.gnxRealCells(); (*i)++) {
 			file << funcB((*i)*d, j*dt) << std::endl;
 		}
 		file.close();
@@ -121,7 +121,7 @@ public:
 				WriteFile(B, fB % 3, iterC, j, strB);
 
 				int ix = 0, iy = 0, iz = 0;
-				for (int* i = (iterC == x ? &ix : (iterC == y ? &iy : &iz)); (*i) < gr.gnxReal(); (*i)++)
+				for (int* i = (iterC == x ? &ix : (iterC == y ? &iy : &iz)); (*i) < gr.gnxRealCells(); (*i)++)
 				{
 					ASSERT_NEAR(funcB((*i)*d, j*dt), (gr(ix, iy, iz).B.*GetCoord(fB%3))(), 1E-3 * (j + 1)*(j + 1));
 					ASSERT_NEAR(funcE((*i)*d, j*dt), (gr(ix, iy, iz).E.*GetCoord(fE%3))(), 1E-3 * (j + 1)*(j + 1));

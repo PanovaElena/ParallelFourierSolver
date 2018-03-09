@@ -56,17 +56,17 @@ public:
 
 	void Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
 
-	int gnxReal() const;//get nx 
-	int gnyReal() const;//get ny
-	int gnzReal() const;//get nz
+	int gnxRealCells() const;//get nx 
+	int gnyRealCells() const;//get ny
+	int gnzRealCells() const;//get nz
 
-	int gnxComplex() const;//get nx 
-	int gnyComplex() const;//get ny
-	int gnzComplex() const;//get nz
+	int gnxComplexCells() const;//get nx 
+	int gnyComplexCells() const;//get ny
+	int gnzComplexCells() const;//get nz/2+1
 
-	//int gnxNodes() const;//get nx+1
-	//int gnyNodes() const;//get ny+1
-	//int gnzNodes() const;//get nz+1
+	int gnxRealNodes() const;//get nx+1
+	int gnyRealNodes() const;//get ny+1
+	int gnzRealNodes() const;//get nz+1
 
 	double gdx() const; //get dx
 	double gdy() const;//get dy

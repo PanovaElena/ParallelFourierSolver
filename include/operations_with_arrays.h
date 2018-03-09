@@ -19,4 +19,6 @@ public:
 private:
 	static vec3<double> Node::* DetPDouble(Field field);
 	static vec3<MyComplex> Node::* DetPComplex(Field field);
+
+	static void CopyLastNodesFromFirst(Grid3d& grid);
 };

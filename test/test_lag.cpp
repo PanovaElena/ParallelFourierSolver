@@ -11,6 +11,8 @@ public:
 	Grid3d gr;
 	double A = 1000;
 	double d = (b - a) / n;
+	int step = 1;
+	double c = step * d;
 
 	test_lag() : gr(n, n, n, a, b, a, b, a, b) {
 		for (int i = 0; i < n; i++)
@@ -20,31 +22,47 @@ public:
 	}
 
 	double f(int i, int j, int k) {
-		return sin(A*2*constants::pi*(i*gr.gdx()+ j*gr.gdy()+ k*gr.gdz())/(b-a));
+		return A*sin(2*constants::pi*(i*gr.gdx()+ j*gr.gdy()+ k*gr.gdz())/(b-a));
+	}
+
+	void MyTestBodyLag() {
+
+		FourierTransformation(gr, RtoC);
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < n; j++)
+				for (int k = 0; k < n / 2 + 1; k++)
+				{
+					double omegaX = OmegaX(i, gr);
+					double omegaY = OmegaY(j, gr);
+					double omegaZ = OmegaZ(k, gr);
+
+					gr(i, j, k).EF[0] *= MyComplex::GetTrig(1, -c * (omegaX + omegaY + omegaZ));
+				}
+		FourierTransformation(gr, CtoR);
 	}
 
 };
 
 TEST_F(test_lag, lag_is_correct) {
-	int step = 1;
-	double c = step*d;
-
-	FourierTransformation(gr, RtoC);
-	for (int i = 0; i < n; i++)
-		for (int j = 0; j < n; j++)
-			for (int k = 0; k < n/2+1; k++)
-			{
-				double omegaX = OmegaX(i, gr);
-				double omegaY = OmegaY(j, gr);
-				double omegaZ = OmegaZ(k, gr);
-
-				gr(i, j, k).EF[0] *= MyComplex::GetTrig(1, -c*(omegaX + omegaY + omegaZ));
-			}
-	FourierTransformation(gr, CtoR);
+	
+	MyTestBodyLag();
 
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < n; j++)
 			for (int k = 0; k < n; k++) {
 				ASSERT_NEAR(f(i - step, j - step, k - step), gr(i, j, k).E.x(), 1E-7);
 			}
+}
+
+TEST_F(test_lag, last_nodes_are_correct) {
+
+	MyTestBodyLag();
+
+	for (int i = 0; i <= n; i++)
+		for (int j = 0; j <= n; j++)
+			for (int k = 0; k <= n; k++)
+                if (i%n == 0 && j % n == 0 || i%n == 0 && k % n == 0 || j%n == 0 && k % n == 0)
+                {
+                    ASSERT_DOUBLE_EQ(gr(i%n, j%n, k%n).E.x(), gr(i, j, k).E.x());
+                }
 }
