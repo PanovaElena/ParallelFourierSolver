@@ -4,134 +4,134 @@ Grid3d::Grid3d():nodes(){}
 
 Grid3d::Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz)
 {
-	Initialize(_nx, _ny, _nz, _ax, _bx, _ay, _by, _az, _bz);
+    Initialize(_nx, _ny, _nz, _ax, _bx, _ay, _by, _az, _bz);
 }
 Grid3d::Grid3d(const Grid3d& gr)
 {
-	Initialize(gr.nx, gr.ny, gr.nz, gr.ax, gr.bx, gr.ay, gr.by, gr.az, gr.bz);
+    Initialize(gr.nx, gr.ny, gr.nz, gr.ax, gr.bx, gr.ay, gr.by, gr.az, gr.bz);
 
-	nodes = gr.nodes;
+    nodes = gr.nodes;
 }
 void Grid3d::clearGrid()
 {
-	nodes.Clear();
+    nodes.Clear();
 }
 
 Grid3d::~Grid3d()
 {
-	clearGrid();
+    clearGrid();
 }
 
 
 void Grid3d::Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz)
 {
-	clearGrid();
+    clearGrid();
 
-	nx = _nx; ny = _ny; nz = _nz; ax = _ax; ay = _ay; az = _az; bx = _bx; by = _by; bz = _bz;
+    nx = _nx; ny = _ny; nz = _nz; ax = _ax; ay = _ay; az = _az; bx = _bx; by = _by; bz = _bz;
 
-	dx = (bx - ax) / nx;
-	dy = (by - ay) / ny;
-	dz = (bz - az) / nz;
+    dx = (bx - ax) / nx;
+    dy = (by - ay) / ny;
+    dz = (bz - az) / nz;
 
-	nodes.Initialize(nx /*+ 1*/ + 1, ny /*+ 1*/, nz /*+ 1*/);
+    nodes.Initialize(nx /*+ 1*/ + 1, ny /*+ 1*/, nz /*+ 1*/);
 }
 
 int Grid3d::operator==(const Grid3d& gr) {
-	if (ax != gr.ax) return 0;
-	if (ay != gr.ay) return 0;
-	if (az != gr.az) return 0;
-	if (bx != gr.bx) return 0;
-	if (by != gr.by) return 0;
-	if (bz != gr.bz) return 0;
+    if (ax != gr.ax) return 0;
+    if (ay != gr.ay) return 0;
+    if (az != gr.az) return 0;
+    if (bx != gr.bx) return 0;
+    if (by != gr.by) return 0;
+    if (bz != gr.bz) return 0;
 
-	return nodes == gr.nodes;
+    return nodes == gr.nodes;
 }
 
 Grid3d& Grid3d::operator=(const Grid3d & gr)
 {
-	Initialize(gr.nx, gr.ny, gr.nz, gr.ax, gr.bx, gr.ay, gr.by, gr.az, gr.bz);
-	nodes = gr.nodes;
-	return *this;
+    Initialize(gr.nx, gr.ny, gr.nz, gr.ax, gr.bx, gr.ay, gr.by, gr.az, gr.bz);
+    nodes = gr.nodes;
+    return *this;
 }
 
 int Grid3d::gnxReal() const
 {
-	return nx;
+    return nx;
 }
 int Grid3d::gnyReal() const
 {
-	return ny;
+    return ny;
 }
 int Grid3d::gnzReal() const
 {
-	return nz;
+    return nz;
 }
 
 int Grid3d::gnxComplex() const
 {
-	return nx;
+    return nx;
 }
 
 int Grid3d::gnyComplex() const
 {
-	return ny;
+    return ny;
 }
 
 int Grid3d::gnzComplex() const
 {
-	return nz/2+1;
+    return nz/2+1;
 }
 
 /*int Grid3d::gnxNodes() const
 {
-	return nx + 1;
+    return nx + 1;
 }
 int Grid3d::gnyNodes() const
 {
-	return ny + 1;
+    return ny + 1;
 }
 int Grid3d::gnzNodes() const
 {
-	return nz + 1;
+    return nz + 1;
 }
 */
 
 double Grid3d::gdx() const
 {
-	return dx;
+    return dx;
 }
 double Grid3d::gdy() const
 {
-	return dy;
+    return dy;
 }
 double Grid3d::gdz() const
 {
-	return dz;
+    return dz;
 }
 
 double Grid3d::gax() const
 {
-	return ax;
+    return ax;
 }
 double Grid3d::gay() const
 {
-	return ay;
+    return ay;
 }
 double Grid3d::gaz() const
 {
-	return az;
+    return az;
 }
 
 double Grid3d::gbx() const
 {
-	return bx;
+    return bx;
 }
 double Grid3d::gby() const
 {
-	return by;
+    return by;
 }
 double Grid3d::gbz() const
 {
-	return bz;
+    return bz;
 }
 
