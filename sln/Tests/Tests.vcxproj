@@ -25,6 +25,8 @@
     <ClCompile Include="..\..\test\test_lag.cpp" />
     <ClCompile Include="..\..\test\test_main.cpp" />
     <ClCompile Include="..\..\test\test_myComplex.cpp" />
+    <ClCompile Include="..\..\test\test_vec.cpp" />
+    <ClCompile Include="..\..\test\test_vec3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FourierFieldSolver\FourierFieldSolver.vcxproj">

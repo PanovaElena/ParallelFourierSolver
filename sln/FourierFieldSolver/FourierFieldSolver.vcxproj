@@ -27,6 +27,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\array3d.h" />
     <ClInclude Include="..\..\include\class_member_ptr.h" />
+    <ClInclude Include="..\..\include\_double.h" />
     <ClInclude Include="..\..\include\my_complex.h" />
     <ClInclude Include="..\..\include\constants.h" />
     <ClInclude Include="..\..\include\field_solver.h" />

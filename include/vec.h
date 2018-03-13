@@ -71,13 +71,9 @@ struct vec3
         throw "DIV BY 0!";
     }
 
-    double getSqLength()  const
+    double getNorm()  const
     {
-        return x()*x() + y()*y() + z()*z();
-    }
-    double getLength()  const
-    {
-        return sqrt(x()*x() + y()*y() + z()*z());
+        return sqrt(ScalarProduct(*this, *this));
     }
     friend bool operator==(const vec3& a, const vec3& b)  
     {
@@ -86,13 +82,17 @@ struct vec3
     friend bool operator!=(const vec3& a, const vec3& b) {
         return !(a == b);
     }
-};
 
-struct vec2i
-{
-    int x;
-    int y;
-    vec2i() :x(0), y(0) {};
-    vec2i(int a, int b):x(a), y(b){};
-    vec2i(const vec2i &c) : x(c.x), y(c.y) {}
+    static double ScalarProduct(const vec3<Type>& a, const vec3<Type>& b) {
+        return (double) (a.data[0] * b.data[0].Conjugate() + a.data[1] * b.data[1].Conjugate() + a.data[2] * b.data[2].Conjugate());
+    }
+    static vec3<Type> VectorProduct(const vec3<Type>& a, const vec3<Type>& b) {
+        Type c1 = a.data[1] * b.data[2].Conjugate() - a.data[2] * b.data[1].Conjugate();
+        Type c2 = a.data[2] * b.data[0].Conjugate() - a.data[0] * b.data[2].Conjugate();
+        Type c3 = a.data[0] * b.data[1].Conjugate() - a.data[1] * b.data[0].Conjugate();
+        return vec3<Type>(c1, c2, c3);
+    }
+    vec3<Type> Normalize() {
+        return (*this)*1/getNorm();
+    }
 };

@@ -68,7 +68,9 @@ public:
     MyComplex Conjugate() const{
         return MyComplex(data[0], -data[1]);
     }
+    operator double() { return data[0]; }
 
 };
 
 const MyComplex complex_i(0, 1);
+const MyComplex complex_0(0, 0);
