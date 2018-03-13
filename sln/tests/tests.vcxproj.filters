@@ -36,9 +36,6 @@
     <ClCompile Include="..\..\test\test_vec.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\test_vec3.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\test\field_solver_for_testing.h">

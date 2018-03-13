@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include "my_complex.h"
 
 template <class Type>
 struct vec3
@@ -83,14 +84,25 @@ struct vec3
         return !(a == b);
     }
 
-    static double ScalarProduct(const vec3<Type>& a, const vec3<Type>& b) {
-        return (double) (a.data[0] * b.data[0].Conjugate() + a.data[1] * b.data[1].Conjugate() + a.data[2] * b.data[2].Conjugate());
+    static double ScalarProduct(const vec3<double>& a, const vec3<double>& b) {
+        return (a.data[0] * b.data[0] + a.data[1] * b.data[1] + a.data[2] * b.data[2]);
     }
-    static vec3<Type> VectorProduct(const vec3<Type>& a, const vec3<Type>& b) {
-        Type c1 = a.data[1] * b.data[2].Conjugate() - a.data[2] * b.data[1].Conjugate();
-        Type c2 = a.data[2] * b.data[0].Conjugate() - a.data[0] * b.data[2].Conjugate();
-        Type c3 = a.data[0] * b.data[1].Conjugate() - a.data[1] * b.data[0].Conjugate();
-        return vec3<Type>(c1, c2, c3);
+    static double ScalarProduct(const vec3<MyComplex>& a, const vec3<MyComplex>& b) {
+        return (double)(a.data[0] * b.data[0].Conjugate() + a.data[1] * b.data[1].Conjugate() + a.data[2] * b.data[2].Conjugate());
+    }
+    static vec3<double> VectorProduct(const vec3<double>& a, const vec3<double>& b) {
+        double c1, c2, c3;
+        c1 = a.data[1] * b.data[2] - a.data[2] * b.data[1];
+        c2 = a.data[2] * b.data[0] - a.data[0] * b.data[2];
+        c3 = a.data[0] * b.data[1] - a.data[1] * b.data[0];
+        return vec3<double>(c1, c2, c3);
+    }
+    static vec3<MyComplex> VectorProduct(const vec3<MyComplex>& a, const vec3<MyComplex>& b) {
+        MyComplex c1, c2, c3;
+        c1 = a.data[1] * b.data[2].Conjugate() - a.data[2] * b.data[1].Conjugate();
+        c2 = a.data[2] * b.data[0].Conjugate() - a.data[0] * b.data[2].Conjugate();
+        c3 = a.data[0] * b.data[1].Conjugate() - a.data[1] * b.data[0].Conjugate();
+        return vec3<MyComplex>(c1, c2, c3);
     }
     vec3<Type> Normalize() {
         return (*this)*1/getNorm();
