@@ -11,6 +11,8 @@ class Array3d {
 	T** tmp2;
 	T*** data;
 
+	void AllocMem();
+
 public:
 
 	void Initialize(int nx, int ny, int nz);
@@ -46,12 +48,8 @@ public:
 };
 
 template<class T>
-inline void Array3d<T>::Initialize(int _nx, int _ny, int _nz)
+inline void Array3d<T>::AllocMem()
 {
-	Clear();
-
-	nx = _nx; ny = _ny; nz = _nz;
-
 	tmp1 = new T[nx*ny*nz];
 	tmp2 = new T*[nx*ny];
 	data = new T**[nx];
@@ -60,6 +58,16 @@ inline void Array3d<T>::Initialize(int _nx, int _ny, int _nz)
 		tmp2[i] = &(tmp1[i*nz]);
 	for (int i = 0; i < nx; i++)
 		data[i] = &(tmp2[i*ny]);
+}
+
+template<class T>
+inline void Array3d<T>::Initialize(int _nx, int _ny, int _nz)
+{
+	Clear();
+
+	nx = _nx; ny = _ny; nz = _nz;
+
+	AllocMem();
 }
 
 template<class T>
@@ -73,7 +81,14 @@ inline Array3d<T>::Array3d()
 template<class T>
 inline Array3d<T>::Array3d(const Array3d & arr)
 {
-	*this = arr;
+	nx = arr.nx; ny = arr.ny; nz = arr.nz;
+
+	AllocMem();
+
+	for (int i = 0; i < nx; i++)
+		for (int j = 0; j < ny; j++)
+			for (int k = 0; k < nz; k++)
+				(*this)(i, j, k) = arr.data[i][j][k];
 }
 
 template<class T>
@@ -122,8 +137,8 @@ inline T * Array3d<T>::getArray1d()
 template<class T>
 inline void Array3d<T>::Clear()
 {
-	if (data != 0) delete[] data;
-	if (tmp2 != 0) delete[] tmp2;
-	if (tmp1 != 0) delete[] tmp1;
+	delete[] data;
+	delete[] tmp2;
+	delete[] tmp1;
 	tmp1 = 0; tmp2 = 0; data = 0;
 }
