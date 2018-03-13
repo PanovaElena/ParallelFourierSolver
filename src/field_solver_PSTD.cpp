@@ -39,7 +39,7 @@ void RefreshB(Grid3d& gr, double dt) {
             }
 }
 
-void FieldSolver(Grid3d & gr, double dt) {
+void FieldSolverPSTD(Grid3d & gr, double dt) {
     RefreshE(gr, dt);
     RefreshB(gr, dt);
 }

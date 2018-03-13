@@ -1,5 +1,5 @@
 #include "gtest.h"
-#include "field_solver.h"
+#include "field_solver_for_testing.h"
 #include "constants.h"
 #include <cmath>
 #include <iostream>
