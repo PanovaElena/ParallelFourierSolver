@@ -56,7 +56,7 @@ struct vec3
     {
         if (a != 0 )
         {
-            return vec3(x() / a, y() / a, z() / a);
+            return vec3(x() * (1.0 / a), y() * (1.0 / a), z() * (1.0 / a));
         }
         throw "DIV BY 0!";
     }
@@ -74,7 +74,7 @@ struct vec3
 
     double getNorm()  const
     {
-        return sqrt(ScalarProduct(*this, *this));
+        return sqrt((double) ScalarProduct(*this, *this));
     }
     friend bool operator==(const vec3& a, const vec3& b)  
     {
@@ -85,10 +85,10 @@ struct vec3
     }
 
     static double ScalarProduct(const vec3<double>& a, const vec3<double>& b) {
-        return (a.data[0] * b.data[0] + a.data[1] * b.data[1] + a.data[2] * b.data[2]);
+        return (double) (a.data[0] * b.data[0] + a.data[1] * b.data[1] + a.data[2] * b.data[2]);
     }
-    static double ScalarProduct(const vec3<MyComplex>& a, const vec3<MyComplex>& b) {
-        return (double)(a.data[0] * b.data[0].Conjugate() + a.data[1] * b.data[1].Conjugate() + a.data[2] * b.data[2].Conjugate());
+    static MyComplex ScalarProduct(const vec3<MyComplex>& a, const vec3<MyComplex>& b) {
+        return (MyComplex)(a.data[0] * b.data[0].Conjugate() + a.data[1] * b.data[1].Conjugate() + a.data[2] * b.data[2].Conjugate());
     }
     static vec3<double> VectorProduct(const vec3<double>& a, const vec3<double>& b) {
         double c1, c2, c3;
@@ -99,12 +99,12 @@ struct vec3
     }
     static vec3<MyComplex> VectorProduct(const vec3<MyComplex>& a, const vec3<MyComplex>& b) {
         MyComplex c1, c2, c3;
-        c1 = a.data[1] * b.data[2].Conjugate() - a.data[2] * b.data[1].Conjugate();
-        c2 = a.data[2] * b.data[0].Conjugate() - a.data[0] * b.data[2].Conjugate();
-        c3 = a.data[0] * b.data[1].Conjugate() - a.data[1] * b.data[0].Conjugate();
+        c1 = a.data[1].Conjugate() * b.data[2].Conjugate() - a.data[2].Conjugate() * b.data[1].Conjugate();
+        c2 = a.data[2].Conjugate() * b.data[0].Conjugate() - a.data[0].Conjugate() * b.data[2].Conjugate();
+        c3 = a.data[0].Conjugate() * b.data[1].Conjugate() - a.data[1].Conjugate() * b.data[0].Conjugate();
         return vec3<MyComplex>(c1, c2, c3);
     }
     vec3<Type> Normalize() {
-        return (*this)*1/getNorm();
+        return (*this)*(1.0/getNorm());
     }
 };
