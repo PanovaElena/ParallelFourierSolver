@@ -39,11 +39,11 @@ public:
         FourierTransformation(grid, field, RtoC);
         FourierTransformation(grid, field, CtoR);
 
-        for (int i = 0; i < grid.gnxReal(); i++)
-            for (int j = 0; j < grid.gnyReal(); j++)
-                for (int k = 0; k < grid.gnzReal(); k++)
-                    ASSERT_NEAR((grid(i, j, k).*p.*m)(), (grid2(i, j, k).*p.*m)(), 0.1);
-    }
+		for (int i = 0; i < grid.gnxRealCells(); i++)
+			for (int j = 0; j < grid.gnyRealCells(); j++)
+				for (int k = 0; k < grid.gnzRealCells(); k++)
+					ASSERT_NEAR((grid(i, j, k).*p.*m)(), (grid2(i, j, k).*p.*m)(), 0.1);
+	}
 };
 
 TEST_F(TestFourierTransform, no_throws_RtoC) {
@@ -80,21 +80,21 @@ TEST_F(TestFourierTransform, transform_correctly_Bz) {
 
 
 TEST_F(TestFourierTransform, fourier_transform_writes_data_correctly_to_grid) {
-    Array3d<MyComplex> arr1(grid.gnxReal(),grid.gnyReal(),grid.gnzReal()), arr2(grid.gnxReal(),grid.gnyReal(),grid.gnzReal());
-    for (int i = 0; i < arr1.gnx(); i++)
-        for (int j = 0; j < arr1.gny(); j++)
-            for (int k = 0; k < arr1.gnz(); k++)
-                arr1(i,j,k).SetReal(grid(i, j, k).E.x());
+	Array3d<MyComplex> arr1(grid.gnxRealCells(),grid.gnyRealCells(),grid.gnzRealCells()), arr2(grid.gnxRealCells(),grid.gnyRealCells(),grid.gnzRealCells());
+	for (int i = 0; i < arr1.gnx(); i++)
+		for (int j = 0; j < arr1.gny(); j++)
+			for (int k = 0; k < arr1.gnz(); k++)
+				arr1(i,j,k).SetReal(grid(i, j, k).E.x());
 
-    fftw_plan plan = fftw_plan_dft_3d(grid.gnxReal(), grid.gnyReal(), grid.gnzReal(), (fftw_complex*)&(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_FORWARD, FFTW_ESTIMATE);
-    fftw_execute(plan);
+	fftw_plan plan = fftw_plan_dft_3d(grid.gnxRealCells(), grid.gnyRealCells(), grid.gnzRealCells(), (fftw_complex*)&(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_FORWARD, FFTW_ESTIMATE);
+	fftw_execute(plan);
 
-    FourierTransformation(grid, Ex, RtoC);
+	FourierTransformation(grid, Ex, RtoC);
 
-    for (int i = 0; i < grid.gnxComplex(); i++)
-        for (int j = 0; j < grid.gnyComplex(); j++)
-            for (int k = 0; k < grid.gnzComplex(); k++) {
-                ASSERT_EQ(grid(i, j, k).EF[0], arr2(i, j, k));
-            }
+	for (int i = 0; i < grid.gnxComplexCells(); i++)
+		for (int j = 0; j < grid.gnyComplexCells(); j++)
+			for (int k = 0; k < grid.gnzComplexCells(); k++) {
+				ASSERT_EQ(grid(i, j, k).EF[0], arr2(i, j, k));
+			}
 
 }

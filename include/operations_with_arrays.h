@@ -17,6 +17,8 @@ public:
     static void WriteFromGridToComplexArr(Grid3d& gr, Array3d<MyComplex>& arr, int coord, vec3<MyComplex>(Node::*p));
 
 private:
-    static vec3<double> Node::* DetPDouble(Field field);
-    static vec3<MyComplex> Node::* DetPComplex(Field field);
+	static vec3<double> Node::* DetPDouble(Field field);
+	static vec3<MyComplex> Node::* DetPComplex(Field field);
+
+	static void CopyLastNodesFromFirst(Grid3d& grid);
 };

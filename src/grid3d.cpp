@@ -33,7 +33,7 @@ void Grid3d::Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, doubl
     dy = (by - ay) / ny;
     dz = (bz - az) / nz;
 
-    nodes.Initialize(nx /*+ 1*/ + 1, ny /*+ 1*/, nz /*+ 1*/);
+	nodes.Initialize(nx + 1+ 1, ny + 1, nz + 1);
 }
 
 int Grid3d::operator==(const Grid3d& gr) {
@@ -54,47 +54,47 @@ Grid3d& Grid3d::operator=(const Grid3d & gr)
     return *this;
 }
 
-int Grid3d::gnxReal() const
+int Grid3d::gnxRealCells() const
 {
     return nx;
 }
-int Grid3d::gnyReal() const
+int Grid3d::gnyRealCells() const
 {
     return ny;
 }
-int Grid3d::gnzReal() const
+int Grid3d::gnzRealCells() const
 {
     return nz;
 }
 
-int Grid3d::gnxComplex() const
+int Grid3d::gnxComplexCells() const
 {
     return nx;
 }
 
-int Grid3d::gnyComplex() const
+int Grid3d::gnyComplexCells() const
 {
     return ny;
 }
 
-int Grid3d::gnzComplex() const
+int Grid3d::gnzComplexCells() const
 {
     return nz/2+1;
 }
 
-/*int Grid3d::gnxNodes() const
+int Grid3d::gnxRealNodes() const
 {
     return nx + 1;
 }
-int Grid3d::gnyNodes() const
+int Grid3d::gnyRealNodes() const
 {
     return ny + 1;
 }
-int Grid3d::gnzNodes() const
+int Grid3d::gnzRealNodes() const
 {
     return nz + 1;
 }
-*/
+
 
 double Grid3d::gdx() const
 {

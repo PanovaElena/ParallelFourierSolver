@@ -45,56 +45,56 @@ private:
 
     void clearGrid();
 public:
-    Grid3d();
-    Grid3d(const Grid3d& gr);
-    Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
-    ~Grid3d();
-    //сравнение только по вещественным полям
-    int operator==(const Grid3d& grid2);
-    //только сетки одинаковой размерности, присвоение поля
-    Grid3d& operator=(const Grid3d& grid2);
+	Grid3d();
+	Grid3d(const Grid3d& gr);
+	Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
+	~Grid3d();
+	//сравнение только по вещественным полям
+	int operator==(const Grid3d& grid2);
+	//только сетки одинаковой размерности, присвоение поля
+	Grid3d& operator=(const Grid3d& grid2);
 
-    void Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
+	void Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
 
-    int gnxReal() const;//get nx 
-    int gnyReal() const;//get ny
-    int gnzReal() const;//get nz
+	int gnxRealCells() const;//get nx 
+	int gnyRealCells() const;//get ny
+	int gnzRealCells() const;//get nz
 
-    int gnxComplex() const;//get nx 
-    int gnyComplex() const;//get ny
-    int gnzComplex() const;//get nz
+	int gnxComplexCells() const;//get nx 
+	int gnyComplexCells() const;//get ny
+	int gnzComplexCells() const;//get nz/2+1
 
-    //int gnxNodes() const;//get nx+1
-    //int gnyNodes() const;//get ny+1
-    //int gnzNodes() const;//get nz+1
+	int gnxRealNodes() const;//get nx+1
+	int gnyRealNodes() const;//get ny+1
+	int gnzRealNodes() const;//get nz+1
 
-    double gdx() const; //get dx
-    double gdy() const;//get dy
-    double gdz() const;//get dz
+	double gdx() const; //get dx
+	double gdy() const;//get dy
+	double gdz() const;//get dz
 
-    double gax() const; //get ax
-    double gay() const;//get ay
-    double gaz() const;//get az
+	double gax() const; //get ax
+	double gay() const;//get ay
+	double gaz() const;//get az
 
-    double gbx() const; //get bx
-    double gby() const;//get by
-    double gbz() const;//get bz
+	double gbx() const; //get bx
+	double gby() const;//get by
+	double gbz() const;//get bz
 
-    Node& operator()(int i, int j, int k) { 
-        if (i > nx || j > ny || k>nz) 
-        {
-            throw "bad index";
-        }
-        return nodes(i,j,k); 
-    }
+	Node& operator()(int i, int j, int k) { 
+		if (i > nx || j > ny || k>nz) 
+		{
+			throw "bad index";
+		}
+		return nodes(i,j,k); 
+	}
 
-    Node& operator()(vec3<int> ind) {
-        if (ind[0] > nx || ind[1] > ny || ind[2]>nz)
-        {
-            throw "bad index";
-        }
-        return nodes(ind[0],ind[1],ind[2]);
-    }
+	Node& operator()(vec3<int> ind) {
+		if (ind[0] > nx || ind[1] > ny || ind[2]>nz)
+		{
+			throw "bad index";
+		}
+		return nodes(ind[0],ind[1],ind[2]);
+	}
 
 
 };
