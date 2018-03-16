@@ -98,11 +98,11 @@ TEST(TestVector, vector_product_double) {
     ASSERT_EQ(vec3<double>::VectorProduct(a, b), vec3<double>(0, 0, 1));
 }
 
-/*TEST(TestVector, vector_product_complex) {
+TEST(TestVector, vector_product_complex) {
     vec3<MyComplex> a(complex_i, complex_0, complex_0);
     vec3<MyComplex> b(complex_0, complex_i, complex_0);
     ASSERT_EQ(vec3<MyComplex>::VectorProduct(a, b), vec3<MyComplex>(complex_0, complex_0, MyComplex(1,0)));
-}*/
+}
 
 TEST(TestVector, vector_product_complex_2) {
     vec3<MyComplex> a(complex_i, complex_i*(-1), complex_i);
@@ -132,6 +132,11 @@ TEST(TestVector, decomposition_of_vector_into_components) {
 TEST(TestVector, normalize_double) {
     vec3<double> a(1, 1, 1);
     ASSERT_EQ(a.Normalize(), vec3<double>(1 / sqrt(3), 1 / sqrt(3), 1 / sqrt(3)));
+}
+
+TEST(TestVector, normalize_complex) {
+    vec3<MyComplex> a(MyComplex(1,0), MyComplex(1, 1), MyComplex(0, 1));
+    ASSERT_EQ(a.Normalize(), a*(1.0/sqrt(2+sqrt(2))));
 }
 
 

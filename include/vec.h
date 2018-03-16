@@ -99,10 +99,10 @@ struct vec3
     }
     static vec3<MyComplex> VectorProduct(const vec3<MyComplex>& a, const vec3<MyComplex>& b) {
         MyComplex c1, c2, c3;
-        c1 = a.data[1].Conjugate() * b.data[2].Conjugate() - a.data[2].Conjugate() * b.data[1].Conjugate();
-        c2 = a.data[2].Conjugate() * b.data[0].Conjugate() - a.data[0].Conjugate() * b.data[2].Conjugate();
-        c3 = a.data[0].Conjugate() * b.data[1].Conjugate() - a.data[1].Conjugate() * b.data[0].Conjugate();
-        return vec3<MyComplex>(c1, c2, c3);
+        c1 = a.data[1] * b.data[2] - a.data[2] * b.data[1];
+        c2 = a.data[2] * b.data[0] - a.data[0] * b.data[2];
+        c3 = a.data[0] * b.data[1] - a.data[1] * b.data[0];
+        return vec3<MyComplex>(c1.Conjugate(), c2.Conjugate(), c3.Conjugate());
     }
     vec3<Type> Normalize() {
         return (*this)*(1.0/getNorm());
