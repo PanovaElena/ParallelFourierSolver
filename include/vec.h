@@ -47,6 +47,9 @@ struct vec3
     vec3 operator* (double b) const {
         return vec3(x()*b, y()*b, z()*b);
     }
+    vec3<MyComplex> operator* (MyComplex b) const {
+        return vec3<MyComplex>(x()*b, y()*b, z()*b);
+    }
     vec3 operator* (const vec3 &v)  const
     {
         return vec3(y()*v.z() - z()*v.y(), z()*v.x() - x()*v.z(), x()*v.y() - y()*v.x());

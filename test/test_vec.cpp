@@ -101,7 +101,7 @@ TEST(TestVector, vector_product_double) {
 TEST(TestVector, vector_product_complex) {
     vec3<MyComplex> a(complex_i, complex_0, complex_0);
     vec3<MyComplex> b(complex_0, complex_i, complex_0);
-    ASSERT_EQ(vec3<MyComplex>::VectorProduct(a, b), vec3<MyComplex>(complex_0, complex_0, MyComplex(1,0)));
+    ASSERT_EQ(vec3<MyComplex>::VectorProduct(a, b), vec3<MyComplex>(complex_0, complex_0, MyComplex(-1,0)));
 }
 
 TEST(TestVector, vector_product_complex_2) {
@@ -120,13 +120,20 @@ TEST(TestVector, vector_product_complex_vectors_are_orthogonal) {
 
 TEST(TestVector, decomposition_of_vector_into_components) {
     vec3<MyComplex> E(MyComplex(1, 2), MyComplex(4, 7), MyComplex(1, 3));
-    vec3<MyComplex> K(MyComplex(3, 9), MyComplex(2, 2), MyComplex(6, 7));
+    vec3<MyComplex> K(MyComplex(1, 0), MyComplex(1, 0), MyComplex(1, 0));
     vec3<MyComplex> k = K.Normalize();
+    ASSERT_EQ(k.getNorm(), 1);
+
     vec3<MyComplex> El = k*vec3<MyComplex>::ScalarProduct(E, k);
     vec3<MyComplex> kE = vec3<MyComplex>::VectorProduct(k, E);
     vec3<MyComplex> Et = (vec3<MyComplex>::VectorProduct(k, kE))*(-1);
 
-    ASSERT_EQ(E, (El + Et));
+    ASSERT_DOUBLE_EQ(E[0].GetReal(), (El + Et)[0].GetReal());
+    ASSERT_DOUBLE_EQ(E[0].GetImag(), (El + Et)[0].GetImag());
+    ASSERT_DOUBLE_EQ(E[1].GetReal(), (El + Et)[1].GetReal());
+    ASSERT_DOUBLE_EQ(E[1].GetImag(), (El + Et)[1].GetImag());
+    ASSERT_DOUBLE_EQ(E[2].GetReal(), (El + Et)[2].GetReal());
+    ASSERT_DOUBLE_EQ(E[2].GetImag(), (El + Et)[2].GetImag());
 }
 
 TEST(TestVector, normalize_double) {
@@ -136,7 +143,7 @@ TEST(TestVector, normalize_double) {
 
 TEST(TestVector, normalize_complex) {
     vec3<MyComplex> a(MyComplex(1,0), MyComplex(1, 1), MyComplex(0, 1));
-    ASSERT_EQ(a.Normalize(), a*(1.0/sqrt(2+sqrt(2))));
+    ASSERT_EQ(a.Normalize(), a*MyComplex(1.0/2,0));
 }
 
 
