@@ -72,5 +72,9 @@ public:
 
 };
 
+inline double abs(MyComplex a) {
+	return sqrt(a.GetReal()*a.GetReal() + a.GetImag()*a.GetImag());
+}
+
 const MyComplex complex_i(0, 1);
 const MyComplex complex_0(0, 0);

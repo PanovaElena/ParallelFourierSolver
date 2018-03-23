@@ -54,7 +54,7 @@ TEST(TestVector, scalar_product_double) {
 TEST(TestVector, scalar_product_complex) {
     vec3<MyComplex> a(complex_i, complex_i, complex_i);
     vec3<MyComplex> b(complex_i, complex_i, complex_i);
-    ASSERT_EQ(vec3<MyComplex>::ScalarProduct(a, b), MyComplex(3,0));
+    ASSERT_EQ(vec3<MyComplex>::ScalarProduct(a, b), MyComplex(-3,0));
 }
 
 TEST(TestVector, vector_product_double) {

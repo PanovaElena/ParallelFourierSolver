@@ -60,11 +60,6 @@ struct vec3
     };
 
 
-
-    double getNorm()  const
-    {
-        return sqrt((double) ScalarProduct(*this, *this));
-    };
     friend bool operator==(const vec3& a, const vec3& b)  
     {
         return ((a.x() == b.x()) && (a.y() == b.y()) && (a.z() == b.z()));
@@ -73,25 +68,19 @@ struct vec3
         return !(a == b);
     };
 
-    static double ScalarProduct(const vec3<double>& a, const vec3<double>& b) {
-        return (double) (a.data[0] * b.data[0] + a.data[1] * b.data[1] + a.data[2] * b.data[2]);
+	double getNorm()  const
+	{
+		return sqrt(abs(x())*abs(x())+ abs(y())*abs(y())+ abs(z())*abs(z()));
+	};
+    static Type ScalarProduct(const vec3& a, const vec3& b) {
+        return (a.data[0] * b.data[0] + a.data[1] * b.data[1] + a.data[2] * b.data[2]);
     };
-    static MyComplex ScalarProduct(const vec3<MyComplex>& a, const vec3<MyComplex>& b) {
-        return (MyComplex)(a.data[0] * b.data[0].Conjugate() + a.data[1] * b.data[1].Conjugate() + a.data[2] * b.data[2].Conjugate());
-    };
-    static vec3<double> VectorProduct(const vec3<double>& a, const vec3<double>& b) {
-        double c1, c2, c3;
+    static vec3 VectorProduct(const vec3& a, const vec3& b) {
+        Type c1, c2, c3;
         c1 = a.data[1] * b.data[2] - a.data[2] * b.data[1];
         c2 = a.data[2] * b.data[0] - a.data[0] * b.data[2];
         c3 = a.data[0] * b.data[1] - a.data[1] * b.data[0];
-        return vec3<double>(c1, c2, c3);
-    };
-    static vec3<MyComplex> VectorProduct(const vec3<MyComplex>& a, const vec3<MyComplex>& b) {
-        MyComplex c1, c2, c3;
-        c1 = a.data[1] * b.data[2] - a.data[2] * b.data[1];
-        c2 = a.data[2] * b.data[0] - a.data[0] * b.data[2];
-        c3 = a.data[0] * b.data[1] - a.data[1] * b.data[0];
-        return vec3<MyComplex>(c1.Conjugate(), c2.Conjugate(), c3.Conjugate());
+        return vec3(c1, c2, c3);
     };
     vec3<Type> Normalize() {
         return (*this)*(1.0/getNorm());
