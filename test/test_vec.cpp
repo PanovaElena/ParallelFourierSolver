@@ -88,7 +88,7 @@ TEST(TestVector, decomposition_of_vector_into_components) {
     vec3<MyComplex> k = K.Normalize();
     ASSERT_EQ(k.getNorm(), 1);
 
-    vec3<MyComplex> El = k*vec3<MyComplex>::ScalarProduct(E, k);
+    vec3<MyComplex> El = k*vec3<MyComplex>::ScalarProduct(k, E);
     vec3<MyComplex> kE = vec3<MyComplex>::VectorProduct(k, E);
     vec3<MyComplex> Et = (vec3<MyComplex>::VectorProduct(k, kE))*(-1);
 
@@ -108,6 +108,21 @@ TEST(TestVector, normalize_double) {
 TEST(TestVector, normalize_complex) {
     vec3<MyComplex> a(MyComplex(1,0), MyComplex(1, 1), MyComplex(0, 1));
     ASSERT_EQ(a.Normalize(), a*MyComplex(1.0/2,0));
+}
+
+TEST(TestVector, normalize_complex_2) {
+    vec3<MyComplex> a(MyComplex(5, 6), MyComplex(-3, 4), MyComplex(4, 8));
+    vec3<MyComplex> b = a;
+    a.Normalize();
+
+    ASSERT_DOUBLE_EQ(b.getNorm(), sqrt(166));
+
+    ASSERT_DOUBLE_EQ(a.x().GetReal(), b.x().GetReal()*(1.0 / sqrt(166)));
+    ASSERT_DOUBLE_EQ(a.x().GetImag(), b.x().GetImag()*(1.0 / sqrt(166)));
+    ASSERT_DOUBLE_EQ(a.y().GetReal(), b.y().GetReal()*(1.0 / sqrt(166)));
+    ASSERT_DOUBLE_EQ(a.y().GetImag(), b.y().GetImag()*(1.0 / sqrt(166)));
+    ASSERT_DOUBLE_EQ(a.z().GetReal(), b.z().GetReal()*(1.0 / sqrt(166)));
+    ASSERT_DOUBLE_EQ(a.z().GetImag(), b.z().GetImag()*(1.0 / sqrt(166)));
 }
 
 

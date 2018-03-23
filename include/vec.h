@@ -2,6 +2,14 @@
 #include <cmath>
 #include "my_complex.h"
 
+
+inline double absSquare(double a) {
+    return a*a;
+}
+inline double absSquare(MyComplex a) {
+    return a.GetReal()*a.GetReal()+ a.GetImag()*a.GetImag();
+}
+
 template <class Type>
 struct vec3
 {
@@ -70,7 +78,7 @@ struct vec3
 
 	double getNorm()  const
 	{
-		return sqrt(abs(x())*abs(x())+ abs(y())*abs(y())+ abs(z())*abs(z()));
+		return sqrt(absSquare(x())+ absSquare(y())+ absSquare(z()));
 	};
     static Type ScalarProduct(const vec3& a, const vec3& b) {
         return (a.data[0] * b.data[0] + a.data[1] * b.data[1] + a.data[2] * b.data[2]);
@@ -82,8 +90,9 @@ struct vec3
         c3 = a.data[0] * b.data[1] - a.data[1] * b.data[0];
         return vec3(c1, c2, c3);
     };
-    vec3<Type> Normalize() {
-        return (*this)*(1.0/getNorm());
+    vec3 Normalize() {
+        (*this)=(*this)*(1.0/getNorm());
+        return *this;
     };
 };
 
