@@ -91,6 +91,7 @@ struct vec3
         return vec3(c1, c2, c3);
     };
     vec3 Normalize() {
+        if (getNorm() == 0) return *this;
         (*this)=(*this)*(1.0/getNorm());
         return *this;
     };
