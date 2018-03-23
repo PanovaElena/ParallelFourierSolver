@@ -2,42 +2,6 @@
 #include "vec.h"
 #include "my_complex.h"
 
-TEST(TestVector, vector_product1) 
-{
-	vec3<double> a = vec3<double>(6,7,10);
-	vec3<double> b = vec3<double>(8, 5, 9);
-	vec3<double> res = a*b;
-	EXPECT_EQ(res.x(),13);
-	EXPECT_EQ(res.y(),26 );
-	EXPECT_EQ(res.z(),-26);
-}
-TEST(TestVector, vector_product2)
-{
-	vec3<double> a = vec3<double>(-1, 2, -2);
-	vec3<double> b = vec3<double>(2, 1, -1);
-	vec3<double> res = a*b;
-	EXPECT_EQ(res.x(), 0);
-	EXPECT_EQ(res.y(), -5);
-	EXPECT_EQ(res.z(), -5);
-}
-TEST(TestVector, vector_product3)
-{
-	vec3<double> a = vec3<double>(2, 1, -3);
-	vec3<double> b = vec3<double>(0, -1, 1);
-	vec3<double> res = a*b;
-	EXPECT_EQ(res.x(), -2);
-	EXPECT_EQ(res.y(), -2);
-	EXPECT_EQ(res.z(), -2);
-}
-TEST(TestVector, vector_product4)
-{
-	vec3<double> a = vec3<double>(2, -3, 1);
-	vec3<double> b = vec3<double>(-4, -2, 7);
-	vec3<double> res = a*b;
-	EXPECT_EQ(res.x(), -19);
-	EXPECT_EQ(res.y(), -18);
-	EXPECT_EQ(res.z(), -16);
-}
 TEST(TestVector, vector_length1)
 {
 	vec3<double> a = vec3<double>(-4, 0, 3);

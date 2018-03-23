@@ -27,6 +27,9 @@
     <ClCompile Include="..\..\src\operations_with_arrays.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\field_solver_PSATD.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\field_solver.h">
