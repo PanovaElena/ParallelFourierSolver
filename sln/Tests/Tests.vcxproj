@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\test\test_fieldSolver_pulse.cpp" />
     <ClCompile Include="..\..\test\test_fieldSolver_sinus.cpp" />
     <ClCompile Include="..\..\test\test_fourier_transform.cpp" />
     <ClCompile Include="..\..\test\test_grid3d.cpp" />
