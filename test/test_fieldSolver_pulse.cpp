@@ -13,13 +13,18 @@ static std::ofstream file;
 static const std::string strE = "../../files/field_solver_test_pulse_E/";
 static const std::string strB = "../../files/field_solver_test_pulse_B/";
 
-double w = 10;
-const double a = -w * constants::pi, b = w*constants::pi;
-int n = 32;
+const int n = 64;
+const double a = 0, b = 128;
+const double d = (b - a) / n;
+
+const int width = 5; //ширина кольца (число €чеек)
+const double l = width*d;
+const double t0 = 0;
+const double N = 8;
+
 const int maxIt = 32 + 1;
 const int itTransform = 1;
-const double d = (b - a) / n;
-const double E0 = 1;
+
 
 class TestPulse :public testing::Test {
 public:
@@ -42,9 +47,35 @@ public:
         return (k - gr.gnzRealCells() / 2)*gr.gdz();
     }
 
+    double mySin(double r, double t) {
+        return sin(2 * constants::pi * N / (b - a)*(constants::c*t - r));
+    }
+
+    vec3<double> GetNormal(double x, double y, double z) {
+        if (sqrt(x*x + y*y + z*z) == 0)
+            return vec3<double>(0, 0, 0);
+        return vec3<double>(1, 1, 1)*(1 / sqrt(x*x + y*y + z*z) / sqrt(3));
+    }
+
+    vec3<double> funcE(double x, double y, double z, double t) {
+        return mySin(sqrt(x*x + y*y + z*z), t)*GetNormal(x, y, z);
+    }
+
+    vec3<double> funcB(double x, double y, double z, double t) {
+        return -1 * funcE(x, y, z, t);
+    }
+
     TestPulse() :gr(n, n, n, a, b, a, b, a, b) {
         dt = d / constants::c;
-        gr(n / 2, n / 2, n / 2).E = vec3<double>(E0, E0, E0);
+
+        for (int i = 0; i < gr.gnxRealNodes(); i++)
+            for (int j = 0; j < gr.gnyRealNodes(); j++)
+                for (int k = 0; k < gr.gnzRealNodes(); k++) {
+                    gr(i, j, k).E = funcE(GetX(i), GetY(j), GetZ(k), t0);
+                    gr(i, j, k).B = funcB(GetX(i), GetY(j), GetZ(k), t0);
+                }
+
+
         FourierTransformation(gr, RtoC);
     }
 
@@ -70,7 +101,7 @@ public:
 
         for (int i = 0; i < gr.gnxRealNodes(); i++) {
             for (int j = 0; j < gr.gnxRealNodes(); j++)
-                file <<(gr(i, j, gr.gnzRealCells() / 2).*GetField(field)).getNorm() << ";";
+                file <<(gr(i, j, gr.gnzRealNodes() / 2).*GetField(field)).getNorm() << ";";
             file << std::endl;
         }
 
