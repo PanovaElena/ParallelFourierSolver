@@ -68,4 +68,7 @@ void FourierTransformation(Grid3d & gr, int dir)
     FourierTransformation(gr, Bx, dir);
     FourierTransformation(gr, By, dir);
     FourierTransformation(gr, Bz, dir);
+    FourierTransformation(gr, Jx, dir);
+    FourierTransformation(gr, Jy, dir);
+    FourierTransformation(gr, Jz, dir);
 }

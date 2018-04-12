@@ -8,11 +8,13 @@ struct Node
 {
     vec3<double> B;
     vec3<double> E;
+    vec3<double> J;
 
     vec3<MyComplex> BF;
     vec3<MyComplex> EF;
+    vec3<MyComplex> JF;
 
-    Node() :B(0,0,0), E(0, 0, 0) {}
+    Node() :B(0,0,0), E(0, 0, 0), J(0,0,0) {}
     Node(const Node& n) :B(n.B), E(n.E) {}
     //только вещественные поля
     friend int operator==(const Node& n1, const Node& n2) {

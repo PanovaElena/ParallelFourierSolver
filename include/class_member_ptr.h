@@ -11,6 +11,8 @@ inline MemberOfNode GetField(int f) {
         return &Node::E;
     case 1:
         return &Node::B;
+    case 2:
+        return &Node::J;
     default:
         return &Node::E;
     }

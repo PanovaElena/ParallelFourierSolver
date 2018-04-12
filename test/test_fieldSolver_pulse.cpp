@@ -12,23 +12,23 @@
 static std::ofstream file;
 static const std::string strE = "../../files/field_solver_test_pulse_E/";
 static const std::string strB = "../../files/field_solver_test_pulse_B/";
+static const std::string strJ = "../../files/field_solver_test_pulse_J/";
 
 const int n = 64;
-const double a = 0, b = 128;
+const double a = 0, b = 128 * constants::c;
 const double d = (b - a) / n;
 
-const int width = 5; //ширина кольца (число €чеек)
-const double l = width*d;
-const double t0 = 0;
-const double N = 8;
+const int w = 5; //ширина синусоиды в €чейках
+const double Tx = d*w / constants::c;
+const double Tt = d*w;
+const double dt = d / constants::c;
 
-const int maxIt = 32 + 1;
+const int maxIt = 64 + 1;
 const int itTransform = 1;
 
 
 class TestPulse :public testing::Test {
 public:
-    double dt;
     Grid3d gr;
 
     double sign(double x) {
@@ -47,51 +47,50 @@ public:
         return (k - gr.gnzRealCells() / 2)*gr.gdz();
     }
 
-    double mySin(double r, double t) {
-        return sin(2 * constants::pi * N / (b - a)*(constants::c*t - r));
-    }
-
-    vec3<double> GetNormal(double x, double y, double z) {
-        if (sqrt(x*x + y*y + z*z) == 0)
-            return vec3<double>(0, 0, 0);
-        return vec3<double>(1, 1, 1)*(1 / sqrt(x*x + y*y + z*z) / sqrt(3));
-    }
-
-    vec3<double> funcE(double x, double y, double z, double t) {
-        return mySin(sqrt(x*x + y*y + z*z), t)*GetNormal(x, y, z);
-    }
-
-    vec3<double> funcB(double x, double y, double z, double t) {
-        return -1 * funcE(x, y, z, t);
+    double f(double r, double t) {
+        return sin(2 * constants::pi / Tx*(t - r / constants::c));
     }
 
     TestPulse() :gr(n, n, n, a, b, a, b, a, b) {
-        dt = d / constants::c;
-
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++)
                 for (int k = 0; k < gr.gnzRealNodes(); k++) {
-                    gr(i, j, k).E = funcE(GetX(i), GetY(j), GetZ(k), t0);
-                    gr(i, j, k).B = funcB(GetX(i), GetY(j), GetZ(k), t0);
+                    gr(i, j, k).E = vec3<double>(0, 0, 0);
+                    gr(i, j, k).B = vec3<double>(0, 0, 0);
                 }
+    }
 
-
-        FourierTransformation(gr, RtoC);
+    void SetJ(int iter) {
+        for (int i = 0; i < gr.gnxRealNodes(); i++)
+            for (int j = 0; j < gr.gnyRealNodes(); j++)
+                for (int k = 0; k < gr.gnzRealNodes(); k++)
+                    gr(i, j, k).J = vec3<double>(0, 0, 0);
+        if (iter < 2*w) {
+            double J0 = f(0, iter*dt)*constants::c;
+            gr(n / 2, n / 2, n / 2).J = vec3<double>(J0, J0, J0);
+        }
+        FourierTransformation(gr, Jx, RtoC);
+        FourierTransformation(gr, Jy, RtoC);
+        FourierTransformation(gr, Jz, RtoC);
     }
 
     void MyTestBody() {
+        FourierTransformation(gr, RtoC);
 
         WriteFile(E, 0, strE);
         WriteFile(B, 0, strB);
 
-        for (int j = 1; j < maxIt; j++) {
+        for (int iter = 1; iter < maxIt; iter++) {
+            SetJ(iter);
+
             FieldSolver(gr, dt);
 
-            if (j%itTransform == 0) {
+            if (iter%itTransform == 0) {
                 FourierTransformation(gr, CtoR);
 
-                WriteFile(E, j, strE);
-                WriteFile(B, j, strB);
+                WriteFile(E, iter, strE);
+                WriteFile(B, iter, strB);
+                WriteFile(J, iter, strJ);
             }
         }
     }
@@ -99,9 +98,8 @@ public:
     void WriteFile(Field field, int iter, std::string name) {
         file.open(name + "iter_" + std::to_string(iter) + ".csv");//freopen?
 
-        for (int i = 0; i < gr.gnxRealNodes(); i++) {
-            for (int j = 0; j < gr.gnxRealNodes(); j++)
-                file <<(gr(i, j, gr.gnzRealNodes() / 2).*GetField(field)).getNorm() << ";";
+        for (int i = 0; i < gr.gnxRealCells(); i++) {
+                file <<(gr(i, gr.gnyRealCells() / 2, gr.gnzRealNodes() / 2).*GetField(field)).getNorm() << ";";
             file << std::endl;
         }
 

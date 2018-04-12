@@ -15,8 +15,7 @@ void FieldSolverPSATD(Grid3d & gr, double dt) {
                 K = K.Normalize();
                 double C = cos(normK*constants::c*dt);
                 double S = sin(normK*constants::c*dt);
-                vec3<MyComplex> E = gr(i, j, k).EF, B = gr(i, j, k).BF;
-                vec3<MyComplex> J(complex_0, complex_0, complex_0);
+                vec3<MyComplex> E = gr(i, j, k).EF, B = gr(i, j, k).BF, J = gr(i, j, k).JF;
                 vec3<MyComplex> Jl = K*vec3<MyComplex>::ScalarProduct(K, J);
                 vec3<MyComplex> El = K*vec3<MyComplex>::ScalarProduct(K, E);
 

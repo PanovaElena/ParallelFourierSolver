@@ -13,6 +13,9 @@ vec3<double> Node::* OperationWithArrays::DetPDouble(Field field) {
     case 1:
         p = (vec3<double>(Node::*))&Node::B;
         break;
+    case 2:
+        p = (vec3<double>(Node::*))&Node::J;
+        break;
     }
     return p;
 }
@@ -25,6 +28,9 @@ vec3<MyComplex> Node::* OperationWithArrays::DetPComplex(Field field) {
         break;
     case 1:
         p = (vec3<MyComplex>(Node::*))&Node::BF;
+        break;
+    case 2:
+        p = (vec3<MyComplex>(Node::*))&Node::JF;
         break;
     }
     return p;
