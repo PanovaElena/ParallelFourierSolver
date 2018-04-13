@@ -15,15 +15,16 @@ static const std::string strB = "../../files/field_solver_test_pulse_B/";
 static const std::string strJ = "../../files/field_solver_test_pulse_J/";
 
 const int n = 64;
-const double a = 0, b = 128 * constants::c;
-const double d = (b - a) / n;
+const int k = 2;
+const double a = 0, b = n*k * constants::c;
+const double d = k * constants::c;
 
 const int w = 5; //ширина синусоиды в €чейках
 const double Tx = d*w / constants::c;
 const double Tt = d*w;
 const double dt = d / constants::c;
 
-const int maxIt = 64 + 1;
+const int maxIt = 32;
 const int itTransform = 1;
 
 
@@ -48,7 +49,7 @@ public:
     }
 
     double f(double r, double t) {
-        return sin(2 * constants::pi / Tx*(t - r / constants::c));
+        return sin(constants::pi / Tx*(t - r / constants::c));
     }
 
     TestPulse() :gr(n, n, n, a, b, a, b, a, b) {
@@ -66,7 +67,7 @@ public:
                 for (int k = 0; k < gr.gnzRealNodes(); k++)
                     gr(i, j, k).J = vec3<double>(0, 0, 0);
         if (iter < 2*w) {
-            double J0 = f(0, iter*dt)*constants::c;
+            double J0 = 4*constants::pi*f(0, iter*dt);
             gr(n / 2, n / 2, n / 2).J = vec3<double>(J0, J0, J0);
         }
         FourierTransformation(gr, Jx, RtoC);
