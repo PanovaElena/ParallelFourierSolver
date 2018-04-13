@@ -30,7 +30,7 @@
     <ClCompile Include="..\..\src\field_solver_PSATD.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\field_solver_PSATD_MPI.cpp">
+    <ClCompile Include="..\..\src\field_solver_MPI.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

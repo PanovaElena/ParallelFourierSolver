@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\field_solver_PSATD.cpp" />
-    <ClCompile Include="..\..\src\field_solver_PSATD_MPI.cpp" />
+    <ClCompile Include="..\..\src\field_solver_MPI.cpp" />
     <ClCompile Include="..\..\src\field_solver_PSTD.cpp" />
     <ClCompile Include="..\..\src\fourier_transformation.cpp" />
     <ClCompile Include="..\..\src\grid3d.cpp" />
