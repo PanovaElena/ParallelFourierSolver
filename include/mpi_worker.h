@@ -14,11 +14,11 @@ private:
 
     Grid3d grid;
 public:
-    MPIWorker(Grid3d& gr, double guardWidthPerc/*устанавливает ширину quard в процентах от ширины домена*/) 
-        : MPIWorker(gr, guardWidthPerc, MPIWrapper::MPISize(), MPIWrapper::MPIRank()) {}
+    MPIWorker(Grid3d& gr, int guardWidth) 
+        : MPIWorker(gr, guardWidth, MPIWrapper::MPISize(), MPIWrapper::MPIRank()) {}
 
     //для последовательного запуска
-    MPIWorker(Grid3d& gr, double guardWidthPerc/*устанавливает ширину quard в процентах от ширины домена*/, int _size, int _rank);
+    MPIWorker(Grid3d& gr, int guardWidth, int _size, int _rank);
 
     int getMainDomainStart() {
         return domainStart;
@@ -42,7 +42,7 @@ public:
         return rightGuardStart;
     }
     int getRightGuardEnd() {
-        rightGuardStart + guardSize;
+        return rightGuardStart + guardSize;
     }
     int getFullDomainSize() {
         return 2 * guardSize + domainSize;
@@ -58,6 +58,9 @@ public:
     }
     int getRank() {
         return rank;
+    }
+    Grid3d& getGrid() {
+        return grid;
     }
 
     void SetToZerosQuard();

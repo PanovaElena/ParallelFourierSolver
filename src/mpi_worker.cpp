@@ -3,7 +3,7 @@
 void MPIWorker::setLeftGuardStart(int guardWidth, Grid3d & gr)
 {
     if (rank == 0)
-        leftGuardStart = gr.gnxRealNodes() - guardWidth;
+        leftGuardStart = gr.gnxRealCells() - guardWidth;
     else leftGuardStart = getMainDomainStart() - guardWidth;
 }
 
@@ -56,13 +56,13 @@ void MPIWorker::SetToZerosQuard()
             }
 }
 
-MPIWorker::MPIWorker(Grid3d & gr, double guardWidthPerc, int _size, int _rank)
+MPIWorker::MPIWorker(Grid3d & gr, int guardWidth, int _size, int _rank)
 {
     rank = _rank;
     size = _size;
     domainSize = gr.gnxRealCells() / size; //делится нацело
     domainStart = domainSize*rank;
-    guardSize = (int)(guardWidthPerc*domainSize);
+    guardSize = guardWidth;
     setLeftGuardStart(guardSize, gr);
     setRightGuardStart(guardSize, gr);
 
