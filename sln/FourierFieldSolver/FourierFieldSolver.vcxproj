@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\field_solver_PSATD.cpp" />
-    <ClCompile Include="..\..\src\field_solver_MPI.cpp" />
+    <ClCompile Include="..\..\src\mpi_worker.cpp" />
     <ClCompile Include="..\..\src\field_solver_PSTD.cpp" />
     <ClCompile Include="..\..\src\fourier_transformation.cpp" />
     <ClCompile Include="..\..\src\grid3d.cpp" />
@@ -29,6 +29,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\array3d.h" />
     <ClInclude Include="..\..\include\class_member_ptr.h" />
+    <ClInclude Include="..\..\include\mpi_worker.h" />
+    <ClInclude Include="..\..\include\mpi_wrapper.h" />
     <ClInclude Include="..\..\include\my_complex.h" />
     <ClInclude Include="..\..\include\constants.h" />
     <ClInclude Include="..\..\include\field_solver.h" />

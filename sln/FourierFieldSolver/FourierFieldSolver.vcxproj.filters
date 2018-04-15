@@ -30,7 +30,7 @@
     <ClCompile Include="..\..\src\field_solver_PSATD.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\field_solver_MPI.cpp">
+    <ClCompile Include="..\..\src\mpi_worker.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -63,6 +63,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\class_member_ptr.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mpi_worker.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mpi_wrapper.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
