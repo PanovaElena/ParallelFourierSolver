@@ -47,5 +47,8 @@
     <ClInclude Include="..\..\test\field_solver_for_testing.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pulse.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

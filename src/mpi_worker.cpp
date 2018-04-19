@@ -1,4 +1,5 @@
 #include "mpi_worker.h"
+#include "fourier_transformation.h"
 
 void MPIWorker::setLeftGuardStart(int guardWidth, Grid3d & gr)
 {
@@ -22,6 +23,7 @@ void MPIWorker::CreateGrid(Grid3d & gr)
         for (int j = 0; j < gr.gnyRealNodes(); j++)
             for (int k = 0; k < gr.gnzRealNodes(); k++)
                 grid(i, j, k) = gr(mod(i + getLeftGuardStart(), gr.gnxRealCells()), j, k);
+    FourierTransformation(gr, RtoC);
 }
 
 void MPIWorker::SendGuard(double*& arr, int& size, int n1, int n2, int dest)

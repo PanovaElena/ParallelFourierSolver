@@ -20,4 +20,12 @@ public:
         MPI_Status status;
         MPI_Recv(buf, size, MPI_DOUBLE, source, 0, MPI_COMM_WORLD, &status);
     }
+    static void MPIInitialize() {
+        int argc;
+        char** argv;
+        MPI_Init(&argc, &argv);
+    }
+    static void MPIFinalize() {
+        MPI_Finalize();
+    }
 };
