@@ -29,7 +29,7 @@ void WriteFile(Grid3d& gr, std::string nameFile) {
 
 void TestBody() {
     Pulse pulse;
-    MPIWorker worker(pulse.gr, pulse.gr.gnxRealCells() / 5);
+    MPIWorker worker(pulse.gr, pulse.gr.gnxRealCells() / 8);
 
     for (int i = 0; i < NStartSteps; i++) {
         pulse.SetJ(i);
@@ -38,8 +38,10 @@ void TestBody() {
 
     WriteFile(pulse.gr, nameFile40Step);
 
+    MPIWorker::ShowMessage("doing parallel solver");
     FieldSolverParallelPSATD(worker, NNextSteps, pulse.dt);
 
+    MPIWorker::ShowMessage("writing file second steps");
     WriteFile(worker.getGrid(), arrNameFile50Step[MPIWrapper::MPIRank()]);
 
 }

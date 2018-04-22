@@ -1,11 +1,54 @@
 /*
  *  (C) 2001 by Argonne National Laboratory.
  *  (C) 2009 by Microsoft Corporation.
- *      See COPYRIGHT in the SDK directory.
+ *
+ *                                 MPICH COPYRIGHT
+ *
+ *  The following is a notice of limited availability of the code, and disclaimer
+ *  which must be included in the prologue of the code and in all source listings
+ *  of the code.
+ *
+ *  Copyright Notice
+ *   + 2002 University of Chicago
+ *
+ *  Permission is hereby granted to use, reproduce, prepare derivative works, and
+ *  to redistribute to others.  This software was authored by:
+ *
+ *  Mathematics and Computer Science Division
+ *  Argonne National Laboratory, Argonne IL 60439
+ *
+ *  (and)
+ *
+ *  Department of Computer Science
+ *  University of Illinois at Urbana-Champaign
+ *
+ *
+ *                                GOVERNMENT LICENSE
+ *
+ *  Portions of this material resulted from work developed under a U.S.
+ *  Government Contract and are subject to the following license: the Government
+ *  is granted for itself and others acting on its behalf a paid-up, nonexclusive,
+ *  irrevocable worldwide license in this computer software to reproduce, prepare
+ *  derivative works, and perform publicly and display publicly.
+ *
+ *                                    DISCLAIMER
+ *
+ *  This computer code material was prepared, in part, as an account of work
+ *  sponsored by an agency of the United States Government.  Neither the United
+ *  States, nor the University of Chicago, nor any of their employees, makes any
+ *  warranty express or implied, or assumes any legal liability or responsibility
+ *  for the accuracy, completeness, or usefulness of any information, apparatus,
+ *  product, or process disclosed, or represents that its use would not infringe
+ *  privately owned rights.
+ *
  */
 
 #ifndef MPI_INCLUDED
 #define MPI_INCLUDED
+
+#ifndef MSMPI_NO_SAL
+#include <sal.h>
+#endif
 
 #if defined(__cplusplus)
 extern "C" {
@@ -21,31 +64,105 @@ extern "C" {
 /* SAL ANNOTATIONS                                                           */
 /*---------------------------------------------------------------------------*/
 /*
- * Define SAL annotations if they aren't defined yet.  Note that if we define
- * them, we undefine them at the end of this file so that future inclusion of
- * sal.h doesn't cause errors.
+ * Define SAL annotations if they aren't defined yet.
  */
-#ifndef _In_
-#define MSMPI_DEFINED_SAL
-#define _In_
-#define _In_z_
-#define _In_opt_
-#define _In_count_( x )
-#define _In_bytecount_( x )
-#define _In_opt_count_( x )
-#define _Out_
-#define _Out_cap_( x )
-#define _Out_cap_post_count_( x, y )
-#define _Out_bytecap_( x )
-#define _Out_z_cap_( x )
-#define _Out_z_cap_post_count_( x, y )
-#define _Out_cap_post_part_( x, y )
-#define _Out_opt_
-#define _Out_opt_cap_( x )
-#define _Post_z_
-#define _Inout_
-#define _Inout_count_( x )
+#ifndef _Success_
+#define _Success_( x )
 #endif
+#ifndef _Notref_
+#define _Notref_
+#endif
+#ifndef _When_
+#define _When_( x, y )
+#endif
+#ifndef _Pre_valid_
+#define _Pre_valid_
+#endif
+#ifndef _Pre_opt_valid_
+#define _Pre_opt_valid_
+#endif
+#ifndef _Post_invalid_
+#define _Post_invalid_
+#endif
+#ifndef _In_
+#define _In_
+#endif
+#ifndef _In_z_
+#define _In_z_
+#endif
+#ifndef _In_opt_
+#define _In_opt_
+#endif
+#ifndef _In_range_
+#define _In_range_( x, y )
+#endif
+#ifndef _In_reads_
+#define _In_reads_( x )
+#endif
+#ifndef _In_reads_z_
+#define _In_reads_z_( x )
+#endif
+#ifndef _In_reads_opt_
+#define _In_reads_opt_( x )
+#endif
+#ifndef _In_reads_bytes_opt_
+#define _In_reads_bytes_opt_( x )
+#endif
+#ifndef _Out_
+#define _Out_
+#endif
+#ifndef _Out_opt_
+#define _Out_opt_
+#endif
+#ifndef _Out_writes_z_
+#define _Out_writes_z_( x )
+#endif
+#ifndef _Out_writes_opt_
+#define _Out_writes_opt_( x )
+#endif
+#ifndef _Out_writes_to_opt_
+#define _Out_writes_to_opt_( x, y )
+#endif
+#ifndef _Out_writes_bytes_opt_
+#define _Out_writes_bytes_opt_( x )
+#endif
+#ifndef _Inout_
+#define _Inout_
+#endif
+#ifndef _Inout_opt_
+#define _Inout_opt_
+#endif
+#ifndef _Inout_updates_opt_
+#define _Inout_updates_opt_( x )
+#endif
+#ifndef _Deref_in_range_
+#define _Deref_in_range_( x, y )
+#endif
+#ifndef _Deref_out_range_
+#define _Deref_out_range_( x, y )
+#endif
+#ifndef _Pre_satisfies_
+#define _Pre_satisfies_( x )
+#endif
+#ifndef _Post_satisfies_
+#define _Post_satisfies_( x )
+#endif
+#ifndef _Post_equal_to_
+#define _Post_equal_to_( x )
+#endif
+
+#define _mpi_updates_(size) _When_(size != 0, _Inout_updates_(size))
+#define _mpi_reads_(size) _When_(size != 0, _In_reads_(size))
+#define _mpi_reads_bytes_(size) _When_(size != 0, _In_reads_bytes_(size))
+#define _mpi_writes_(size) _When_(size != 0, _Out_writes_(size))
+#define _mpi_writes_bytes_(size) _When_(size != 0, _Out_writes_bytes_(size))
+#define _mpi_writes_to_(size, count) _When_(size != 0, _Out_writes_to_(size, count))
+#define _mpi_out_flag_ _Out_ _Deref_out_range_(0, 1)
+#define _mpi_out_(param, sentinel) _Out_ _Post_satisfies_(*param == sentinel || *param >= 0)
+#define _mpi_out_range_(param, sentinel, ub) \
+    _Out_ _Post_satisfies_(*param == sentinel || (ub > 0 && *param >= 0 && *param <= ub))
+#define _mpi_position_(ub) _Inout_ _Deref_in_range_(0, ub) _Deref_out_range_(0, ub)
+#define _mpi_coll_rank_(param) _In_ _Pre_satisfies_(param == MPI_ROOT || param >= MPI_PROC_NULL)
 
 /*---------------------------------------------------------------------------*/
 /* MSMPI Calling convention                                                  */
@@ -166,8 +283,8 @@ typedef int MPI_Datatype;
 
 #define MPI_C_COMPLEX               ((MPI_Datatype)0x4c000812)
 #define MPI_C_FLOAT_COMPLEX         ((MPI_Datatype)0x4c000813)
-#define MPI_C_DOUBLE_COMPLEX        ((MPI_Datatype)0x4c001614)
-#define MPI_C_LONG_DOUBLE_COMPLEX   ((MPI_Datatype)0x4c001615)
+#define MPI_C_DOUBLE_COMPLEX        ((MPI_Datatype)0x4c001014)
+#define MPI_C_LONG_DOUBLE_COMPLEX   ((MPI_Datatype)0x4c001015)
 
 #define MPI_2INT                    ((MPI_Datatype)0x4c000816)
 #define MPI_C_BOOL                  ((MPI_Datatype)0x4c000117)
@@ -239,6 +356,14 @@ typedef int MPI_Comm;
 
 #define MPI_COMM_WORLD ((MPI_Comm)0x44000000)
 #define MPI_COMM_SELF  ((MPI_Comm)0x44000001)
+
+/*---------------------------------------------------------------------------*/
+/* MPI_Comm Split Types                                                      */
+/*---------------------------------------------------------------------------*/
+enum
+{
+    MPI_COMM_TYPE_SHARED    = 1,
+};
 
 
 /*---------------------------------------------------------------------------*/
@@ -353,6 +478,12 @@ typedef struct MPI_Status
 
 
 /*---------------------------------------------------------------------------*/
+/* Macro for function return values.                                         */
+/*---------------------------------------------------------------------------*/
+#define MPI_METHOD _Success_( return == MPI_SUCCESS ) int MPIAPI
+
+
+/*---------------------------------------------------------------------------*/
 /* Chapter 3: Point-to-Point Communication                                   */
 /*---------------------------------------------------------------------------*/
 
@@ -360,62 +491,58 @@ typedef struct MPI_Status
 /* Section 3.2: Blocking Communication         */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Send(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Send(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Recv(
     _Out_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int source,
-    int tag,
-    MPI_Comm comm,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Recv(
     _Out_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int source,
-    int tag,
-    MPI_Comm comm,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+_Pre_satisfies_(status != MPI_STATUS_IGNORE)
+MPI_METHOD
 MPI_Get_count(
-    _In_ MPI_Status* status,
-    MPI_Datatype datatype,
+    _In_ const MPI_Status* status,
+    _In_ MPI_Datatype datatype,
     _Out_ int* count
     );
-int
-MPIAPI
+_Pre_satisfies_(status != MPI_STATUS_IGNORE)
+MPI_METHOD
 PMPI_Get_count(
-    _In_ MPI_Status* status,
-    MPI_Datatype datatype,
+    _In_ const MPI_Status* status,
+    _In_ MPI_Datatype datatype,
     _Out_ int* count
     );
 
@@ -424,67 +551,61 @@ PMPI_Get_count(
 /* Section 3.4: Communication Modes            */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Bsend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Bsend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Ssend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Ssend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Rsend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Rsend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm
     );
 
 
@@ -502,27 +623,23 @@ PMPI_Rsend(
 #  define MPI_BSEND_OVERHEAD  MSMPI_BSEND_OVERHEAD_V1
 #endif
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Buffer_attach(
     _In_ void* buffer,
-    int size
+    _In_range_(>=, 0) int size
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Buffer_attach(
     _In_ void* buffer,
-    int size
+    _In_range_(>=, 0) int size
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Buffer_detach(
     _Out_ void* buffer_addr,
     _Out_ int* size
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Buffer_detach(
     _Out_ void* buffer_addr,
     _Out_ int* size
@@ -533,118 +650,108 @@ PMPI_Buffer_detach(
 /* Section 3.7: Nonblocking Communication      */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Isend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Isend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Ibsend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Ibsend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Issend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Issend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Irsend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Irsend(
-    _In_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Irecv(
     _Out_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int source,
-    int tag,
-    MPI_Comm comm,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Irecv(
     _Out_opt_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int source,
-    int tag,
-    MPI_Comm comm,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
 
@@ -653,43 +760,41 @@ PMPI_Irecv(
 /* Section 3.7.3: Communication Completion     */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Wait(
-    _Inout_ MPI_Request* request,
+    _Inout_ _Post_equal_to_(MPI_REQUEST_NULL) MPI_Request* request,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Wait(
-    _Inout_ MPI_Request* request,
+    _Inout_ _Post_equal_to_(MPI_REQUEST_NULL) MPI_Request* request,
     _Out_ MPI_Status* status
     );
 
+_Success_(return == MPI_SUCCESS && *flag != 0)
 int
 MPIAPI
 MPI_Test(
-    _Inout_ MPI_Request* request,
-    _Out_ int* flag,
+    _Inout_ _Post_equal_to_(MPI_REQUEST_NULL) MPI_Request* request,
+    _mpi_out_flag_ int* flag,
     _Out_ MPI_Status* status
     );
+_Success_(return == MPI_SUCCESS && *flag != 0)
 int
 MPIAPI
 PMPI_Test(
-    _Inout_ MPI_Request* request,
-    _Out_ int* flag,
+    _Inout_ _Post_equal_to_(MPI_REQUEST_NULL) MPI_Request* request,
+    _mpi_out_flag_ int* flag,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Request_free(
-    _Inout_ MPI_Request* request
+    _Inout_ _Post_equal_to_(MPI_REQUEST_NULL) MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Request_free(
-    _Inout_ MPI_Request* request
+    _Inout_ _Post_equal_to_(MPI_REQUEST_NULL) MPI_Request* request
     );
 
 
@@ -697,110 +802,110 @@ PMPI_Request_free(
 /* Section 3.7.5: Multiple Completions         */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Waitany(
-    int count,
-    _Inout_count_(count) MPI_Request* array_of_requests,
-    _Out_ int* index,
+    _In_range_(>=, 0) int count,
+    _mpi_updates_(count) MPI_Request array_of_requests[],
+    _mpi_out_range_(index, MPI_UNDEFINED, (count - 1)) int* index,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Waitany(
-    int count,
-    _Inout_count_(count) MPI_Request* array_of_requests,
-    _Out_ int* index,
+    _In_range_(>=, 0) int count,
+    _mpi_updates_(count) MPI_Request array_of_requests[],
+    _mpi_out_range_(index, MPI_UNDEFINED, (count - 1)) int* index,
     _Out_ MPI_Status* status
     );
 
+_Success_(return == MPI_SUCCESS && *flag != 0)
 int
 MPIAPI
 MPI_Testany(
-    int count,
-    _Inout_count_(count) MPI_Request* array_of_requests,
-    _Out_ int* index,
-    _Out_ int* flag,
+    _In_range_(>=, 0) int count,
+    _mpi_updates_(count) MPI_Request array_of_requests[],
+    _mpi_out_range_(index, MPI_UNDEFINED, (count - 1)) int* index,
+    _mpi_out_flag_ int* flag,
     _Out_ MPI_Status* status
     );
+_Success_(return == MPI_SUCCESS && *flag != 0)
 int
 MPIAPI
 PMPI_Testany(
-    int count,
-    _Inout_count_(count) MPI_Request* array_of_requests,
-    _Out_ int* index,
-    _Out_ int* flag,
+    _In_range_(>=, 0) int count,
+    _mpi_updates_(count) MPI_Request array_of_requests[],
+    _mpi_out_range_(index, MPI_UNDEFINED, (count - 1)) int* index,
+    _mpi_out_flag_ int* flag,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Waitall(
-    int count,
-    _Inout_count_(count) MPI_Request* array_of_requests,
-    _Out_cap_(count) MPI_Status* array_of_statuses
+    _In_range_(>=, 0) int count,
+    _mpi_updates_(count) MPI_Request array_of_requests[],
+    _mpi_writes_(count) MPI_Status array_of_statuses[]
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Waitall(
-    int count,
-    _Inout_count_(count) MPI_Request* array_of_requests,
-    _Out_cap_(count) MPI_Status* array_of_statuses
+    _In_range_(>=, 0) int count,
+    _mpi_updates_(count) MPI_Request array_of_requests[],
+    _mpi_writes_(count) MPI_Status array_of_statuses[]
     );
 
+_Success_(return == MPI_SUCCESS && *flag != 0)
 int
 MPIAPI
 MPI_Testall(
-    int count,
-    _Inout_count_(count) MPI_Request* array_of_requests,
-    _Out_ int* flag,
-    _Out_cap_(count) MPI_Status* array_of_statuses
+    _In_range_(>=, 0) int count,
+    _mpi_updates_(count) MPI_Request array_of_requests[],
+    _mpi_out_flag_ int* flag,
+    _mpi_writes_(count) MPI_Status array_of_statuses[]
     );
+_Success_(return == MPI_SUCCESS && *flag != 0)
 int
 MPIAPI
 PMPI_Testall(
-    int count,
-    _Inout_count_(count) MPI_Request* array_of_requests,
-    _Out_ int* flag,
-    _Out_cap_(count) MPI_Status* array_of_statuses
+    _In_range_(>=, 0) int count,
+    _mpi_updates_(count) MPI_Request array_of_requests[],
+    _mpi_out_flag_ int* flag,
+    _mpi_writes_(count) MPI_Status array_of_statuses[]
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Waitsome(
-    int incount,
-    _Inout_count_(incount) MPI_Request* array_of_requests,
-    _Out_ int* outcount,
-    _Out_cap_post_count_(incount,*outcount) int* array_of_indices,
-    _Out_cap_post_count_(incount,*outcount) MPI_Status* array_of_statuses
+    _In_range_(>=, 0) int incount,
+    _mpi_updates_(incount) MPI_Request array_of_requests[],
+    _mpi_out_range_(outcount, MPI_UNDEFINED, incount) int* outcount,
+    _mpi_writes_to_(incount,*outcount) int array_of_indices[],
+    _mpi_writes_to_(incount,*outcount) MPI_Status array_of_statuses[]
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Waitsome(
-    int incount,
-    _Inout_count_(incount) MPI_Request* array_of_requests,
-    _Out_ int* outcount,
-    _Out_cap_post_count_(incount,*outcount) int* array_of_indices,
-    _Out_cap_post_count_(incount,*outcount) MPI_Status* array_of_statuses
+    _In_range_(>=, 0) int incount,
+    _mpi_updates_(incount) MPI_Request array_of_requests[],
+    _mpi_out_range_(outcount, MPI_UNDEFINED, incount) int* outcount,
+    _mpi_writes_to_(incount,*outcount) int array_of_indices[],
+    _mpi_writes_to_(incount,*outcount) MPI_Status array_of_statuses[]
     );
 
+_Success_(return == MPI_SUCCESS && *outcount > 0)
 int
 MPIAPI
 MPI_Testsome(
-    int incount,
-    _Inout_count_(incount) MPI_Request* array_of_requests,
-    _Out_ int* outcount,
-    _Out_cap_post_count_(incount,*outcount) int* array_of_indices,
-    _Out_cap_post_count_(incount,*outcount) MPI_Status* array_of_statuses
+    _In_range_(>=, 0) int incount,
+    _mpi_updates_(incount) MPI_Request array_of_requests[],
+    _mpi_out_range_(outcount, MPI_UNDEFINED, incount) int* outcount,
+    _mpi_writes_to_(incount,*outcount) int array_of_indices[],
+    _mpi_writes_to_(incount,*outcount) MPI_Status array_of_statuses[]
     );
+_Success_(return == MPI_SUCCESS && *outcount > 0)
 int
 MPIAPI
 PMPI_Testsome(
-    int incount,
-    _Inout_count_(incount) MPI_Request* array_of_requests,
-    _Out_ int* outcount,
-    _Out_cap_post_count_(incount,*outcount) int* array_of_indices,
-    _Out_cap_post_count_(incount,*outcount) MPI_Status* array_of_statuses
+    _In_range_(>=, 0) int incount,
+    _mpi_updates_(incount) MPI_Request array_of_requests[],
+    _mpi_out_range_(outcount, MPI_UNDEFINED, incount) int* outcount,
+    _mpi_writes_to_(incount,*outcount) int array_of_indices[],
+    _mpi_writes_to_(incount,*outcount) MPI_Status array_of_statuses[]
     );
 
 
@@ -808,18 +913,20 @@ PMPI_Testsome(
 /* Section 3.7.6: Test of status               */
 /*---------------------------------------------*/
 
+_Success_(return == MPI_SUCCESS && *flag != 0)
 int
 MPIAPI
 MPI_Request_get_status(
-    MPI_Request request,
-    _Out_ int* flag,
+    _In_ MPI_Request request,
+    _mpi_out_flag_ int* flag,
     _Out_ MPI_Status* status
     );
+_Success_(return == MPI_SUCCESS && *flag != 0)
 int
 MPIAPI
 PMPI_Request_get_status(
-    MPI_Request request,
-    _Out_ int* flag,
+    _In_ MPI_Request request,
+    _mpi_out_flag_ int* flag,
     _Out_ MPI_Status* status
     );
 
@@ -828,64 +935,64 @@ PMPI_Request_get_status(
 /* Section 3.8: Probe and Cancel               */
 /*---------------------------------------------*/
 
+_Success_(return == MPI_SUCCESS && *flag != 0)
 int
 MPIAPI
 MPI_Iprobe(
-    int source,
-    int tag,
-    MPI_Comm comm,
-    _Out_ int* flag,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int tag,
+    _In_ MPI_Comm comm,
+    _mpi_out_flag_ int* flag,
     _Out_ MPI_Status* status
     );
+_Success_(return == MPI_SUCCESS && *flag != 0)
 int
 MPIAPI
 PMPI_Iprobe(
-    int source,
-    int tag,
-    MPI_Comm comm,
-    _Out_ int* flag,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int tag,
+    _In_ MPI_Comm comm,
+    _mpi_out_flag_ int* flag,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Probe(
-    int source,
-    int tag,
-    MPI_Comm comm,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Probe(
-    int source,
-    int tag,
-    MPI_Comm comm,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+_Pre_satisfies_(*request != MPI_REQUEST_NULL)
+MPI_METHOD
 MPI_Cancel(
     _In_ MPI_Request* request
     );
-int
-MPIAPI
+_Pre_satisfies_(*request != MPI_REQUEST_NULL)
+MPI_METHOD
 PMPI_Cancel(
     _In_ MPI_Request* request
     );
 
-int
-MPIAPI
+_Pre_satisfies_(status != MPI_STATUS_IGNORE)
+MPI_METHOD
 MPI_Test_cancelled(
-    _In_ MPI_Status* status,
-    _Out_ int* flag
+    _In_ const MPI_Status* status,
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+_Pre_satisfies_(status != MPI_STATUS_IGNORE)
+MPI_METHOD
 PMPI_Test_cancelled(
-    _In_ MPI_Status* request,
-    _Out_ int* flag
+    _In_ const MPI_Status* status,
+    _mpi_out_flag_ int* flag
     );
 
 
@@ -893,143 +1000,131 @@ PMPI_Test_cancelled(
 /* Section 3.9: Persistent Communication       */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Send_init(
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Send_init(
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Bsend_init(
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Bsend_init(
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Ssend_init(
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Ssend_init(
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Rsend_init(
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Rsend_init(
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int tag,
-    MPI_Comm comm,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Recv_init(
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int source,
-    int tag,
-    MPI_Comm comm,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Recv_init(
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int source,
-    int tag,
-    MPI_Comm comm,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int tag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+_Pre_satisfies_(*request != MPI_REQUEST_NULL)
+MPI_METHOD
 MPI_Start(
     _Inout_ MPI_Request* request
     );
-int
-MPIAPI
+_Pre_satisfies_(*request != MPI_REQUEST_NULL)
+MPI_METHOD
 PMPI_Start(
     _Inout_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Startall(
-    int count,
-    _Inout_count_(count) MPI_Request* array_of_requests
+    _In_range_(>=, 0) int count,
+    _mpi_updates_(count) MPI_Request array_of_requests[]
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Startall(
-    int count,
-    _Inout_count_(count) MPI_Request* array_of_requests
+    _In_range_(>=, 0) int count,
+    _mpi_updates_(count) MPI_Request array_of_requests[]
     );
 
 
@@ -1037,63 +1132,59 @@ PMPI_Startall(
 /* Section 3.10: Send-Recv                     */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Sendrecv(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
-    int dest,
-    int sendtag,
-    _Out_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    int source,
-    int recvtag,
-    MPI_Comm comm,
+    _In_opt_ const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int sendtag,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int recvtag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Sendrecv(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
-    int dest,
-    int sendtag,
-    _Out_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    int source,
-    int recvtag,
-    MPI_Comm comm,
+    _In_opt_ const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int sendtag,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int recvtag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Sendrecv_replace(
-    _Inout_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int sendtag,
-    int source,
-    int recvtag,
-    MPI_Comm comm,
+    _Inout_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int sendtag,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int recvtag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Sendrecv_replace(
-    _Inout_ void* buf,
-    int count,
-    MPI_Datatype datatype,
-    int dest,
-    int sendtag,
-    int source,
-    int recvtag,
-    MPI_Comm comm,
+    _Inout_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, MPI_PROC_NULL) int dest,
+    _In_range_(>=, 0) int sendtag,
+    _In_range_(>=, MPI_ANY_SOURCE) int source,
+    _In_range_(>=, MPI_ANY_TAG) int recvtag,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Status* status
     );
 
@@ -1106,132 +1197,118 @@ PMPI_Sendrecv_replace(
 /* Section 4.1: Derived Datatypes              */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_contiguous(
-    int count,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_contiguous(
-    int count,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_vector(
-    int count,
-    int blocklength,
-    int stride,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_range_(>=, 0) int blocklength,
+    _In_ int stride,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_vector(
-    int count,
-    int blocklength,
-    int stride,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_range_(>=, 0) int blocklength,
+    _In_ int stride,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_create_hvector(
-    int count,
-    int blocklength,
-    MPI_Aint stride,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_range_(>=, 0) int blocklength,
+    _In_ MPI_Aint stride,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_create_hvector(
-    int count,
-    int blocklength,
-    MPI_Aint stride,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_range_(>=, 0) int blocklength,
+    _In_ MPI_Aint stride,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_indexed(
-    int count,
-    _In_count_(count) int* array_of_blocklengths,
-    _In_count_(count) int* array_of_displacements,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _mpi_reads_(count) const int array_of_blocklengths[],
+    _mpi_reads_(count) const int array_of_displacements[],
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_indexed(
-    int count,
-    _In_count_(count) int* array_of_blocklengths,
-    _In_count_(count) int* array_of_displacements,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _mpi_reads_(count) const int array_of_blocklengths[],
+    _mpi_reads_(count) const int array_of_displacements[],
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_create_hindexed(
-    int count,
-    _In_count_(count) int array_of_blocklengths[],
-    _In_count_(count) MPI_Aint array_of_displacements[],
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _mpi_reads_(count) const int array_of_blocklengths[],
+    _mpi_reads_(count) const MPI_Aint array_of_displacements[],
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_create_hindexed(
-    int count,
-    _In_count_(count) int array_of_blocklengths[],
-    _In_opt_count_(count) MPI_Aint array_of_displacements[],
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _mpi_reads_(count) const int array_of_blocklengths[],
+    _mpi_reads_(count) const MPI_Aint array_of_displacements[],
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_create_indexed_block(
-    int count,
-    int blocklength,
-    _In_count_(count) int array_of_displacements[],
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_range_(>=, 0) int blocklength,
+    _mpi_reads_(count) const int array_of_displacements[],
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_create_indexed_block(
-    int count,
-    int blocklength,
-    _In_count_(count) int array_of_displacements[],
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_range_(>=, 0) int blocklength,
+    _mpi_reads_(count) const int array_of_displacements[],
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_create_struct(
-    int count,
-    _In_count_(count) int array_of_blocklengths[],
-    _In_count_(count) MPI_Aint array_of_displacements[],
-    _In_count_(count) MPI_Datatype array_of_types[],
+    _In_range_(>=, 0) int count,
+    _mpi_reads_(count) const int array_of_blocklengths[],
+    _mpi_reads_(count) const MPI_Aint array_of_displacements[],
+    _mpi_reads_(count) const MPI_Datatype array_of_types[],
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_create_struct(
-    int count,
-    _In_count_(count) int array_of_blocklengths[],
-    _In_opt_count_(count) MPI_Aint array_of_displacements[],
-    _In_count_(count) MPI_Datatype array_of_types[],
+    _In_range_(>=, 0) int count,
+    _mpi_reads_(count) const int array_of_blocklengths[],
+    _mpi_reads_(count) const MPI_Aint array_of_displacements[],
+    _mpi_reads_(count) const MPI_Datatype array_of_types[],
     _Out_ MPI_Datatype* newtype
     );
 
@@ -1239,26 +1316,24 @@ PMPI_Type_create_struct(
 #define MPI_ORDER_C         56
 #define MPI_ORDER_FORTRAN   57
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_create_subarray(
-    int ndims,
-    _In_count_(ndims) int array_of_sizes[],
-    _In_count_(ndims) int array_of_subsizes[],
-    _In_count_(ndims) int array_of_starts[],
-    int order,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int ndims,
+    _mpi_reads_(ndims) const int array_of_sizes[],
+    _mpi_reads_(ndims) const int array_of_subsizes[],
+    _mpi_reads_(ndims) const int array_of_starts[],
+    _In_range_(MPI_ORDER_C, MPI_ORDER_FORTRAN) int order,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_create_subarray(
-    int ndims,
-    _In_count_(ndims) int array_of_sizes[],
-    _In_count_(ndims) int array_of_subsizes[],
-    _In_count_(ndims) int array_of_starts[],
-    int order,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int ndims,
+    _In_reads_opt_(ndims) const int array_of_sizes[],
+    _In_reads_opt_(ndims) const int array_of_subsizes[],
+    _In_reads_opt_(ndims) const int array_of_starts[],
+    _In_range_(MPI_ORDER_C, MPI_ORDER_FORTRAN) int order,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 
@@ -1268,32 +1343,38 @@ PMPI_Type_create_subarray(
 #define MPI_DISTRIBUTE_NONE          123
 #define MPI_DISTRIBUTE_DFLT_DARG (-49767)
 
-int
-MPIAPI
+_Pre_satisfies_(
+    order == MPI_DISTRIBUTE_DFLT_DARG ||
+    (order >= MPI_DISTRIBUTE_BLOCK && order <= MPI_DISTRIBUTE_NONE)
+    )
+MPI_METHOD
 MPI_Type_create_darray(
-    int size,
-    int rank,
-    int ndims,
-    _In_count_(ndims) int array_of_gszies[],
-    _In_count_(ndims) int array_of_distribs[],
-    _In_count_(ndims) int array_of_dargs[],
-    _In_count_(ndims) int array_of_psizes[],
-    int order,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int size,
+    _In_range_(>=, 0) int rank,
+    _In_range_(>=, 0) int ndims,
+    _mpi_reads_(ndims) const int array_of_gsizes[],
+    _mpi_reads_(ndims) const int array_of_distribs[],
+    _mpi_reads_(ndims) const int array_of_dargs[],
+    _mpi_reads_(ndims) const int array_of_psizes[],
+    _In_ int order,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+_Pre_satisfies_(
+    order == MPI_DISTRIBUTE_DFLT_DARG ||
+    (order >= MPI_DISTRIBUTE_BLOCK && order <= MPI_DISTRIBUTE_NONE)
+    )
+MPI_METHOD
 PMPI_Type_create_darray(
-    int size,
-    int rank,
-    int ndims,
-    _In_count_(ndims) int array_of_gszies[],
-    _In_count_(ndims) int array_of_distribs[],
-    _In_count_(ndims) int array_of_dargs[],
-    _In_count_(ndims) int array_of_psizes[],
-    int order,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int size,
+    _In_range_(>=, 0) int rank,
+    _In_range_(>=, 0) int ndims,
+    _mpi_reads_(ndims) const int array_of_gsizes[],
+    _mpi_reads_(ndims) const int array_of_distribs[],
+    _mpi_reads_(ndims) const int array_of_dargs[],
+    _mpi_reads_(ndims) const int array_of_psizes[],
+    _In_ int order,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 
@@ -1302,30 +1383,26 @@ PMPI_Type_create_darray(
 /* Section 4.1.5: Datatype Address and Size    */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Get_address(
-    _In_ void* location,
+    _In_ const void* location,
     _Out_ MPI_Aint* address
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Get_address(
-    _In_ void* location,
+    _In_ const void* location,
     _Out_ MPI_Aint* address
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_size(
-    MPI_Datatype datatype,
-    _Out_ int* size
+    _In_ MPI_Datatype datatype,
+    _mpi_out_(size, MPI_UNDEFINED) int* size
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_size(
-    MPI_Datatype datatype,
-    _Out_ int* size
+    _In_ MPI_Datatype datatype,
+    _mpi_out_(size, MPI_UNDEFINED) int* size
     );
 
 
@@ -1333,35 +1410,31 @@ PMPI_Type_size(
 /* Section 4.1.7: Datatype Extent and Bounds   */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_get_extent(
-    MPI_Datatype datatype,
-    _Out_ MPI_Aint* lb,
-    _Out_ MPI_Aint* extent
+    _In_ MPI_Datatype datatype,
+    _mpi_out_(lb, MPI_UNDEFINED) MPI_Aint* lb,
+    _mpi_out_(extent, MPI_UNDEFINED) MPI_Aint* extent
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_get_extent(
-    MPI_Datatype datatype,
-    _Out_ MPI_Aint* lb,
-    _Out_ MPI_Aint* extent
+    _In_ MPI_Datatype datatype,
+    _mpi_out_(lb, MPI_UNDEFINED) MPI_Aint* lb,
+    _mpi_out_(extent, MPI_UNDEFINED) MPI_Aint* extent
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_create_resized(
-    MPI_Datatype oldtype,
-    MPI_Aint lb,
-    MPI_Aint extent,
+    _In_ MPI_Datatype oldtype,
+    _In_ MPI_Aint lb,
+    _In_range_(>=, 0) MPI_Aint extent,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_create_resized(
-    MPI_Datatype oldtype,
-    MPI_Aint lb,
-    MPI_Aint extent,
+    _In_ MPI_Datatype oldtype,
+    _In_ MPI_Aint lb,
+    _In_range_(>=, 0) MPI_Aint extent,
     _Out_ MPI_Datatype* newtype
     );
 
@@ -1370,19 +1443,17 @@ PMPI_Type_create_resized(
 /* Section 4.1.8: Datatype True Extent         */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_get_true_extent(
-    MPI_Datatype datatype,
-    _Out_ MPI_Aint* true_lb,
-    _Out_ MPI_Aint* true_extent
+    _In_ MPI_Datatype datatype,
+    _mpi_out_(true_lb, MPI_UNDEFINED) MPI_Aint* true_lb,
+    _mpi_out_(true_extent, MPI_UNDEFINED) MPI_Aint* true_extent
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_get_true_extent(
-    MPI_Datatype datatype,
-    _Out_ MPI_Aint* true_lb,
-    _Out_ MPI_Aint* true_extent
+    _In_ MPI_Datatype datatype,
+    _mpi_out_(true_lb, MPI_UNDEFINED) MPI_Aint* true_lb,
+    _mpi_out_(true_extent, MPI_UNDEFINED) MPI_Aint* true_extent
     );
 
 
@@ -1390,26 +1461,22 @@ PMPI_Type_get_true_extent(
 /* Section 4.1.9: Datatype Commit and Free     */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_commit(
     _In_ MPI_Datatype* datatype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_commit(
     _In_ MPI_Datatype* datatype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_free(
-    _Inout_ MPI_Datatype* datatype
+    _Deref_out_range_(==, MPI_DATATYPE_NULL) _Inout_ MPI_Datatype* datatype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_free(
-    _Inout_ MPI_Datatype* datatype
+    _Deref_out_range_(==, MPI_DATATYPE_NULL) _Inout_ MPI_Datatype* datatype
     );
 
 
@@ -1417,16 +1484,14 @@ PMPI_Type_free(
 /* Section 4.1.10: Datatype Duplication        */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_dup(
-    MPI_Datatype type,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_dup(
-    MPI_Datatype type,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 
@@ -1435,19 +1500,17 @@ PMPI_Type_dup(
 /* Section 4.1.11: Datatype and Communication  */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Get_elements(
-    _In_ MPI_Status* status,
-    MPI_Datatype datatype,
-    _Out_ int* count
+    _In_ const MPI_Status* status,
+    _In_ MPI_Datatype datatype,
+    _mpi_out_(count, MPI_UNDEFINED) int* count
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Get_elements(
-    _In_ MPI_Status* status,
-    MPI_Datatype datatype,
-    _Out_ int* count
+    _In_ const MPI_Status* status,
+    _In_ MPI_Datatype datatype,
+    _mpi_out_(count, MPI_UNDEFINED) int* count
     );
 
 
@@ -1478,46 +1541,42 @@ enum
     MPI_COMBINER_RESIZED          = 18
 };
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_get_envelope(
-    MPI_Datatype datatype,
-    _Out_ int* num_integers,
-    _Out_ int* num_addresses,
-    _Out_ int* num_datatypes,
-    _Out_ int* combiner
+    _In_ MPI_Datatype datatype,
+    _Out_ _Deref_out_range_(>=, 0) int* num_integers,
+    _Out_ _Deref_out_range_(>=, 0) int* num_addresses,
+    _Out_ _Deref_out_range_(>=, 0) int* num_datatypes,
+    _Out_ _Deref_out_range_(MPI_COMBINER_NAMED, MPI_COMBINER_RESIZED) int* combiner
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_get_envelope(
-    MPI_Datatype datatype,
-    _Out_ int* num_integers,
-    _Out_ int* num_addresses,
-    _Out_ int* num_datatypes,
-    _Out_ int* combiner
+    _In_ MPI_Datatype datatype,
+    _Out_ _Deref_out_range_(>=, 0) int* num_integers,
+    _Out_ _Deref_out_range_(>=, 0) int* num_addresses,
+    _Out_ _Deref_out_range_(>=, 0) int* num_datatypes,
+    _Out_ _Deref_out_range_(MPI_COMBINER_NAMED, MPI_COMBINER_RESIZED) int* combiner
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_get_contents(
-    MPI_Datatype datatype,
-    int max_integers,
-    int max_addresses,
-    int max_datatypes,
-    _Out_cap_(max_integers) int array_of_integers[],
-    _Out_cap_(max_addresses) MPI_Aint array_of_addresses[],
-    _Out_cap_(max_datatypes) MPI_Datatype array_of_datatypes[]
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, 0) int max_integers,
+    _In_range_(>=, 0) int max_addresses,
+    _In_range_(>=, 0) int max_datatypes,
+    _mpi_writes_(max_integers) int array_of_integers[],
+    _mpi_writes_(max_addresses) MPI_Aint array_of_addresses[],
+    _mpi_writes_(max_datatypes) MPI_Datatype array_of_datatypes[]
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_get_contents(
-    MPI_Datatype datatype,
-    int max_integers,
-    int max_addresses,
-    int max_datatypes,
-    _Out_cap_(max_integers) int array_of_integers[],
-    _Out_cap_(max_addresses) MPI_Aint array_of_addresses[],
-    _Out_cap_(max_datatypes) MPI_Datatype array_of_datatypes[]
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, 0) int max_integers,
+    _In_range_(>=, 0) int max_addresses,
+    _In_range_(>=, 0) int max_datatypes,
+    _mpi_writes_(max_integers) int array_of_integers[],
+    _mpi_writes_(max_addresses) MPI_Aint array_of_addresses[],
+    _mpi_writes_(max_datatypes) MPI_Datatype array_of_datatypes[]
     );
 
 
@@ -1525,66 +1584,60 @@ PMPI_Type_get_contents(
 /* Section 4.2: Datatype Pack and Unpack       */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Pack(
-    _In_ void* inbuf,
-    int incount,
-    MPI_Datatype datatype,
-    _Out_bytecap_(outsize) void* outbuf,
-    int outsize,
-    _Inout_ int* position,
-    MPI_Comm comm
+    _In_opt_ const void* inbuf,
+    _In_range_(>=, 0) int incount,
+    _In_ MPI_Datatype datatype,
+    _mpi_writes_bytes_(outsize) void* outbuf,
+    _In_range_(>=, 0) int outsize,
+    _mpi_position_(outsize) int* position,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Pack(
-    _In_ void* inbuf,
-    int incount,
-    MPI_Datatype datatype,
-    _Out_bytecap_(outsize) void* outbuf,
-    int outsize,
-    _Inout_ int* position,
-    MPI_Comm comm
+    _In_opt_ const void* inbuf,
+    _In_range_(>=, 0) int incount,
+    _In_ MPI_Datatype datatype,
+    _mpi_writes_bytes_(outsize) void* outbuf,
+    _In_range_(>=, 0) int outsize,
+    _mpi_position_(outsize) int* position,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Unpack(
-    _In_bytecount_(insize) void* inbuf,
-    int insize,
-    _Inout_ int* position,
-    _Out_ void* outbuf,
-    int outcount,
-    MPI_Datatype datatype,
-    MPI_Comm comm
+    _mpi_reads_bytes_(insize) const void* inbuf,
+    _In_range_(>=, 0) int insize,
+    _mpi_position_(insize) int* position,
+    _When_(insize > 0, _Out_opt_) void* outbuf,
+    _In_range_(>=, 0) int outcount,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Unpack(
-    _In_bytecount_(insize) void* inbuf,
-    int insize,
-    _Inout_ int* position,
-    _Out_ void* outbuf,
-    int outcount,
-    MPI_Datatype datatype,
-    MPI_Comm comm
+    _mpi_reads_bytes_(insize) const void* inbuf,
+    _In_range_(>=, 0) int insize,
+    _mpi_position_(insize) int* position,
+    _When_(insize > 0, _Out_opt_) void* outbuf,
+    _In_range_(>=, 0) int outcount,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Pack_size(
-    int incount,
-    MPI_Datatype datatype,
-    MPI_Comm comm,
+    _In_range_(>=, 0) int incount,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Comm comm,
     _Out_ int* size
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Pack_size(
-    int incount,
-    MPI_Datatype datatype,
-    MPI_Comm comm,
+    _In_range_(>=, 0) int incount,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Comm comm,
     _Out_ int* size
     );
 
@@ -1593,66 +1646,60 @@ PMPI_Pack_size(
 /* Section 4.3: Canonical Pack and Unpack      */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Pack_external(
-    _In_z_ char* datarep,
-    _In_ void* inbuf,
-    int incount,
-    MPI_Datatype datatype,
-    _Out_bytecap_(outsize) void* outbuf,
-    MPI_Aint outsize,
-    _Inout_ MPI_Aint* position
+    _In_z_ const char* datarep,
+    _In_opt_ const void* inbuf,
+    _In_range_(>=, 0) int incount,
+    _In_ MPI_Datatype datatype,
+    _mpi_writes_bytes_(outsize) void* outbuf,
+    _In_range_(>=, 0) MPI_Aint outsize,
+    _mpi_position_(outsize) MPI_Aint* position
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Pack_external(
-    _In_z_ char* datarep,
-    _In_ void* inbuf,
-    int incount,
-    MPI_Datatype datatype,
-    _Out_bytecap_(outsize) void* outbuf,
-    MPI_Aint outsize,
-    _Inout_ MPI_Aint* position
+    _In_z_ const char* datarep,
+    _In_opt_ const void* inbuf,
+    _In_range_(>=, 0) int incount,
+    _In_ MPI_Datatype datatype,
+    _mpi_writes_bytes_(outsize) void* outbuf,
+    _In_range_(>=, 0) MPI_Aint outsize,
+    _mpi_position_(outsize) MPI_Aint* position
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Unpack_external(
-    _In_z_ char* datarep,
-    _In_bytecount_(insize) void* inbuf,
-    MPI_Aint insize,
-    _Inout_ MPI_Aint* position,
-    _Out_ void* outbuf,
-    int outcount,
-    MPI_Datatype datatype
+    _In_z_ const char* datarep,
+    _In_reads_bytes_opt_(insize) const void* inbuf,
+    _In_range_(>=, 0) MPI_Aint insize,
+    _mpi_position_(insize) MPI_Aint* position,
+    _When_(insize > 0, _Out_opt_) void* outbuf,
+    _In_range_(>=, 0) int outcount,
+    _In_ MPI_Datatype datatype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Unpack_external(
-    _In_z_ char* datarep,
-    _In_bytecount_(insize) void* inbuf,
-    MPI_Aint insize,
-    _Inout_ MPI_Aint* position,
-    _Out_ void* outbuf,
-    int outcount,
-    MPI_Datatype datatype
+    _In_z_ const char* datarep,
+    _In_reads_bytes_opt_(insize) const void* inbuf,
+    _In_range_(>=, 0) MPI_Aint insize,
+    _mpi_position_(insize) MPI_Aint* position,
+    _When_(insize > 0, _Out_opt_) void* outbuf,
+    _In_range_(>=, 0) int outcount,
+    _In_ MPI_Datatype datatype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Pack_external_size(
-    _In_z_ char* datarep,
-    int incount,
-    MPI_Datatype datatype,
+    _In_z_ const char* datarep,
+    _In_range_(>=, 0) int incount,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Aint* size
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Pack_external_size(
-    _In_z_ char* datarep,
-    int incount,
-    MPI_Datatype datatype,
+    _In_z_ const char* datarep,
+    _In_range_(>=, 0) int incount,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Aint* size
     );
 
@@ -1667,15 +1714,13 @@ PMPI_Pack_external_size(
 /* Section 5.3: Barrier Synchronization        */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Barrier(
-    MPI_Comm comm
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Barrier(
-    MPI_Comm comm
+    _In_ MPI_Comm comm
     );
 
 
@@ -1683,23 +1728,21 @@ PMPI_Barrier(
 /* Section 5.4: Broadcast                      */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Bcast(
-    _Inout_ void* buffer,
-    int count,
-    MPI_Datatype datatype,
-    int root,
-    MPI_Comm comm
+    _Pre_opt_valid_ void* buffer,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Bcast(
-    _Inout_ void* buffer,
-    int count,
-    MPI_Datatype datatype,
-    int root,
-    MPI_Comm comm
+    _Pre_opt_valid_ void* buffer,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
 
 
@@ -1707,56 +1750,56 @@ PMPI_Bcast(
 /* Section 5.5: Gather                         */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Gather(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
+    _In_opt_ _When_(sendtype == recvtype, _In_range_(!=, recvbuf)) const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
     _Out_opt_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    int root,
-    MPI_Comm comm
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Gather(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
+    _In_opt_ _When_(sendtype == recvtype, _In_range_(!=, recvbuf)) const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
     _Out_opt_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    int root,
-    MPI_Comm comm
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Gatherv(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
+    _In_opt_ const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
     _Out_opt_ void* recvbuf,
-    _In_opt_ int* recvcounts,
-    _In_opt_ int* displs,
-    MPI_Datatype recvtype,
-    int root,
-    MPI_Comm comm
+    _In_ const int recvcounts[],
+    _In_ const int displs[],
+    _In_ MPI_Datatype recvtype,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Gatherv(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
+    _In_opt_ const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
     _Out_opt_ void* recvbuf,
-    _In_opt_ int* recvcounts,
-    _In_opt_ int* displs,
-    MPI_Datatype recvtype,
-    int root,
-    MPI_Comm comm
+    _In_ const int recvcounts[],
+    _In_ const int displs[],
+    _In_ MPI_Datatype recvtype,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
 
 
@@ -1764,56 +1807,56 @@ PMPI_Gatherv(
 /* Section 5.6: Scatter                        */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+_Pre_satisfies_(sendbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Scatter(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    int root,
-    MPI_Comm comm
+    _In_opt_ const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ _When_(sendtype == recvtype, _In_range_(!=, sendbuf)) void* recvbuf,
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(sendbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Scatter(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    int root,
-    MPI_Comm comm
+    _In_opt_ const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ _When_(sendtype == recvtype, _In_range_(!=, sendbuf)) void* recvbuf,
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+_Pre_satisfies_(sendbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Scatterv(
-    _In_ void* sendbuf,
-    _In_ int* sendcounts,
-    _In_ int* displs,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    int root,
-    MPI_Comm comm
+    _In_opt_ const void* sendbuf,
+    _In_ const int sendcounts[],
+    _In_ const int displs[],
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(sendbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Scatterv(
-    _In_ void* sendbuf,
-    _In_ int* sendcounts,
-    _In_ int* displs,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    int root,
-    MPI_Comm comm
+    _In_opt_ const void* sendbuf,
+    _In_ const int sendcounts[],
+    _In_ const int displs[],
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
 
 
@@ -1821,52 +1864,52 @@ PMPI_Scatterv(
 /* Section 5.6: Gather-to-all                  */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Allgather(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    MPI_Comm comm
+    _In_opt_ _When_(sendtype == recvtype, _In_range_(!=, recvbuf)) const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Allgather(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    MPI_Comm comm
+    _In_opt_ _When_(sendtype == recvtype, _In_range_(!=, recvbuf)) const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Allgatherv(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    _In_ int* recvcounts,
-    _In_ int* displs,
-    MPI_Datatype recvtype,
-    MPI_Comm comm
+    _In_opt_ const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ void* recvbuf,
+    _In_ const int recvcounts[],
+    _In_ const int displs[],
+    _In_ MPI_Datatype recvtype,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Allgatherv(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    _In_ int* recvcounts,
-    _In_ int* displs,
-    MPI_Datatype recvtype,
-    MPI_Comm comm
+    _In_opt_ const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ void* recvbuf,
+    _In_ const int recvcounts[],
+    _In_ const int displs[],
+    _In_ MPI_Datatype recvtype,
+    _In_ MPI_Comm comm
     );
 
 
@@ -1874,81 +1917,81 @@ PMPI_Allgatherv(
 /* Section 5.6: All-to-All Scatter/Gather      */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Alltoall(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    MPI_Comm comm
+    _In_opt_ _When_(sendtype == recvtype, _In_range_(!=, recvbuf)) const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Alltoall(
-    _In_ void* sendbuf,
-    int sendcount,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    int recvcount,
-    MPI_Datatype recvtype,
-    MPI_Comm comm
+    _In_opt_ _When_(sendtype == recvtype, _In_range_(!=, recvbuf)) const void* sendbuf,
+    _In_range_(>=, 0) int sendcount,
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int recvcount,
+    _In_ MPI_Datatype recvtype,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Alltoallv(
-    _In_ void* sendbuf,
-    _In_ int* sendcounts,
-    _In_ int* sdispls,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    _In_ int* recvcounts,
-    _In_ int* rdispls,
-    MPI_Datatype recvtype,
-    MPI_Comm comm
+    _In_opt_ const void* sendbuf,
+    _In_opt_ const int sendcounts[],
+    _In_opt_ const int sdispls[],
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ void* recvbuf,
+    _In_ const int recvcounts[],
+    _In_ const int rdispls[],
+    _In_ MPI_Datatype recvtype,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Alltoallv(
-    _In_ void* sendbuf,
-    _In_ int* sendcounts,
-    _In_ int* sdispls,
-    MPI_Datatype sendtype,
-    _Out_ void* recvbuf,
-    _In_ int* recvcounts,
-    _In_ int* rdispls,
-    MPI_Datatype recvtype,
-    MPI_Comm comm
+    _In_opt_ const void* sendbuf,
+    _In_opt_ const int sendcounts[],
+    _In_opt_ const int sdispls[],
+    _In_ MPI_Datatype sendtype,
+    _Out_opt_ void* recvbuf,
+    _In_ const int recvcounts[],
+    _In_ const int rdispls[],
+    _In_ MPI_Datatype recvtype,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Alltoallw(
-    _In_ void* sendbuf,
-    _In_ int sendcounts[],
-    _In_ int sdispls[],
-    _In_ MPI_Datatype sendtypes[],
-    _Out_ void* recvbuf,
-    _In_ int recvcounts[],
-    _In_ int rdispls[],
-    _In_ MPI_Datatype recvtypes[],
-    MPI_Comm comm
+    _In_opt_ const void* sendbuf,
+    _In_opt_ const int sendcounts[],
+    _In_opt_ const int sdispls[],
+    _In_opt_ const MPI_Datatype sendtypes[],
+    _Out_opt_ void* recvbuf,
+    _In_ const int recvcounts[],
+    _In_ const int rdispls[],
+    _In_ const MPI_Datatype recvtypes[],
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Alltoallw(
-    _In_ void* sendbuf,
-    _In_ int sendcounts[],
-    _In_ int sdispls[],
-    _In_ MPI_Datatype sendtypes[],
-    _Out_ void* recvbuf,
-    _In_ int recvcounts[],
-    _In_ int rdispls[],
-    _In_ MPI_Datatype recvtypes[],
-    MPI_Comm comm
+    _In_opt_ const void* sendbuf,
+    _In_opt_ const int sendcounts[],
+    _In_opt_ const int sdispls[],
+    _In_opt_ const MPI_Datatype sendtypes[],
+    _Out_opt_ void* recvbuf,
+    _In_ const int recvcounts[],
+    _In_ const int rdispls[],
+    _In_ const MPI_Datatype recvtypes[],
+    _In_ MPI_Comm comm
     );
 
 
@@ -1959,124 +2002,122 @@ PMPI_Alltoallw(
 typedef
 void
 (MPIAPI MPI_User_function)(
-    _In_count_(*len) void* invec,
-    _Inout_ void* inoutvec,
+    _In_opt_ void* invec,
+    _Inout_opt_ void* inoutvec,
     _In_ int* len,
     _In_ MPI_Datatype* datatype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Op_create(
-    _In_ MPI_User_function* function,
-    int commute,
+    _In_ MPI_User_function* user_fn,
+    _In_ int commute,
     _Out_ MPI_Op* op
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Op_create(
-    _In_ MPI_User_function* function,
-    int commute,
+    _In_ MPI_User_function* user_fn,
+    _In_ int commute,
     _Out_ MPI_Op* op
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Op_free(
     _Inout_ MPI_Op* op
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Op_free(
     _Inout_ MPI_Op* op
     );
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Reduce(
-    _In_ void* sendbuf,
+    _In_range_(!=, recvbuf) _In_opt_ const void* sendbuf,
     _Out_opt_ void* recvbuf,
-    int count,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    int root,
-    MPI_Comm comm
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Reduce(
-    _In_ void* sendbuf,
+    _In_range_(!=, recvbuf) _In_opt_ const void* sendbuf,
     _Out_opt_ void* recvbuf,
-    int count,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    int root,
-    MPI_Comm comm
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op,
+    _mpi_coll_rank_(root) int root,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Allreduce(
-    _In_ void* sendbuf,
-    _Out_ void* recvbuf,
-    int count,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    MPI_Comm comm
+    _In_range_(!=, recvbuf) _In_opt_ const void* sendbuf,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Allreduce(
-    _In_ void* sendbuf,
-    _Out_ void* recvbuf,
-    int count,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    MPI_Comm comm
+    _In_range_(!=, recvbuf) _In_opt_ const void* sendbuf,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+_Pre_satisfies_(inbuf != MPI_IN_PLACE)
+_Pre_satisfies_(inoutbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Reduce_local(
-    _In_ void *inbuf,
-    _Inout_ void *inoutbuf,
-    int count,
-    MPI_Datatype datatype,
-    MPI_Op op
+    _In_opt_ _In_range_(!=, inoutbuf) const void *inbuf,
+    _Inout_opt_ void *inoutbuf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op
     );
-int
-MPIAPI
+_Pre_satisfies_(inbuf != MPI_IN_PLACE)
+_Pre_satisfies_(inoutbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Reduce_local(
-    _In_ void *inbuf,
-    _Inout_ void *inoutbuf,
-    int count,
-    MPI_Datatype datatype,
-    MPI_Op op
+    _In_opt_ _In_range_(!=, inoutbuf) const void *inbuf,
+    _Inout_opt_ void *inoutbuf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op
     );
 
 /*---------------------------------------------*/
 /* Section 5.10: Reduce-Scatter                */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Reduce_scatter(
-    _In_ void* sendbuf,
-    _Out_ void* recvbuf,
-    _In_ int* recvcounts,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    MPI_Comm comm
+    _In_opt_ _In_range_(!=, recvbuf) const void* sendbuf,
+    _Out_opt_ void* recvbuf,
+    _In_ const int recvcounts[],
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Reduce_scatter(
-    _In_ void* sendbuf,
-    _Out_ void* recvbuf,
-    _In_ int* recvcounts,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    MPI_Comm comm
+    _In_opt_ _In_range_(!=, recvbuf) const void* sendbuf,
+    _Out_opt_ void* recvbuf,
+    _In_ const int recvcounts[],
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op,
+    _In_ MPI_Comm comm
     );
 
 
@@ -2084,46 +2125,46 @@ PMPI_Reduce_scatter(
 /* Section 5.11: Scan                          */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Scan(
-    _In_ void* sendbuf,
-    _Out_ void* recvbuf,
-    int count,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    MPI_Comm comm
+    _In_opt_ _In_range_(!=, recvbuf) const void* sendbuf,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Scan(
-    _In_ void* sendbuf,
-    _Out_ void* recvbuf,
-    int count,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    MPI_Comm comm
+    _In_opt_ _In_range_(!=, recvbuf) const void* sendbuf,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op,
+    _In_ MPI_Comm comm
     );
 
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 MPI_Exscan(
-    _In_ void* sendbuf,
-    _Out_ void* recvbuf,
-    int count,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    MPI_Comm comm
+    _In_opt_ _In_range_(!=, recvbuf) const void* sendbuf,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op,
+    _In_ MPI_Comm comm
     );
-int
-MPIAPI
+_Pre_satisfies_(recvbuf != MPI_IN_PLACE)
+MPI_METHOD
 PMPI_Exscan(
-    _In_ void* sendbuf,
-    _Out_ void* recvbuf,
-    int count,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    MPI_Comm comm
+    _In_opt_ _In_range_(!=, recvbuf) const void* sendbuf,
+    _Out_opt_ void* recvbuf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
+    _In_ MPI_Op op,
+    _In_ MPI_Comm comm
     );
 
 
@@ -2135,50 +2176,43 @@ PMPI_Exscan(
 /* Section 6.3: Group Management               */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_size(
-    MPI_Group group,
-    _Out_ int* size
+    _In_ MPI_Group group,
+    _Out_ _Deref_out_range_(>, 0) int* size
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_size(
-    MPI_Group group,
-    _Out_ int* size
+    _In_ MPI_Group group,
+    _Out_ _Deref_out_range_(>, 0) int* size
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_rank(
-    MPI_Group group,
-    _Out_ int* rank
+    _In_ MPI_Group group,
+    _Out_ _Deref_out_range_(>=, MPI_UNDEFINED) int* rank
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_rank(
-    MPI_Group group,
-    _Out_ int* rank
+    _In_ MPI_Group group,
+    _Out_ _Deref_out_range_(>=, MPI_UNDEFINED) int* rank
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_translate_ranks(
-    MPI_Group group1,
-    int n,
-    _In_count_(n) int* ranks1,
-    MPI_Group group2,
-    _Out_ int* ranks2
+    _In_ MPI_Group group1,
+    _In_ int n,
+    _In_reads_opt_(n) const int ranks1[],
+    _In_ MPI_Group group2,
+    _Out_writes_opt_(n) int ranks2[]
     );
-
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_translate_ranks(
-    MPI_Group group1,
-    int n,
-    _In_count_(n) int* ranks1,
-    MPI_Group group2,
-    _Out_ int* ranks2
+    _In_ MPI_Group group1,
+    _In_ int n,
+    _In_reads_opt_(n) const int ranks1[],
+    _In_ MPI_Group group2,
+    _Out_writes_opt_(n) int ranks2[]
     );
 
 /* Results of the compare operations */
@@ -2187,154 +2221,134 @@ PMPI_Group_translate_ranks(
 #define MPI_SIMILAR     2
 #define MPI_UNEQUAL     3
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_compare(
-    MPI_Group group1,
-    MPI_Group group2,
+    _In_ MPI_Group group1,
+    _In_ MPI_Group group2,
     _Out_ int* result
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_compare(
-    MPI_Group group1,
-    MPI_Group group2,
+    _In_ MPI_Group group1,
+    _In_ MPI_Group group2,
     _Out_ int* result
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_group(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Group* group
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_group(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Group* group
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_union(
-    MPI_Group group1,
-    MPI_Group group2,
+    _In_ MPI_Group group1,
+    _In_ MPI_Group group2,
     _Out_ MPI_Group* newgroup
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_union(
-    MPI_Group group1,
-    MPI_Group group2,
+    _In_ MPI_Group group1,
+    _In_ MPI_Group group2,
     _Out_ MPI_Group* newgroup
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_intersection(
-    MPI_Group group1,
-    MPI_Group group2,
+    _In_ MPI_Group group1,
+    _In_ MPI_Group group2,
     _Out_ MPI_Group* newgroup
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_intersection(
-    MPI_Group group1,
-    MPI_Group group2,
+   _In_  MPI_Group group1,
+    _In_ MPI_Group group2,
     _Out_ MPI_Group* newgroup
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_difference(
-    MPI_Group group1,
-    MPI_Group group2,
+    _In_ MPI_Group group1,
+    _In_ MPI_Group group2,
     _Out_ MPI_Group* newgroup
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_difference(
-    MPI_Group group1,
-    MPI_Group group2,
+    _In_ MPI_Group group1,
+    _In_ MPI_Group group2,
     _Out_ MPI_Group* newgroup
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_incl(
-    MPI_Group group,
-    int n,
-    _In_count_(n) int* ranks,
+    _In_ MPI_Group group,
+    _In_range_(>=, 0) int n,
+    _In_reads_opt_(n) const int ranks[],
     _Out_ MPI_Group* newgroup
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_incl(
-    MPI_Group group,
-    int n,
-    _In_count_(n) int* ranks,
+    _In_ MPI_Group group,
+    _In_range_(>=, 0) int n,
+    _In_reads_opt_(n) const int ranks[],
     _Out_ MPI_Group* newgroup
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_excl(
-    MPI_Group group,
-    int n,
-    _In_count_(n) int* ranks,
+    _In_ MPI_Group group,
+    _In_range_(>=, 0) int n,
+    _In_reads_opt_(n) const int ranks[],
     _Out_ MPI_Group* newgroup
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_excl(
-    MPI_Group group,
-    int n,
-    _In_count_(n) int* ranks,
+    _In_ MPI_Group group,
+    _In_range_(>=, 0) int n,
+    _In_reads_opt_(n) const int ranks[],
     _Out_ MPI_Group* newgroup
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_range_incl(
-    MPI_Group group,
-    int n,
-    _In_count_(n) int ranges[][3],
+    _In_ MPI_Group group,
+    _In_range_(>=, 0) int n,
+    _In_reads_opt_(n) int ranges[][3],
     _Out_ MPI_Group* newgroup
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_range_incl(
-    MPI_Group group,
-    int n,
-    _In_count_(n) int ranges[][3],
+    _In_ MPI_Group group,
+    _In_range_(>=, 0) int n,
+    _In_reads_opt_(n) int ranges[][3],
     _Out_ MPI_Group* newgroup
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_range_excl(
-    MPI_Group group,
-    int n,
-    _In_count_(n) int ranges[][3],
+    _In_ MPI_Group group,
+    _In_range_(>=, 0) int n,
+    _In_reads_opt_(n) int ranges[][3],
     _Out_ MPI_Group* newgroup
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_range_excl(
-    MPI_Group group,
-    int n,
-    _In_count_(n) int ranges[][3],
+    _In_ MPI_Group group,
+    _In_range_(>=, 0) int n,
+    _In_reads_opt_(n) int ranges[][3],
     _Out_ MPI_Group* newgroup
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Group_free(
     _Inout_ MPI_Group* group
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Group_free(
     _Inout_ MPI_Group* group
     );
@@ -2344,99 +2358,102 @@ PMPI_Group_free(
 /* Section 6.4: Communicator Management        */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_size(
-    MPI_Comm comm,
-    _Out_ int* size
+    _In_ MPI_Comm comm,
+    _Out_ _Deref_out_range_(>, 0) int* size
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_size(
-    MPI_Comm comm,
-    _Out_ int* size
+    _In_ MPI_Comm comm,
+    _Out_ _Deref_out_range_(>, 0) int* size
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_rank(
-    MPI_Comm comm,
-    _Out_ int* rank
+    _In_ MPI_Comm comm,
+    _Out_ _Deref_out_range_(>=, 0)  int* rank
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_rank(
-    MPI_Comm comm,
-    _Out_ int* rank
+    _In_ MPI_Comm comm,
+    _Out_ _Deref_out_range_(>=, 0)  int* rank
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_compare(
-    MPI_Comm comm1,
-    MPI_Comm comm2,
+    _In_ MPI_Comm comm1,
+    _In_ MPI_Comm comm2,
     _Out_ int* result
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_compare(
-    MPI_Comm comm1,
-    MPI_Comm comm2,
+    _In_ MPI_Comm comm1,
+    _In_ MPI_Comm comm2,
     _Out_ int* result
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_dup(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Comm* newcomm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_dup(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Comm* newcomm
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_create(
-    MPI_Comm comm,
-    MPI_Group group,
+    _In_ MPI_Comm comm,
+    _In_ MPI_Group group,
     _Out_ MPI_Comm* newcomm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_create(
-    MPI_Comm comm,
-    MPI_Group group,
+    _In_ MPI_Comm comm,
+    _In_ MPI_Group group,
     _Out_ MPI_Comm* newcomm
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_split(
-    MPI_Comm comm,
-    int color,
-    int key,
+    _In_ MPI_Comm comm,
+    _In_ int color,
+    _In_ int key,
     _Out_ MPI_Comm* newcomm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_split(
-    MPI_Comm comm,
-    int color,
-    int key,
+    _In_ MPI_Comm comm,
+    _In_ int color,
+    _In_ int key,
     _Out_ MPI_Comm* newcomm
     );
 
-int
-MPIAPI
+MPI_METHOD
+MPI_Comm_split_type(
+    _In_ MPI_Comm comm,
+    _In_ int split_type,
+    _In_ int key,
+    _In_ MPI_Info info,
+    _Out_ MPI_Comm *newcomm
+    );
+MPI_METHOD
+PMPI_Comm_split_type(
+    _In_ MPI_Comm comm,
+    _In_ int split_type,
+    _In_ int key,
+    _In_ MPI_Info info,
+    _Out_ MPI_Comm *newcomm
+    );
+
+MPI_METHOD
 MPI_Comm_free(
     _Inout_ MPI_Comm* comm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_free(
     _Inout_ MPI_Comm* comm
     );
@@ -2446,78 +2463,68 @@ PMPI_Comm_free(
 /* Section 6.6: Inter-Communication            */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_test_inter(
-    MPI_Comm comm,
-    _Out_ int* flag
+    _In_ MPI_Comm comm,
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_test_inter(
-    MPI_Comm comm,
-    _Out_ int* flag
+    _In_ MPI_Comm comm,
+    _mpi_out_flag_ int* flag
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_remote_size(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ int* size
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_remote_size(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ int* size
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_remote_group(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Group* group
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_remote_group(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Group* group
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Intercomm_create(
-    MPI_Comm local_comm,
-    int local_leader,
-    MPI_Comm peer_comm,
-    int remote_leader,
-    int tag,
+    _In_ MPI_Comm local_comm,
+    _In_range_(>=, 0) int local_leader,
+    _In_ MPI_Comm peer_comm,
+    _In_range_(>=, 0) int remote_leader,
+    _In_range_(>=, 0) int tag,
     _Out_ MPI_Comm* newintercomm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Intercomm_create(
-    MPI_Comm local_comm,
-    int local_leader,
-    MPI_Comm peer_comm,
-    int remote_leader,
-    int tag,
+    _In_ MPI_Comm local_comm,
+    _In_range_(>=, 0) int local_leader,
+    _In_ MPI_Comm peer_comm,
+    _In_range_(>=, 0) int remote_leader,
+    _In_range_(>=, 0) int tag,
     _Out_ MPI_Comm* newintercomm
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Intercomm_merge(
-    MPI_Comm intercomm,
-    int high,
+    _In_ MPI_Comm intercomm,
+    _In_ int high,
     _Out_ MPI_Comm* newintracomm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Intercomm_merge(
-    MPI_Comm intercomm,
-    int high,
+    _In_ MPI_Comm intercomm,
+    _In_ int high,
     _Out_ MPI_Comm* newintracomm
     );
 
@@ -2531,20 +2538,20 @@ PMPI_Intercomm_merge(
 typedef
 int
 (MPIAPI MPI_Comm_copy_attr_function)(
-    MPI_Comm oldcomm,
-    int comm_keyval,
+    _In_ MPI_Comm oldcomm,
+    _In_ int comm_keyval,
     _In_opt_ void* extra_state,
-    _In_ void* attribute_val_in,
+    _In_opt_ void* attribute_val_in,
     _Out_ void* attribute_val_out,
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
 
 typedef
 int
 (MPIAPI MPI_Comm_delete_attr_function)(
-    MPI_Comm comm,
-    int comm_keyval,
-    _In_ void* attribute_val,
+    _In_ MPI_Comm comm,
+    _In_ int comm_keyval,
+    _In_opt_ void* attribute_val,
     _In_opt_ void* extra_state
     );
 
@@ -2552,16 +2559,14 @@ int
 #define MPI_COMM_NULL_DELETE_FN ((MPI_Comm_delete_attr_function*)0)
 #define MPI_COMM_DUP_FN ((MPI_Comm_copy_attr_function*)MPIR_Dup_fn)
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_create_keyval(
     _In_opt_ MPI_Comm_copy_attr_function* comm_copy_attr_fn,
     _In_opt_ MPI_Comm_delete_attr_function* comm_delete_attr_fn,
     _Out_ int* comm_keyval,
     _In_opt_ void* extra_state
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_create_keyval(
     _In_opt_ MPI_Comm_copy_attr_function* comm_copy_attr_fn,
     _In_opt_ MPI_Comm_delete_attr_function* comm_delete_attr_fn,
@@ -2569,30 +2574,26 @@ PMPI_Comm_create_keyval(
     _In_opt_ void* extra_state
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_free_keyval(
     _Inout_ int* comm_keyval
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_free_keyval(
     _Inout_ int* comm_keyval
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_set_attr(
-    MPI_Comm comm,
-    int comm_keyval,
-    _In_ void* attribute_val
+    _In_ MPI_Comm comm,
+    _In_ int comm_keyval,
+    _In_opt_ void* attribute_val
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_set_attr(
-    MPI_Comm comm,
-    int comm_keyval,
-    _In_ void* attribute_val
+    _In_ MPI_Comm comm,
+    _In_ int comm_keyval,
+    _In_opt_ void* attribute_val
     );
 
 
@@ -2616,54 +2617,50 @@ PMPI_Comm_set_attr(
 #define MPI_LASTUSEDCODE    0x6440000b
 #define MPI_APPNUM          0x6440000d
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_get_attr(
-    MPI_Comm comm,
-    int comm_keyval,
-    _Out_ void* attribute_val,
-    _Out_ int* flag
+    _In_ MPI_Comm comm,
+    _In_ int comm_keyval,
+    _When_(*flag != 0, _Out_) void* attribute_val,
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_get_attr(
-    MPI_Comm comm,
-    int comm_keyval,
-    _Out_ void* attribute_val,
-    _Out_ int* flag
+    _In_ MPI_Comm comm,
+    _In_ int comm_keyval,
+    _When_(*flag != 0, _Out_) void* attribute_val,
+    _mpi_out_flag_ int* flag
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_delete_attr(
-    MPI_Comm comm,
-    int comm_keyval
+    _In_ MPI_Comm comm,
+    _In_ int comm_keyval
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_delete_attr(
-    MPI_Comm comm,
-    int comm_keyval
+    _In_ MPI_Comm comm,
+    _In_ int comm_keyval
     );
 
 
 typedef
 int
 (MPIAPI MPI_Win_copy_attr_function)(
-    MPI_Win oldwin,
-    int win_keyval,
+    _In_ MPI_Win oldwin,
+    _In_ int win_keyval,
     _In_opt_ void* extra_state,
-    _In_ void* attribute_val_in,
+    _In_opt_ void* attribute_val_in,
     _Out_ void* attribute_val_out,
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
 
 typedef
 int
 (MPIAPI MPI_Win_delete_attr_function)(
-    MPI_Win win,
-    int win_keyval,
-    _In_ void* attribute_val,
+    _In_ MPI_Win win,
+    _In_ int win_keyval,
+    _In_opt_ void* attribute_val,
     _In_opt_ void* extra_state
     );
 
@@ -2671,47 +2668,41 @@ int
 #define MPI_WIN_NULL_DELETE_FN ((MPI_Win_delete_attr_function*)0)
 #define MPI_WIN_DUP_FN ((MPI_Win_copy_attr_function*)MPIR_Dup_fn)
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_create_keyval(
-    _In_ MPI_Win_copy_attr_function* win_copy_attr_fn,
-    _In_ MPI_Win_delete_attr_function* win_delete_attr_fn,
+    _In_opt_ MPI_Win_copy_attr_function* win_copy_attr_fn,
+    _In_opt_ MPI_Win_delete_attr_function* win_delete_attr_fn,
     _Out_ int* win_keyval,
     _In_opt_ void* extra_state
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_create_keyval(
-    _In_ MPI_Win_copy_attr_function* win_copy_attr_fn,
-    _In_ MPI_Win_delete_attr_function* win_delete_attr_fn,
+    _In_opt_ MPI_Win_copy_attr_function* win_copy_attr_fn,
+    _In_opt_ MPI_Win_delete_attr_function* win_delete_attr_fn,
     _Out_ int* win_keyval,
     _In_opt_ void* extra_state
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_free_keyval(
     _Inout_ int* win_keyval
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_free_keyval(
     _Inout_ int* win_keyval
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_set_attr(
-    MPI_Win win,
-    int win_keyval,
-    _In_ void* attribute_val
+    _In_ MPI_Win win,
+    _In_ int win_keyval,
+    _In_opt_ void* attribute_val
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_set_attr(
-    MPI_Win win,
-    int win_keyval,
-    _In_ void* attribute_val
+    _In_ MPI_Win win,
+    _In_ int win_keyval,
+    _In_opt_ void* attribute_val
     );
 
 
@@ -2720,34 +2711,30 @@ PMPI_Win_set_attr(
 #define MPI_WIN_SIZE        0x66000003
 #define MPI_WIN_DISP_UNIT   0x66000005
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_get_attr(
-    MPI_Win win,
-    int win_keyval,
-    _Out_ void* attribute_val,
-    _Out_ int* flag
+    _In_ MPI_Win win,
+    _In_ int win_keyval,
+    _When_(*flag != 0, _Out_) void* attribute_val,
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_get_attr(
-    MPI_Win win,
-    int win_keyval,
-    _Out_ void* attribute_val,
-    _Out_ int* flag
+    _In_ MPI_Win win,
+    _In_ int win_keyval,
+    _When_(*flag != 0, _Out_) void* attribute_val,
+    _mpi_out_flag_ int* flag
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_delete_attr(
-    MPI_Win win,
-    int win_keyval
+    _In_ MPI_Win win,
+    _In_ int win_keyval
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_delete_attr(
-    MPI_Win win,
-    int win_keyval
+    _In_ MPI_Win win,
+    _In_ int win_keyval
     );
 
 
@@ -2757,9 +2744,9 @@ int
     MPI_Datatype olddatatype,
     int datatype_keyval,
     _In_opt_ void* extra_state,
-    _In_ void* attribute_val_in,
+    _In_opt_ void* attribute_val_in,
     _Out_ void* attribute_val_out,
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
 
 typedef
@@ -2767,7 +2754,7 @@ int
 (MPIAPI MPI_Type_delete_attr_function)(
     MPI_Datatype datatype,
     int datatype_keyval,
-    _In_ void* attribute_val,
+    _In_opt_ void* attribute_val,
     _In_opt_ void* extra_state
     );
 
@@ -2775,77 +2762,67 @@ int
 #define MPI_TYPE_NULL_DELETE_FN ((MPI_Type_delete_attr_function*)0)
 #define MPI_TYPE_DUP_FN ((MPI_Type_copy_attr_function*)MPIR_Dup_fn)
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_create_keyval(
-    _In_ MPI_Type_copy_attr_function* type_copy_attr_fn,
-    _In_ MPI_Type_delete_attr_function* type_delete_attr_fn,
+    _In_opt_ MPI_Type_copy_attr_function* type_copy_attr_fn,
+    _In_opt_ MPI_Type_delete_attr_function* type_delete_attr_fn,
     _Out_ int* type_keyval,
     _In_opt_ void* extra_state
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_create_keyval(
-    _In_ MPI_Type_copy_attr_function* type_copy_attr_fn,
-    _In_ MPI_Type_delete_attr_function* type_delete_attr_fn,
+    _In_opt_ MPI_Type_copy_attr_function* type_copy_attr_fn,
+    _In_opt_ MPI_Type_delete_attr_function* type_delete_attr_fn,
     _Out_ int* type_keyval,
     _In_opt_ void* extra_state
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_free_keyval(
     _Inout_ int* type_keyval
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_free_keyval(
     _Inout_ int* type_keyval
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_set_attr(
-    MPI_Datatype type,
-    int type_keyval,
-    _In_ void* attribute_val
+    _In_ MPI_Datatype type,
+    _In_ int type_keyval,
+    _In_opt_ void* attribute_val
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_set_attr(
-    MPI_Datatype type,
-    int type_keyval,
-    _In_ void* attribute_val
+    _In_ MPI_Datatype type,
+    _In_ int type_keyval,
+    _In_opt_ void* attribute_val
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_get_attr(
-    MPI_Datatype type,
-    int type_keyval,
-    _Out_ void* attribute_val,
-    _Out_ int* flag
+    _In_ MPI_Datatype type,
+    _In_ int type_keyval,
+    _When_(*flag != 0, _Out_) void* attribute_val,
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_get_attr(
-    MPI_Datatype type,
-    int type_keyval,
-    _Out_ void* attribute_val,
-    _Out_ int* flag
+    _In_ MPI_Datatype type,
+    _In_ int type_keyval,
+    _When_(*flag != 0, _Out_) void* attribute_val,
+    _mpi_out_flag_ int* flag
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_delete_attr(
-    MPI_Datatype datatype,
-    int type_keyval
+    _In_ MPI_Datatype type,
+    _In_ int type_keyval
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_delete_attr(
-    MPI_Datatype datatype,
-    int type_keyval
+    _In_ MPI_Datatype type,
+    _In_ int type_keyval
     );
 
 
@@ -2855,87 +2832,75 @@ PMPI_Type_delete_attr(
 
 #define MPI_MAX_OBJECT_NAME 128
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_set_name(
-    MPI_Comm comm,
-    _In_z_ char* comm_name
+    _In_ MPI_Comm comm,
+    _In_z_ const char* comm_name
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_set_name(
-    MPI_Comm comm,
-    _In_z_ char* comm_name
+    _In_ MPI_Comm comm,
+    _In_z_ const char* comm_name
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_get_name(
-    MPI_Comm comm,
-    _Out_z_cap_post_count_(MPI_MAX_OBJECT_NAME,*resultlen) char* comm_name,
+    _In_ MPI_Comm comm,
+    _Out_writes_z_(MPI_MAX_OBJECT_NAME) char* comm_name,
     _Out_ int* resultlen
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_get_name(
-    MPI_Comm comm,
-    _Out_z_cap_post_count_(MPI_MAX_OBJECT_NAME,*resultlen) char* comm_name,
+    _In_ MPI_Comm comm,
+    _Out_writes_z_(MPI_MAX_OBJECT_NAME) char* comm_name,
     _Out_ int* resultlen
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_set_name(
-    MPI_Datatype type,
-    _In_z_ char* type_name
+    _In_ MPI_Datatype datatype,
+    _In_z_ const char* type_name
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_set_name(
-    MPI_Datatype type,
-    _In_z_ char* type_name
+    _In_ MPI_Datatype datatype,
+    _In_z_ const char* type_name
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_get_name(
-    MPI_Datatype type,
-    _Out_z_cap_post_count_(MPI_MAX_OBJECT_NAME,*resultlen) char* type_name,
+    _In_ MPI_Datatype datatype,
+    _Out_writes_z_(MPI_MAX_OBJECT_NAME) char* type_name,
     _Out_ int* resultlen
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_get_name(
-    MPI_Datatype type,
-    _Out_z_cap_post_count_(MPI_MAX_OBJECT_NAME,*resultlen) char* type_name,
+    _In_ MPI_Datatype datatype,
+    _Out_writes_z_(MPI_MAX_OBJECT_NAME) char* type_name,
     _Out_ int* resultlen
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_set_name(
-    MPI_Win win,
-    _In_z_ char* win_name
+    _In_ MPI_Win win,
+    _In_z_ const char* win_name
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_set_name(
-    MPI_Win win,
-    _In_z_ char* win_name
+    _In_ MPI_Win win,
+    _In_z_ const char* win_name
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_get_name(
-    MPI_Win win,
-    _Out_z_cap_post_count_(MPI_MAX_OBJECT_NAME,*resultlen) char* win_name,
+    _In_ MPI_Win win,
+    _Out_writes_z_(MPI_MAX_OBJECT_NAME) char* win_name,
     _Out_ int* resultlen
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_get_name(
-    MPI_Win win,
-    _Out_z_cap_post_count_(MPI_MAX_OBJECT_NAME,*resultlen) char* win_name,
+    _In_ MPI_Win win,
+    _Out_writes_z_(MPI_MAX_OBJECT_NAME) char* win_name,
     _Out_ int* resultlen
     );
 
@@ -2944,61 +2909,55 @@ PMPI_Win_get_name(
 /* Chapter 7: Process Topologies                                             */
 /*---------------------------------------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Cart_create(
-    MPI_Comm comm_old,
-    int ndims,
-    _In_count_(ndims) int* dims,
-    _In_count_(ndims) int* periods,
-    int reorder,
+    _In_ MPI_Comm comm_old,
+    _In_range_(>=, 0) int ndims,
+    _In_reads_opt_(ndims) const int dims[],
+    _In_reads_opt_(ndims) const int periods[],
+    _In_ int reorder,
     _Out_ MPI_Comm* comm_cart
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Cart_create(
-    MPI_Comm comm_old,
-    int ndims,
-    _In_count_(ndims) int* dims,
-    _In_count_(ndims) int* periods,
-    int reorder,
+    _In_ MPI_Comm comm_old,
+    _In_range_(>=, 0) int ndims,
+    _In_reads_opt_(ndims) const int dims[],
+    _In_reads_opt_(ndims) const int periods[],
+    _In_ int reorder,
     _Out_ MPI_Comm* comm_cart
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Dims_create(
-    int nnodes,
-    int ndims,
-    _Inout_count_(ndims) int* dims
+    _In_range_(>, 0) int nnodes,
+    _In_range_(>=, 0) int ndims,
+    _Inout_updates_opt_(ndims) int dims[]
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Dims_create(
-    int nnodes,
-    int ndims,
-    _Inout_count_(ndims) int* dims
+    _In_range_(>, 0) int nnodes,
+    _In_range_(>=, 0) int ndims,
+    _Inout_updates_opt_(ndims) int dims[]
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Graph_create(
-    MPI_Comm comm_old,
-    int nnodes,
-    _In_count_(nnodes) int* index,
-    _In_ int* edges,
-    int reorder,
-    _Out_ MPI_Comm* comm_cart
+    _In_ MPI_Comm comm_old,
+    _In_range_(>=, 0) int nnodes,
+    _In_reads_opt_(nnodes) const int index[],
+    _In_opt_ const int edges[],
+    _In_ int reorder,
+    _Out_ MPI_Comm* comm_graph
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Graph_create(
-    MPI_Comm comm_old,
-    int nnodes,
-    _In_count_(nnodes) int* index,
-    _In_ int* edges,
-    int reorder,
-    _Out_ MPI_Comm* comm_cart
+    _In_ MPI_Comm comm_old,
+    _In_range_(>=, 0) int nnodes,
+    _In_reads_opt_(nnodes) const int index[],
+    _In_opt_ const int edges[],
+    _In_ int reorder,
+    _Out_ MPI_Comm* comm_graph
     );
 
 
@@ -3009,219 +2968,193 @@ enum
     MPI_CART    = 2
 };
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Topo_test(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ int* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Topo_test(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ int* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Graphdims_get(
-    MPI_Comm comm,
+   _In_  MPI_Comm comm,
     _Out_ int* nnodes,
     _Out_ int* nedges
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Graphdims_get(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ int* nnodes,
     _Out_ int* nedges
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Graph_get(
-    MPI_Comm comm,
-    int maxindex,
-    int maxedges,
-    _Out_cap_(maxindex) int* index,
-    _Out_cap_(maxedges) int* edges
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int maxindex,
+    _In_range_(>=, 0) int maxedges,
+    _Out_writes_opt_(maxindex) int index[],
+    _Out_writes_opt_(maxedges) int edges[]
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Graph_get(
-    MPI_Comm comm,
-    int maxindex,
-    int maxedges,
-    _Out_cap_(maxindex) int* index,
-    _Out_cap_(maxedges) int* edges
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int maxindex,
+    _In_range_(>=, 0) int maxedges,
+    _Out_writes_opt_(maxindex) int index[],
+    _Out_writes_opt_(maxedges) int edges[]
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Cartdim_get(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ int* ndims
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Cartdim_get(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ int* ndims
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Cart_get(
-    MPI_Comm comm,
-    int maxdims,
-    _Out_cap_(maxdims) int* dims,
-    _Out_cap_(maxdims) int* periods,
-    _Out_cap_(maxdims) int* coords
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int maxdims,
+    _Out_writes_opt_(maxdims) int dims[],
+    _Out_writes_opt_(maxdims) int periods[],
+    _Out_writes_opt_(maxdims) int coords[]
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Cart_get(
-    MPI_Comm comm,
-    int maxdims,
-    _Out_cap_(maxdims) int* dims,
-    _Out_cap_(maxdims) int* periods,
-    _Out_cap_(maxdims) int* coords
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int maxdims,
+    _Out_writes_opt_(maxdims) int dims[],
+    _Out_writes_opt_(maxdims) int periods[],
+    _Out_writes_opt_(maxdims) int coords[]
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Cart_rank(
-    MPI_Comm comm,
-    _In_ int* coords,
-    _Out_ int* rank
+    _In_ MPI_Comm comm,
+    _In_ const int coords[],
+    _Out_ _Deref_out_range_(>=, 0) int* rank
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Cart_rank(
-    MPI_Comm comm,
-    _In_ int* coords,
-    _Out_ int* rank
+    _In_ MPI_Comm comm,
+    _In_ const int coords[],
+    _Out_ _Deref_out_range_(>=, 0) int* rank
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Cart_coords(
-    MPI_Comm comm,
-    int rank,
-    int maxdims,
-    _Out_cap_(maxdims) int* coords
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int rank,
+    _In_range_(>=, 0) int maxdims,
+    _Out_writes_opt_(maxdims) int coords[]
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Cart_coords(
-    MPI_Comm comm,
-    int rank,
-    int maxdims,
-    _Out_cap_(maxdims) int* coords
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int rank,
+    _In_range_(>=, 0) int maxdims,
+    _Out_writes_opt_(maxdims) int coords[]
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Graph_neighbors_count(
-    MPI_Comm comm,
-    int rank,
-    _Out_ int* nneighbors
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int rank,
+    _Out_ _Deref_out_range_(>=, 0) int* nneighbors
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Graph_neighbors_count(
-    MPI_Comm comm,
-    int rank,
-    _Out_ int* nneighbors
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int rank,
+    _Out_ _Deref_out_range_(>=, 0) int* nneighbors
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Graph_neighbors(
-    MPI_Comm comm,
-    int rank,
-    int maxneighbors,
-    _Out_cap_(maxneighbors) int* neighbors
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int rank,
+    _In_range_(>=, 0) int maxneighbors,
+    _Out_writes_opt_(maxneighbors) int neighbors[]
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Graph_neighbors(
-    MPI_Comm comm,
-    int rank,
-    int maxneighbors,
-    _Out_cap_(maxneighbors) int* neighbors
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int rank,
+    _In_range_(>=, 0) int maxneighbors,
+    _Out_writes_opt_(maxneighbors) int neighbors[]
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Cart_shift(
-    MPI_Comm comm,
-    int direction,
-    int disp,
-    _Out_ int* rank_source,
-    _Out_ int* rank_dest
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int direction,
+    _In_ int disp,
+    _Out_ _Deref_out_range_(>=, MPI_PROC_NULL) int* rank_source,
+    _Out_ _Deref_out_range_(>=, MPI_PROC_NULL)  int* rank_dest
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Cart_shift(
-    MPI_Comm comm,
-    int direction,
-    int disp,
-    _Out_ int* rank_source,
-    _Out_ int* rank_dest
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int direction,
+    _In_ int disp,
+    _Out_ _Deref_out_range_(>=, MPI_PROC_NULL) int* rank_source,
+    _Out_ _Deref_out_range_(>=, MPI_PROC_NULL)  int* rank_dest
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Cart_sub(
-    MPI_Comm comm,
-    _In_ int* remain_dims,
+    _In_ MPI_Comm comm,
+    _In_ const int remain_dims[],
     _Out_ MPI_Comm* newcomm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Cart_sub(
-    MPI_Comm comm,
-    _In_ int* remain_dims,
+    _In_ MPI_Comm comm,
+    _In_ const int remain_dims[],
     _Out_ MPI_Comm* newcomm
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Cart_map(
-    MPI_Comm comm,
-    int ndims,
-    _In_count_(ndims) int* dims,
-    _In_count_(ndims) int* periods,
-    _Out_ int* newrank
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int ndims,
+    _In_reads_opt_(ndims) const int dims[],
+    _In_reads_opt_(ndims) const int periods[],
+    _Out_ _Deref_out_range_(>=, MPI_UNDEFINED) int* newrank
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Cart_map(
-    MPI_Comm comm,
-    int ndims,
-    _In_count_(ndims) int* dims,
-    _In_count_(ndims) int* periods,
-    _Out_ int* newrank
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int ndims,
+    _In_reads_opt_(ndims) const int dims[],
+    _In_reads_opt_(ndims) const int periods[],
+    _Out_ _Deref_out_range_(>=, MPI_UNDEFINED) int* newrank
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Graph_map(
-    MPI_Comm comm,
-    int nnodes,
-    _In_count_(nnodes) int* index,
-    _In_ int* edges,
-    _Out_ int* newrank
+    _In_ MPI_Comm comm,
+    _In_range_(>, 0) int nnodes,
+    _In_reads_opt_(nnodes) const int index[],
+    _In_opt_ const int edges[],
+    _Out_ _Deref_out_range_(>=, MPI_UNDEFINED) int* newrank
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Graph_map(
-    MPI_Comm comm,
-    int nnodes,
-    _In_count_(nnodes) int* index,
-    _In_ int* edges,
-    _Out_ int* newrank
+    _In_ MPI_Comm comm,
+    _In_range_(>=, 0) int nnodes,
+    _In_reads_opt_(nnodes) const int index[],
+    _In_opt_ const int edges[],
+    _Out_ _Deref_out_range_(>=, MPI_UNDEFINED) int* newrank
     );
 
 
@@ -3236,31 +3169,40 @@ PMPI_Graph_map(
 #define MPI_VERSION     2
 #define MPI_SUBVERSION  0
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Get_version(
     _Out_ int* version,
     _Out_ int* subversion
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Get_version(
     _Out_ int* version,
     _Out_ int* subversion
     );
 
+#define MPI_MAX_LIBRARY_VERSION_STRING  64
+
+MPI_METHOD
+MPI_Get_library_version(
+    _Out_writes_z_(MPI_MAX_LIBRARY_VERSION_STRING) char* version,
+    _Out_ int* resultlen
+);
+MPI_METHOD
+PMPI_Get_library_version(
+    _Out_writes_z_(MPI_MAX_LIBRARY_VERSION_STRING) char* version,
+    _Out_ int* resultlen
+);
+
 #define MPI_MAX_PROCESSOR_NAME  128
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Get_processor_name(
-    _Out_z_cap_post_count_(MPI_MAX_PROCESSOR_NAME,*resultlen) char* name,
+    _Out_writes_z_(MPI_MAX_PROCESSOR_NAME) char* name,
     _Out_ int* resultlen
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Get_processor_name(
-    _Out_z_cap_post_count_(MPI_MAX_PROCESSOR_NAME,*resultlen) char* name,
+    _Out_writes_z_(MPI_MAX_PROCESSOR_NAME) char* name,
     _Out_ int* resultlen
     );
 
@@ -3268,30 +3210,26 @@ PMPI_Get_processor_name(
 /* Section 8.2: Memory Allocation              */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Alloc_mem(
-    MPI_Aint size,
-    MPI_Info info,
+    _In_ MPI_Aint size,
+    _In_ MPI_Info info,
     _Out_ void* baseptr
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Alloc_mem(
-    MPI_Aint size,
-    MPI_Info info,
+    _In_ MPI_Aint size,
+    _In_ MPI_Info info,
     _Out_ void* baseptr
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Free_mem(
-    _In_ void* base
+    _In_ _Post_invalid_ void* base
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Free_mem(
-    _In_ void* base
+    _In_ _Post_invalid_ void* base
     );
 
 
@@ -3307,42 +3245,36 @@ void
     ...
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_create_errhandler(
     _In_ MPI_Comm_errhandler_fn* function,
     _Out_ MPI_Errhandler* errhandler
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_create_errhandler(
     _In_ MPI_Comm_errhandler_fn* function,
     _Out_ MPI_Errhandler* errhandler
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_set_errhandler(
-    MPI_Comm comm,
-    MPI_Errhandler errhandler
+    _In_ MPI_Comm comm,
+    _In_ MPI_Errhandler errhandler
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_set_errhandler(
-    MPI_Comm comm,
-    MPI_Errhandler errhandler
+    _In_ MPI_Comm comm,
+    _In_ MPI_Errhandler errhandler
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_get_errhandler(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Errhandler* errhandler
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_get_errhandler(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Errhandler* errhandler
     );
 
@@ -3355,42 +3287,36 @@ void
     ...
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_create_errhandler(
     _In_ MPI_Win_errhandler_fn* function,
     _Out_ MPI_Errhandler* errhandler
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_create_errhandler(
     _In_ MPI_Win_errhandler_fn* function,
     _Out_ MPI_Errhandler* errhandler
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_set_errhandler(
-    MPI_Win win,
-    MPI_Errhandler errhandler
+    _In_ MPI_Win win,
+    _In_ MPI_Errhandler errhandler
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_set_errhandler(
-    MPI_Win win,
-    MPI_Errhandler errhandler
+    _In_ MPI_Win win,
+    _In_ MPI_Errhandler errhandler
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_get_errhandler(
-    MPI_Win win,
+    _In_ MPI_Win win,
     _Out_ MPI_Errhandler* errhandler
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_get_errhandler(
-    MPI_Win win,
+    _In_ MPI_Win win,
     _Out_ MPI_Errhandler* errhandler
     );
 
@@ -3403,70 +3329,60 @@ void
     ...
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_create_errhandler(
     _In_ MPI_File_errhandler_fn* function,
     _Out_ MPI_Errhandler* errhandler
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_create_errhandler(
     _In_ MPI_File_errhandler_fn* function,
     _Out_ MPI_Errhandler* errhandler
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_set_errhandler(
-    MPI_File file,
-    MPI_Errhandler errhandler
+    _In_ MPI_File file,
+    _In_ MPI_Errhandler errhandler
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_set_errhandler(
-    MPI_File file,
-    MPI_Errhandler errhandler
+    _In_ MPI_File file,
+    _In_ MPI_Errhandler errhandler
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_get_errhandler(
-    MPI_File file,
+    _In_ MPI_File file,
     _Out_ MPI_Errhandler* errhandler
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_get_errhandler(
-    MPI_File file,
+    _In_ MPI_File file,
     _Out_ MPI_Errhandler* errhandler
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Errhandler_free(
     _Inout_ MPI_Errhandler* errhandler
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Errhandler_free(
     _Inout_ MPI_Errhandler* errhandler
     );
 
 #define MPI_MAX_ERROR_STRING    512
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Error_string(
-    int errorcode,
-    _Out_z_cap_post_count_(MPI_MAX_ERROR_STRING,*resultlen) char* string,
+    _In_ int errorcode,
+    _Out_writes_z_(MPI_MAX_ERROR_STRING) char* string,
     _Out_ int* resultlen
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Error_string(
-    int errorcode,
-    _Out_z_cap_post_count_(MPI_MAX_ERROR_STRING,*resultlen) char* string,
+    _In_ int errorcode,
+    _Out_writes_z_(MPI_MAX_ERROR_STRING) char* string,
     _Out_ int* resultlen
     );
 
@@ -3475,93 +3391,79 @@ PMPI_Error_string(
 /* Section 8.4: Error Codes and Classes        */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Error_class(
-    int errorcode,
+    _In_ int errorcode,
     _Out_ int* errorclass
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Error_class(
-    int errorcode,
+    _In_ int errorcode,
     _Out_ int* errorclass
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Add_error_class(
     _Out_ int* errorclass
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Add_error_class(
     _Out_ int* errorclass
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Add_error_code(
-    int errorclass,
+    _In_ int errorclass,
     _Out_ int* errorcode
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Add_error_code(
-    int errorclass,
+    _In_ int errorclass,
     _Out_ int* errorcode
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Add_error_string(
-    int errorcode,
-    _In_z_ char* string
+    _In_ int errorcode,
+    _In_z_ const char* string
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Add_error_string(
-    int errorcode,
-    _In_z_ char* string
+    _In_ int errorcode,
+    _In_z_ const char* string
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_call_errhandler(
-    MPI_Comm comm,
-    int errorcode
+    _In_ MPI_Comm comm,
+    _In_ int errorcode
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_call_errhandler(
-    MPI_Comm comm,
-    int errorcode
+    _In_ MPI_Comm comm,
+    _In_ int errorcode
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_call_errhandler(
-    MPI_Win win,
-    int errcode
+    _In_ MPI_Win win,
+    _In_ int errorcode
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_call_errhandler(
-    MPI_Win win,
-    int errcode
+    _In_ MPI_Win win,
+    _In_ int errorcode
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_call_errhandler(
-    MPI_File file,
-    int errorcode
+    _In_ MPI_File file,
+    _In_ int errorcode
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_call_errhandler(
-    MPI_File file,
-    int errorcode
+    _In_ MPI_File file,
+    _In_ int errorcode
     );
 
 
@@ -3596,63 +3498,53 @@ PMPI_Wtick(
 /* Section 8.7: Startup                        */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Init(
     _In_opt_ int* argc,
-    _In_opt_count_(*argc) char*** argv
+    _Notref_ _In_reads_opt_(*argc) char*** argv
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Init(
     _In_opt_ int* argc,
-    _In_opt_count_(*argc) char*** argv
+    _Notref_ _In_reads_opt_(*argc) char*** argv
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Finalize(
     void
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Finalize(
     void
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Initialized(
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Initialized(
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Abort(
-    MPI_Comm comm,
-    int errorcode
+    _In_ MPI_Comm comm,
+    _In_ int errorcode
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Abort(
-    MPI_Comm comm,
-    int errorcode
+    _In_ MPI_Comm comm,
+    _In_ int errorcode
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Finalized(
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Finalized(
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
 
 
@@ -3663,129 +3555,111 @@ PMPI_Finalized(
 #define MPI_MAX_INFO_KEY    255
 #define MPI_MAX_INFO_VAL   1024
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Info_create(
     _Out_ MPI_Info* info
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Info_create(
     _Out_ MPI_Info* info
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Info_set(
-    MPI_Info info,
-    _In_z_ char* key,
-    _In_z_ char* value
+    _In_ MPI_Info info,
+    _In_z_ const char* key,
+    _In_z_ const char* value
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Info_set(
-    MPI_Info info,
-    _In_z_ char* key,
-    _In_z_ char* value
+    _In_ MPI_Info info,
+    _In_z_ const char* key,
+    _In_z_ const char* value
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Info_delete(
-    MPI_Info info,
-    _In_z_ char* key
+    _In_ MPI_Info info,
+    _In_z_ const char* key
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Info_delete(
-    MPI_Info info,
-    _In_z_ char* key
+    _In_ MPI_Info info,
+    _In_z_ const char* key
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Info_get(
-    MPI_Info info,
-    _In_z_ char* key,
-    int valuelen,
-    _Out_z_cap_(valuelen) char* value,
-    _Out_ int* flag
+    _In_ MPI_Info info,
+    _In_z_ const char* key,
+    _In_ int valuelen,
+    _When_(*flag != 0, _Out_writes_z_(valuelen)) char* value,
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Info_get(
-    MPI_Info info,
-    _In_z_ char* key,
-    int valuelen,
-    _Out_z_cap_(valuelen) char* value,
-    _Out_ int* flag
+    _In_ MPI_Info info,
+    _In_z_ const char* key,
+    _In_ int valuelen,
+    _When_(*flag != 0, _Out_writes_z_(valuelen)) char* value,
+    _mpi_out_flag_ int* flag
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Info_get_valuelen(
-    MPI_Info info,
-    _In_z_ char* key,
-    _Out_ int* valuelen,
-    _Out_ int* flag
+    _In_ MPI_Info info,
+    _In_z_ const char* key,
+    _Out_ _Deref_out_range_(0, MPI_MAX_INFO_VAL) int* valuelen,
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Info_get_valuelen(
-    MPI_Info info,
-    _In_z_ char* key,
-    _Out_ int* valuelen,
-    _Out_ int* flag
+    _In_ MPI_Info info,
+    _In_z_ const char* key,
+    _Out_ _Deref_out_range_(0, MPI_MAX_INFO_VAL) int* valuelen,
+    _mpi_out_flag_ int* flag
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Info_get_nkeys(
-    MPI_Info info,
+    _In_ MPI_Info info,
     _Out_ int* nkeys
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Info_get_nkeys(
-    MPI_Info info,
+    _In_ MPI_Info info,
     _Out_ int* nkeys
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Info_get_nthkey(
-    MPI_Info info,
-    int n,
-    _Out_z_cap_(MPI_MAX_INFO_KEY) char* key
+    _In_ MPI_Info info,
+    _In_range_(>=, 0) int n,
+    _Out_writes_z_(MPI_MAX_INFO_KEY) char* key
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Info_get_nthkey(
-    MPI_Info info,
-    int n,
-    _Out_z_cap_(MPI_MAX_INFO_KEY) char* key
+    _In_ MPI_Info info,
+    _In_range_(>=, 0) int n,
+    _Out_writes_z_(MPI_MAX_INFO_KEY) char* key
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Info_dup(
-    MPI_Info info,
+    _In_ MPI_Info info,
     _Out_ MPI_Info* newinfo
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Info_dup(
-    MPI_Info info,
+    _In_ MPI_Info info,
     _Out_ MPI_Info* newinfo
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Info_free(
     _Inout_ MPI_Info* info
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Info_free(
     _Inout_ MPI_Info* info
     );
@@ -3804,65 +3678,59 @@ PMPI_Info_free(
 
 #define MPI_ERRCODES_IGNORE ((int*)0)
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_spawn(
-    _In_z_ char* command,
+    _In_z_ const char* command,
     _In_ char* argv[],
-    int maxprocs,
-    MPI_Info info,
-    int root,
-    MPI_Comm comm,
+    _In_range_(>=, 0) int maxprocs,
+    _In_ MPI_Info info,
+    _In_range_(>=, 0) int root,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Comm* intercomm,
-    _Out_opt_cap_(maxprocs) int array_of_errcodes[]
+    _Out_writes_opt_(maxprocs) int array_of_errcodes[]
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_spawn(
-    _In_z_ char* command,
+    _In_z_ const char* command,
     _In_ char* argv[],
-    int maxprocs,
-    MPI_Info info,
-    int root,
-    MPI_Comm comm,
+    _In_range_(>=, 0) int maxprocs,
+    _In_ MPI_Info info,
+    _In_range_(>=, 0) int root,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Comm* intercomm,
-    _Out_opt_cap_(maxprocs) int array_of_errcodes[]
+    _Out_writes_opt_(maxprocs) int array_of_errcodes[]
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_get_parent(
     _Out_ MPI_Comm* parent
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_get_parent(
     _Out_ MPI_Comm* parent
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_spawn_multiple(
-    int count,
-    _In_count_(count) char* array_of_commands[],
-    _In_opt_count_(count) char** array_of_argv[],
-    _In_count_(count) int array_of_maxprocs[],
-    _In_count_(count) MPI_Info array_of_info[],
-    int root,
-    MPI_Comm comm,
+    _In_range_(>, 0) int count,
+    _In_reads_z_(count) char* array_of_commands[],
+    _In_reads_z_(count) char** array_of_argv[],
+    _In_reads_(count) const int array_of_maxprocs[],
+    _In_reads_(count) const MPI_Info array_of_info[],
+    _In_range_(>=, 0) int root,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Comm* intercomm,
     _Out_opt_ int array_of_errcodes[]
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_spawn_multiple(
-    int count,
-    _In_count_(count) char* array_of_commands[],
-    _In_opt_count_(count) char** array_of_argv[],
-    _In_count_(count) int array_of_maxprocs[],
-    _In_count_(count) MPI_Info array_of_info[],
-    int root,
-    MPI_Comm comm,
+    _In_range_(>, 0) int count,
+    _In_reads_z_(count) char* array_of_commands[],
+    _In_reads_z_(count) char** array_of_argv[],
+    _In_reads_(count) const int array_of_maxprocs[],
+    _In_reads_(count) const MPI_Info array_of_info[],
+    _In_range_(>=, 0) int root,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Comm* intercomm,
     _Out_opt_ int array_of_errcodes[]
     );
@@ -3874,65 +3742,57 @@ PMPI_Comm_spawn_multiple(
 
 #define MPI_MAX_PORT_NAME   256
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Open_port(
-    MPI_Info info,
-    _Out_cap_(MPI_MAX_PORT_NAME) char* port_name
+    _In_ MPI_Info info,
+    _Out_writes_z_(MPI_MAX_PORT_NAME) char* port_name
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Open_port(
-    MPI_Info info,
-    _Out_cap_(MPI_MAX_PORT_NAME) char* port_name
+    _In_ MPI_Info info,
+    _Out_writes_z_(MPI_MAX_PORT_NAME) char* port_name
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Close_port(
-    _In_z_ char* port_name
+    _In_z_ const char* port_name
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Close_port(
-    _In_z_ char* port_name
+    _In_z_ const char* port_name
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_accept(
-    _In_z_ char* port_name,
-    MPI_Info info,
-    int root,
-    MPI_Comm comm,
+    _In_z_ const char* port_name,
+    _In_ MPI_Info info,
+    _In_range_(>=, 0) int root,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Comm* newcomm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_accept(
-    _In_z_ char* port_name,
-    MPI_Info info,
-    int root,
-    MPI_Comm comm,
+    _In_z_ const char* port_name,
+    _In_ MPI_Info info,
+    _In_range_(>=, 0) int root,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Comm* newcomm
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_connect(
-    _In_z_ char* port_name,
-    MPI_Info info,
-    int root,
-    MPI_Comm comm,
+    _In_z_ const char* port_name,
+    _In_ MPI_Info info,
+    _In_range_(>=, 0) int root,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Comm* newcomm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_connect(
-    _In_z_ char* port_name,
-    MPI_Info info,
-    int root,
-    MPI_Comm comm,
+    _In_z_ const char* port_name,
+    _In_ MPI_Info info,
+    _In_range_(>=, 0) int root,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Comm* newcomm
     );
 
@@ -3941,49 +3801,43 @@ PMPI_Comm_connect(
 /* Section 10.4.4: Name Publishing             */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Publish_name(
-    _In_z_ char* service_name,
-    MPI_Info info,
-    _In_z_ char* port_name
+    _In_z_ const char* service_name,
+    _In_ MPI_Info info,
+    _In_z_ const char* port_name
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Publish_name(
-    _In_z_ char* service_name,
-    MPI_Info info,
-    _In_z_ char* port_name
+    _In_z_ const char* service_name,
+    _In_ MPI_Info info,
+    _In_z_ const char* port_name
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Unpublish_name(
-    _In_z_ char* service_name,
-    MPI_Info info,
-    _In_z_ char* port_name
+    _In_z_ const char* service_name,
+    _In_ MPI_Info info,
+    _In_z_ const char* port_name
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Unpublish_name(
-    _In_z_ char* service_name,
-    MPI_Info info,
-    _In_z_ char* port_name
+    _In_z_ const char* service_name,
+    _In_ MPI_Info info,
+    _In_z_ const char* port_name
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Lookup_name(
-    _In_z_ char* service_name,
-    MPI_Info info,
-    _Out_cap_(MPI_MAX_PORT_NAME) char* port_name
+    _In_z_ const char* service_name,
+    _In_ MPI_Info info,
+    _Out_writes_z_(MPI_MAX_PORT_NAME) char* port_name
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Lookup_name(
-    _In_z_ char* service_name,
-    MPI_Info info,
-    _Out_cap_(MPI_MAX_PORT_NAME) char* port_name
+    _In_z_ const char* service_name,
+    _In_ MPI_Info info,
+    _Out_writes_z_(MPI_MAX_PORT_NAME) char* port_name
     );
 
 
@@ -3991,27 +3845,23 @@ PMPI_Lookup_name(
 /* Section 10.5: Other Functionality           */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_disconnect(
     _In_ MPI_Comm* comm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_disconnect(
     _In_ MPI_Comm* comm
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Comm_join(
-    int fd,
+    _In_ int fd,
     _Out_ MPI_Comm* intercomm
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Comm_join(
-    int fd,
+    _In_ int fd,
     _Out_ MPI_Comm* intercomm
     );
 
@@ -4020,126 +3870,150 @@ PMPI_Comm_join(
 /* Chapter 11: One-Sided Communications                                      */
 /*---------------------------------------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_create(
     _In_ void* base,
-    MPI_Aint size,
-    int disp_unit,
-    MPI_Info info,
-    MPI_Comm comm,
+    _In_range_(>=, 0)  MPI_Aint size,
+    _In_range_(>, 0)  int disp_unit,
+    _In_ MPI_Info info,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Win* win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_create(
     _In_ void* base,
-    MPI_Aint size,
-    int disp_unit,
-    MPI_Info info,
-    MPI_Comm comm,
+    _In_range_(>=, 0)  MPI_Aint size,
+    _In_range_(>, 0)  int disp_unit,
+    _In_ MPI_Info info,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Win* win
     );
 
-int
-MPIAPI
+MPI_METHOD
+MPI_Win_allocate_shared(
+    _In_range_(>=, 0) MPI_Aint size,
+    _In_range_(>, 0) int disp_unit,
+    _In_ MPI_Info info,
+    _In_ MPI_Comm comm,
+    _Out_ void *baseptr,
+    _Out_ MPI_Win *win
+    );
+MPI_METHOD
+PMPI_Win_allocate_shared(
+    _In_range_(>=, 0) MPI_Aint size,
+    _In_range_(>, 0) int disp_unit,
+    _In_ MPI_Info info,
+    _In_ MPI_Comm comm,
+    _Out_ void *baseptr,
+    _Out_ MPI_Win *win
+    );
+
+MPI_METHOD
+MPI_Win_shared_query(
+    _In_ MPI_Win win,
+    _In_range_(>=, MPI_PROC_NULL) int rank,
+    _Out_ MPI_Aint *size,
+    _Out_ int *disp_unit,
+    _Out_ void *baseptr
+    );
+MPI_METHOD
+PMPI_Win_shared_query(
+    _In_ MPI_Win win,
+    _In_range_(>=, MPI_PROC_NULL) int rank,
+    _Out_ MPI_Aint *size,
+    _Out_ int *disp_unit,
+    _Out_ void *baseptr
+    );
+
+MPI_METHOD
 MPI_Win_free(
     _Inout_ MPI_Win* win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_free(
     _Inout_ MPI_Win* win
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_get_group(
-    MPI_Win win,
+    _In_ MPI_Win win,
     _Out_ MPI_Group* group
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_get_group(
-    MPI_Win win,
+    _In_ MPI_Win win,
     _Out_ MPI_Group* group
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Put(
-    _In_ void* origin_addr,
-    int origin_count,
-    MPI_Datatype origin_datatype,
-    int target_rank,
-    MPI_Aint target_disp,
-    int target_count,
-    MPI_Datatype datatype,
-    MPI_Win win
+    _In_opt_ const void* origin_addr,
+    _In_range_(>=, 0) int origin_count,
+    _In_ MPI_Datatype origin_datatype,
+    _In_range_(>=, MPI_PROC_NULL) int target_rank,
+    _In_range_(>=, 0) MPI_Aint target_disp,
+    _In_range_(>=, 0) int target_count,
+    _In_ MPI_Datatype target_datatype,
+    _In_ MPI_Win win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Put(
-    _In_ void* origin_addr,
-    int origin_count,
-    MPI_Datatype origin_datatype,
-    int target_rank,
-    MPI_Aint target_disp,
-    int target_count,
-    MPI_Datatype datatype,
-    MPI_Win win
+    _In_opt_ const void* origin_addr,
+    _In_range_(>=, 0) int origin_count,
+    _In_ MPI_Datatype origin_datatype,
+    _In_range_(>=, MPI_PROC_NULL) int target_rank,
+    _In_range_(>=, 0) MPI_Aint target_disp,
+    _In_range_(>=, 0) int target_count,
+    _In_ MPI_Datatype target_datatype,
+    _In_ MPI_Win win
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Get(
-    _Out_ void* origin_addr,
-    int origin_count,
-    MPI_Datatype origin_datatype,
-    int target_rank,
-    MPI_Aint target_disp,
-    int target_count,
-    MPI_Datatype datatype,
-    MPI_Win win
+    _When_(target_rank != MPI_PROC_NULL, _Out_opt_) void* origin_addr,
+    _In_range_(>=, 0) int origin_count,
+    _In_ MPI_Datatype origin_datatype,
+    _In_range_(>=, MPI_PROC_NULL) int target_rank,
+    _In_range_(>=, 0) MPI_Aint target_disp,
+    _In_range_(>=, 0) int target_count,
+    _In_ MPI_Datatype target_datatype,
+    _In_ MPI_Win win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Get(
-    _Out_ void* origin_addr,
-    int origin_count,
-    MPI_Datatype origin_datatype,
-    int target_rank,
-    MPI_Aint target_disp,
-    int target_count,
-    MPI_Datatype datatype,
-    MPI_Win win
+    _When_(target_rank != MPI_PROC_NULL, _Out_opt_) void* origin_addr,
+    _In_range_(>=, 0) int origin_count,
+    _In_ MPI_Datatype origin_datatype,
+    _In_range_(>=, MPI_PROC_NULL) int target_rank,
+    _In_range_(>=, 0) MPI_Aint target_disp,
+    _In_range_(>=, 0) int target_count,
+    _In_ MPI_Datatype target_datatype,
+    _In_ MPI_Win win
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Accumulate(
-    _In_ void* origin_addr,
-    int origin_count,
-    MPI_Datatype origin_datatype,
-    int target_rank,
-    MPI_Aint target_disp,
-    int target_count,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    MPI_Win win
+    _In_opt_ const void* origin_addr,
+    _In_range_(>=, 0) int origin_count,
+    _In_ MPI_Datatype origin_datatype,
+    _In_range_(>=, MPI_PROC_NULL) int target_rank,
+    _In_range_(>=, 0) MPI_Aint target_disp,
+    _In_range_(>=, 0) int target_count,
+    _In_ MPI_Datatype target_datatype,
+    _In_ MPI_Op op,
+    _In_ MPI_Win win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Accumulate(
-    _In_ void* origin_addr,
-    int origin_count,
-    MPI_Datatype origin_datatype,
-    int target_rank,
-    MPI_Aint target_disp,
-    int target_count,
-    MPI_Datatype datatype,
-    MPI_Op op,
-    MPI_Win win
+    _In_opt_ const void* origin_addr,
+    _In_range_(>=, 0) int origin_count,
+    _In_ MPI_Datatype origin_datatype,
+    _In_range_(>=, MPI_PROC_NULL) int target_rank,
+    _In_range_(>=, 0) MPI_Aint target_disp,
+    _In_range_(>=, 0) int target_count,
+    _In_ MPI_Datatype target_datatype,
+    _In_ MPI_Op op,
+    _In_ MPI_Win win
     );
 
 /* Asserts for one-sided communication */
@@ -4149,115 +4023,99 @@ PMPI_Accumulate(
 #define MPI_MODE_NOPRECEDE  8192
 #define MPI_MODE_NOSUCCEED 16384
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_fence(
-    int assert,
-    MPI_Win win
+    _In_ int assert,
+    _In_ MPI_Win win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_fence(
-    int assert,
-    MPI_Win win
+    _In_ int assert,
+    _In_ MPI_Win win
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_start(
-    MPI_Group group,
-    int assert,
-    MPI_Win win
+    _In_ MPI_Group group,
+    _In_ int assert,
+    _In_ MPI_Win win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_start(
-    MPI_Group group,
-    int assert,
-    MPI_Win win
+    _In_ MPI_Group group,
+    _In_ int assert,
+    _In_ MPI_Win win
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_complete(
-    MPI_Win win
+    _In_ MPI_Win win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_complete(
-    MPI_Win win
+    _In_ MPI_Win win
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_post(
-    MPI_Group group,
-    int assert,
-    MPI_Win win
+    _In_ MPI_Group group,
+    _In_ int assert,
+    _In_ MPI_Win win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_post(
-    MPI_Group group,
-    int assert,
-    MPI_Win win
+    _In_ MPI_Group group,
+    _In_ int assert,
+    _In_ MPI_Win win
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_wait(
-    MPI_Win win
+    _In_ MPI_Win win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_wait(
-    MPI_Win win
+    _In_ MPI_Win win
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_test(
-    MPI_Win win,
-    _Out_ int* flag
+    _In_ MPI_Win win,
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_test(
-    MPI_Win win,
-    _Out_ int* flag
+    _In_ MPI_Win win,
+    _mpi_out_flag_ int* flag
     );
 
 #define MPI_LOCK_EXCLUSIVE  234
 #define MPI_LOCK_SHARED     235
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_lock(
-    int lock_type,
-    int rank,
-    int assert,
-    MPI_Win win
+    _In_ int lock_type,
+    _In_range_(>=, MPI_PROC_NULL) int rank,
+    _In_ int assert,
+    _In_ MPI_Win win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_lock(
-    int lock_type,
-    int rank,
-    int assert,
-    MPI_Win win
+    _In_ int lock_type,
+    _In_range_(>=, MPI_PROC_NULL) int rank,
+    _In_ int assert,
+    _In_ MPI_Win win
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Win_unlock(
-    int rank,
-    MPI_Win win
+    _In_range_(>=, MPI_PROC_NULL) int rank,
+    _In_ MPI_Win win
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Win_unlock(
-    int rank,
-    MPI_Win win
+    _In_range_(>=, MPI_PROC_NULL) int rank,
+    _In_ MPI_Win win
     );
 
 
@@ -4286,11 +4144,10 @@ typedef
 int
 (MPIAPI MPI_Grequest_cancel_function)(
     _In_opt_ void* extra_state,
-    int complete
+    _In_ int complete
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Grequest_start(
     _In_ MPI_Grequest_query_function* query_fn,
     _In_ MPI_Grequest_free_function* free_fn,
@@ -4298,8 +4155,7 @@ MPI_Grequest_start(
     _In_opt_ void* extra_state,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Grequest_start(
     _In_ MPI_Grequest_query_function* query_fn,
     _In_ MPI_Grequest_free_function* free_fn,
@@ -4308,15 +4164,13 @@ PMPI_Grequest_start(
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Grequest_complete(
-    MPI_Request request
+    _In_ MPI_Request request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Grequest_complete(
-    MPI_Request request
+    _In_ MPI_Request request
     );
 
 
@@ -4324,32 +4178,28 @@ PMPI_Grequest_complete(
 /* Section 12.3: Information with Status       */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Status_set_elements(
     _In_ MPI_Status* status,
-    MPI_Datatype datatype,
-    int count
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, 0) int count
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Status_set_elements(
     _In_ MPI_Status* status,
-    MPI_Datatype datatype,
-    int count
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, 0) int count
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Status_set_cancelled(
     _In_ MPI_Status* status,
-    int flag
+    _In_range_(0,1) int flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Status_set_cancelled(
     _In_ MPI_Status* status,
-    int flag
+    _In_range_(0,1) int flag
     );
 
 
@@ -4362,43 +4212,37 @@ PMPI_Status_set_cancelled(
 #define MPI_THREAD_SERIALIZED   2
 #define MPI_THREAD_MULTIPLE     3
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Init_thread(
     _In_opt_ int* argc,
-    _In_opt_count_(*argc) char*** argv,
-    int required,
+    _Notref_ _In_reads_opt_(*argc) char*** argv,
+    _In_ int required,
     _Out_ int* provided
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Init_thread(
     _In_opt_ int* argc,
-    _In_opt_count_(*argc) char*** argv,
-    int required,
+    _Notref_ _In_reads_opt_(*argc) char*** argv,
+    _In_ int required,
     _Out_ int* provided
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Query_thread(
     _Out_ int* provided
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Query_thread(
     _Out_ int* provided
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Is_thread_main(
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Is_thread_main(
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
 
 
@@ -4421,138 +4265,118 @@ PMPI_Is_thread_main(
 #define MPI_MODE_SEQUENTIAL         0x00000100
 #define MSMPI_MODE_HIDDEN           0x00000200
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_open(
-    MPI_Comm comm,
-    _In_z_ char* filename,
-    int amode,
-    MPI_Info info,
-    _Out_ MPI_File* newfile
+    _In_ MPI_Comm comm,
+    _In_z_ const char* filename,
+    _In_ int amode,
+    _In_ MPI_Info info,
+    _Out_ MPI_File* fh
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_open(
-    MPI_Comm comm,
-    _In_z_ char* filename,
-    int amode,
-    MPI_Info info,
-    _Out_ MPI_File* newfile
+    _In_ MPI_Comm comm,
+    _In_z_ const char* filename,
+    _In_ int amode,
+    _In_ MPI_Info info,
+    _Out_ MPI_File* fh
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_close(
-    _In_ MPI_File* file
+    _In_ MPI_File* fh
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_close(
-    _In_ MPI_File* file
+    _In_ MPI_File* fh
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_delete(
-    _In_z_ char* filename,
-    MPI_Info info
+    _In_z_ const char* filename,
+    _In_ MPI_Info info
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_delete(
-    _In_z_ char* filename,
-    MPI_Info info
+    _In_z_ const char* filename,
+    _In_ MPI_Info info
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_set_size(
-    MPI_File file,
-    MPI_Offset size
+    _In_ MPI_File fh,
+    _In_ MPI_Offset size
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_set_size(
-    MPI_File file,
-    MPI_Offset size
+    _In_ MPI_File fh,
+    _In_ MPI_Offset size
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_preallocate(
-    MPI_File file,
-    MPI_Offset size
+    _In_ MPI_File fh,
+    _In_ MPI_Offset size
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_preallocate(
-    MPI_File file,
-    MPI_Offset size
+    _In_ MPI_File fh,
+    _In_ MPI_Offset size
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_get_size(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ MPI_Offset* size
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_get_size(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ MPI_Offset* size
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_get_group(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ MPI_Group* group
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_get_group(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ MPI_Group* group
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_get_amode(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ int* amode
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_get_amode(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ int* amode
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_set_info(
-    MPI_File file,
-    MPI_Info info
+    _In_ MPI_File fh,
+    _In_ MPI_Info info
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_set_info(
-    MPI_File file,
-    MPI_Info info
+    _In_ MPI_File fh,
+    _In_ MPI_Info info
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_get_info(
-    MPI_File file,
-    _Out_ MPI_Info* info
+    _In_ MPI_File fh,
+    _Out_ MPI_Info* info_used
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_get_info(
-    MPI_File file,
-    _Out_ MPI_Info* info
+    _In_ MPI_File fh,
+    _Out_ MPI_Info* info_used
     );
 
 
@@ -4562,46 +4386,42 @@ PMPI_File_get_info(
 
 #define MPI_DISPLACEMENT_CURRENT (-54278278)
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_set_view(
-    MPI_File file,
-    MPI_Offset disp,
-    MPI_Datatype etype,
-    MPI_Datatype filetype,
-    _In_z_ char* datarep,
-    MPI_Info info
+    _In_ MPI_File fh,
+    _In_ MPI_Offset disp,
+    _In_ MPI_Datatype etype,
+    _In_ MPI_Datatype filetype,
+    _In_z_ const char* datarep,
+    _In_ MPI_Info info
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_set_view(
-    MPI_File file,
-    MPI_Offset disp,
-    MPI_Datatype etype,
-    MPI_Datatype filetype,
-    _In_z_ char* datarep,
-    MPI_Info info
+    _In_ MPI_File fh,
+    _In_ MPI_Offset disp,
+    _In_ MPI_Datatype etype,
+    _In_ MPI_Datatype filetype,
+    _In_z_ const char* datarep,
+    _In_ MPI_Info info
     );
 
 #define MPI_MAX_DATAREP_STRING  128
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_get_view(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ MPI_Offset* disp,
     _Out_ MPI_Datatype* etype,
     _Out_ MPI_Datatype* filetype,
-    _Out_z_cap_(MPI_MAX_DATAREP_STRING) char* datarep
+    _Out_writes_z_(MPI_MAX_DATAREP_STRING) char* datarep
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_get_view(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ MPI_Offset* disp,
     _Out_ MPI_Datatype* etype,
     _Out_ MPI_Datatype* filetype,
-    _Out_z_cap_(MPI_MAX_DATAREP_STRING) char* datarep
+    _Out_writes_z_(MPI_MAX_DATAREP_STRING) char* datarep
     );
 
 
@@ -4609,244 +4429,220 @@ PMPI_File_get_view(
 /* Section 13.4: Data Access                   */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read_at(
-    MPI_File file,
-    MPI_Offset offset,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read_at(
-    MPI_File file,
-    MPI_Offset offset,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read_at_all(
-    MPI_File file,
-    MPI_Offset offset,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read_at_all(
-    MPI_File file,
-    MPI_Offset offset,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write_at(
-    MPI_File file,
-    MPI_Offset offset,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write_at(
-    MPI_File file,
-    MPI_Offset offset,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write_at_all(
-    MPI_File file,
-    MPI_Offset offset,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write_at_all(
-    MPI_File file,
-    MPI_Offset offset,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_iread_at(
-    MPI_File file,
-    MPI_Offset offset,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_iread_at(
-    MPI_File file,
-    MPI_Offset offset,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_iwrite_at(
-    MPI_File file,
-    MPI_Offset offset,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_iwrite_at(
-    MPI_File file,
-    MPI_Offset offset,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read_all(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read_all(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write_all(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write_all(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
 
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_iread(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_iread(
-    _In_ MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_iwrite(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_iwrite(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
 
@@ -4856,384 +4652,338 @@ PMPI_File_iwrite(
 #define MPI_SEEK_CUR    602
 #define MPI_SEEK_END    604
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_seek(
-    MPI_File file,
-    MPI_Offset offset,
-    int whence
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_ int whence
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_seek(
-    MPI_File file,
-    MPI_Offset offset,
-    int whence
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_ int whence
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_get_position(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ MPI_Offset* offset
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_get_position(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ MPI_Offset* offset
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_get_byte_offset(
-    MPI_File file,
-    MPI_Offset offset,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
     _Out_ MPI_Offset* disp
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_get_byte_offset(
-    MPI_File file,
-    MPI_Offset offset,
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
     _Out_ MPI_Offset* disp
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read_shared(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
      );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read_shared(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
      );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write_shared(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write_shared(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_iread_shared(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_iread_shared(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_iwrite_shared(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_iwrite_shared(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Request* request
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read_ordered(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read_ordered(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write_ordered(
-    _In_ MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write_ordered(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_seek_shared(
-    MPI_File file,
-    MPI_Offset offset,
-    int whence
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_ int whence
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_seek_shared(
-    MPI_File file,
-    MPI_Offset offset,
-    int whence
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_ int whence
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_get_position_shared(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ MPI_Offset* offset
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_get_position_shared(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ MPI_Offset* offset
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read_at_all_begin(
-    MPI_File file,
-    MPI_Offset offset,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read_at_all_begin(
-    MPI_File file,
-    MPI_Offset offset,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read_at_all_end(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ void* buf,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read_at_all_end(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ void* buf,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write_at_all_begin(
-    MPI_File file,
-    MPI_Offset offset,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write_at_all_begin(
-    MPI_File file,
-    MPI_Offset offset,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _In_ MPI_Offset offset,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write_at_all_end(
-    MPI_File file,
-    _In_ void* buf,
+    _In_ MPI_File fh,
+    _In_ const void* buf,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write_at_all_end(
-    MPI_File file,
-    _In_ void* buf,
+    _In_ MPI_File fh,
+    _In_ const void* buf,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read_all_begin(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read_all_begin(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read_all_end(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ void* buf,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read_all_end(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ void* buf,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write_all_begin(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write_all_begin(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write_all_end(
-    MPI_File file,
-    _In_ void* buf,
+    _In_ MPI_File fh,
+    _In_ const void* buf,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write_all_end(
-    MPI_File file,
-    _In_ void* buf,
+    _In_ MPI_File fh,
+    _In_ const void* buf,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read_ordered_begin(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read_ordered_begin(
-    MPI_File file,
-    _Out_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _Out_opt_ void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_read_ordered_end(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ void* buf,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_read_ordered_end(
-    MPI_File file,
+    _In_ MPI_File fh,
     _Out_ void* buf,
     _Out_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write_ordered_begin(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write_ordered_begin(
-    MPI_File file,
-    _In_ void* buf,
-    int count,
-    MPI_Datatype datatype
+    _In_ MPI_File fh,
+    _In_opt_ const void* buf,
+    _In_range_(>=, 0) int count,
+    _In_ MPI_Datatype datatype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_write_ordered_end(
-    MPI_File file,
-    _In_ void* buf,
+    _In_ MPI_File fh,
+    _In_ const void* buf,
     _Out_ MPI_Status* status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_write_ordered_end(
-    MPI_File file,
-    _In_ void* buf,
+    _In_ MPI_File fh,
+    _In_ const void* buf,
     _Out_ MPI_Status* status
     );
 
@@ -5242,18 +4992,16 @@ PMPI_File_write_ordered_end(
 /* Section 13.5: File Interoperability         */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_get_type_extent(
-    MPI_File file,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Aint* extent
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_get_type_extent(
-    MPI_File file,
-    MPI_Datatype datatype,
+    _In_ MPI_File fh,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Aint* extent
     );
 
@@ -5262,36 +5010,34 @@ typedef
 int
 (MPIAPI MPI_Datarep_conversion_function)(
     _Inout_ void* userbuf,
-    MPI_Datatype datatype,
-    int count,
+    _In_ MPI_Datatype datatype,
+    _In_range_(>=, 0) int count,
     _Inout_ void* filebuf,
-    MPI_Offset position,
-    _In_ void* extra_state
+    _In_ MPI_Offset position,
+    _In_opt_ void* extra_state
     );
 
 typedef
 int
 (MPIAPI MPI_Datarep_extent_function)(
-    MPI_Datatype datatype,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Aint* file_extent,
-    _In_ void* extra_state
+    _In_opt_ void* extra_state
     );
 
 #define MPI_CONVERSION_FN_NULL ((MPI_Datarep_conversion_function*)0)
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Register_datarep(
-    _In_z_ char* datarep,
+    _In_z_ const char* datarep,
     _In_opt_ MPI_Datarep_conversion_function* read_conversion_fn,
     _In_opt_ MPI_Datarep_conversion_function* write_conversion_fn,
     _In_ MPI_Datarep_extent_function* dtype_file_extent_fn,
     _In_opt_ void* extra_state
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Register_datarep(
-    _In_z_ char* datarep,
+    _In_z_ const char* datarep,
     _In_opt_ MPI_Datarep_conversion_function* read_conversion_fn,
     _In_opt_ MPI_Datarep_conversion_function* write_conversion_fn,
     _In_ MPI_Datarep_extent_function* dtype_file_extent_fn,
@@ -5303,41 +5049,35 @@ PMPI_Register_datarep(
 /* Section 13.6: Consistency and Semantics     */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_set_atomicity(
-    MPI_File file,
-    int flag
+    _In_ MPI_File fh,
+    _In_range_(0, 1) int flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_set_atomicity(
-    MPI_File file,
-    int flag
+    _In_ MPI_File fh,
+    _In_range_(0, 1) int flag
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_get_atomicity(
-    MPI_File file,
-    _Out_ int* flag
+    _In_ MPI_File fh,
+    _mpi_out_flag_ int* flag
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_get_atomicity(
-    MPI_File file,
-    _Out_ int* flag
+    _In_ MPI_File fh,
+    _mpi_out_flag_ int* flag
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_File_sync(
-    MPI_File file
+    _In_ MPI_File fh
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_File_sync(
-    MPI_File file
+    _In_ MPI_File fh
     );
 
 
@@ -5345,20 +5085,20 @@ PMPI_File_sync(
 /* Chapter 14: Profiling Interface                                           */
 /*---------------------------------------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Pcontrol(
-    const int level,
-    ...);
-int
-MPIAPI
+    _In_ const int level,
+    ...
+    );
+MPI_METHOD
 PMPI_Pcontrol(
-    const int level,
-    ...);
+    _In_ const int level,
+    ...
+    );
 
 
 /*---------------------------------------------------------------------------*/
-/* Chapter 15: Depricated Functions                                          */
+/* Chapter 15: Deprecated Functions                                          */
 /*---------------------------------------------------------------------------*/
 
 #ifdef MSMPI_NO_DEPRECATE_20
@@ -5370,125 +5110,111 @@ PMPI_Pcontrol(
 #endif
 
 MSMPI_DEPRECATE_20( MPI_Type_create_hvector )
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_hvector(
-    int count,
-    int blocklength,
-    MPI_Aint stride,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_range_(>=, 0) int blocklength,
+    _In_ MPI_Aint stride,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 MSMPI_DEPRECATE_20( PMPI_Type_create_hvector )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_hvector(
-    int count,
-    int blocklength,
-    MPI_Aint stride,
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_range_(>=, 0) int blocklength,
+    _In_ MPI_Aint stride,
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 
 MSMPI_DEPRECATE_20( MPI_Type_create_hindexed )
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_hindexed(
-    int count,
-    _In_count_(count) int array_of_blocklengths[],
-    _In_count_(count) MPI_Aint array_of_displacements[],
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_reads_opt_(count) const int array_of_blocklengths[],
+    _In_reads_opt_(count) const MPI_Aint array_of_displacements[],
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 MSMPI_DEPRECATE_20( PMPI_Type_create_hindexed )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_hindexed(
-    int count,
-    _In_count_(count) int array_of_blocklengths[],
-    _In_count_(count) MPI_Aint array_of_displacements[],
-    MPI_Datatype oldtype,
+    _In_range_(>=, 0) int count,
+    _In_reads_opt_(count) const int array_of_blocklengths[],
+    _In_reads_opt_(count) const MPI_Aint array_of_displacements[],
+    _In_ MPI_Datatype oldtype,
     _Out_ MPI_Datatype* newtype
     );
 
 MSMPI_DEPRECATE_20( MPI_Type_create_struct )
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_struct(
-    int count,
-    _In_count_(count) int array_of_blocklengths[],
-    _In_count_(count) MPI_Aint array_of_displacements[],
-    _In_count_(count) MPI_Datatype array_of_types[],
-    _In_ MPI_Datatype* newtype
+    _In_range_(>=, 0) int count,
+    _In_reads_opt_(count) const int array_of_blocklengths[],
+    _In_reads_opt_(count) const MPI_Aint array_of_displacements[],
+    _In_reads_opt_(count) const MPI_Datatype array_of_types[],
+    _Out_ MPI_Datatype* newtype
     );
 MSMPI_DEPRECATE_20( PMPI_Type_create_struct )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_struct(
-    int count,
-    _In_count_(count) int array_of_blocklengths[],
-    _In_count_(count) MPI_Aint array_of_displacements[],
-    _In_count_(count) MPI_Datatype array_of_types[],
-    _In_ MPI_Datatype* newtype
+    _In_range_(>=, 0) int count,
+    _In_reads_opt_(count) const int array_of_blocklengths[],
+    _In_reads_opt_(count) const MPI_Aint array_of_displacements[],
+    _In_reads_opt_(count) const MPI_Datatype array_of_types[],
+    _Out_ MPI_Datatype* newtype
     );
 
 MSMPI_DEPRECATE_20( MPI_Get_address )
-int
-MPIAPI
+MPI_METHOD
 MPI_Address(
     _In_ void* location,
     _Out_ MPI_Aint* address
     );
 MSMPI_DEPRECATE_20( PMPI_Get_address )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Address(
     _In_ void* location,
     _Out_ MPI_Aint* address
     );
 
 MSMPI_DEPRECATE_20( MPI_Type_get_extent )
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_extent(
-    MPI_Datatype datatype,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Aint* extent
     );
 MSMPI_DEPRECATE_20( PMPI_Type_get_extent )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_extent(
-    MPI_Datatype datatype,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Aint* extent
     );
 
 MSMPI_DEPRECATE_20( MPI_Type_get_extent )
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_lb(
-    MPI_Datatype datatype,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Aint* displacement
     );
 MSMPI_DEPRECATE_20( PMPI_Type_get_extent )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_lb(
-    MPI_Datatype datatype,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Aint* displacement
     );
 
 MSMPI_DEPRECATE_20( MPI_Type_get_extent )
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_ub(
-    MPI_Datatype datatype,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Aint* displacement
     );
 MSMPI_DEPRECATE_20( PMPI_Type_get_extent )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_ub(
-    MPI_Datatype datatype,
+    _In_ MPI_Datatype datatype,
     _Out_ MPI_Aint* displacement
     );
 
@@ -5502,133 +5228,117 @@ typedef MPI_Comm_delete_attr_function MPI_Delete_function;
 
 
 MSMPI_DEPRECATE_20( MPI_Comm_create_keyval )
-int
-MPIAPI
+MPI_METHOD
 MPI_Keyval_create(
-    _In_ MPI_Copy_function* copy_fn,
-    _In_ MPI_Delete_function* delete_fn,
+    _In_opt_ MPI_Copy_function* copy_fn,
+    _In_opt_ MPI_Delete_function* delete_fn,
     _Out_ int* keyval,
     _In_opt_ void* extra_state
     );
 MSMPI_DEPRECATE_20( PMPI_Comm_create_keyval )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Keyval_create(
-    _In_ MPI_Copy_function* copy_fn,
-    _In_ MPI_Delete_function* delete_fn,
+    _In_opt_ MPI_Copy_function* copy_fn,
+    _In_opt_ MPI_Delete_function* delete_fn,
     _Out_ int* keyval,
     _In_opt_ void* extra_state
     );
 
 MSMPI_DEPRECATE_20( MPI_Comm_free_keyval )
-int
-MPIAPI
+MPI_METHOD
 MPI_Keyval_free(
     _Inout_ int* keyval
     );
 MSMPI_DEPRECATE_20( PMPI_Comm_free_keyval )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Keyval_free(
     _Inout_ int* keyval
     );
 
 MSMPI_DEPRECATE_20( MPI_Comm_set_attr )
-int
-MPIAPI
+MPI_METHOD
 MPI_Attr_put(
-    MPI_Comm comm,
-    int keyval,
-    _In_ void* attribute_val
+    _In_ MPI_Comm comm,
+    _In_ int keyval,
+    _In_opt_ void* attribute_val
     );
 MSMPI_DEPRECATE_20( PMPI_Comm_set_attr )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Attr_put(
-    MPI_Comm comm,
-    int keyval,
-    _In_ void* attribute_val
+    _In_ MPI_Comm comm,
+    _In_ int keyval,
+    _In_opt_ void* attribute_val
     );
 
 MSMPI_DEPRECATE_20( MPI_Comm_get_attr )
-int
-MPIAPI
+MPI_METHOD
 MPI_Attr_get(
-    MPI_Comm comm,
-    int keyval,
+    _In_ MPI_Comm comm,
+    _In_ int keyval,
     _Out_ void* attribute_val,
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
 MSMPI_DEPRECATE_20( PMPI_Comm_get_attr )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Attr_get(
-    MPI_Comm comm,
-    int keyval,
+    _In_ MPI_Comm comm,
+    _In_ int keyval,
     _Out_ void* attribute_val,
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
 
 MSMPI_DEPRECATE_20( MPI_Comm_delete_attr )
-int
-MPIAPI
+MPI_METHOD
 MPI_Attr_delete(
-    MPI_Comm comm,
-    int keyval
+    _In_ MPI_Comm comm,
+    _In_ int keyval
     );
 MSMPI_DEPRECATE_20( PMPI_Comm_delete_attr )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Attr_delete(
-    MPI_Comm comm,
-    int keyval
+    _In_ MPI_Comm comm,
+    _In_ int keyval
     );
 
 
 typedef MPI_Comm_errhandler_fn MPI_Handler_function;
 
 MSMPI_DEPRECATE_20( MPI_Comm_create_errhandler )
-int
-MPIAPI
+MPI_METHOD
 MPI_Errhandler_create(
     _In_ MPI_Handler_function* function,
     _Out_ MPI_Errhandler* errhandler
     );
 MSMPI_DEPRECATE_20( PMPI_Comm_create_errhandler )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Errhandler_create(
     _In_ MPI_Handler_function* function,
     _Out_ MPI_Errhandler* errhandler
     );
 
 MSMPI_DEPRECATE_20( MPI_Comm_set_errhandler )
-int
-MPIAPI
+MPI_METHOD
 MPI_Errhandler_set(
-    MPI_Comm comm,
-    MPI_Errhandler errhandler
+    _In_ MPI_Comm comm,
+    _In_ MPI_Errhandler errhandler
     );
 MSMPI_DEPRECATE_20( PMPI_Comm_set_errhandler )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Errhandler_set(
-    MPI_Comm comm,
-    MPI_Errhandler errhandler
+    _In_ MPI_Comm comm,
+    _In_ MPI_Errhandler errhandler
     );
 
 MSMPI_DEPRECATE_20( MPI_Comm_get_errhandler )
-int
-MPIAPI
+MPI_METHOD
 MPI_Errhandler_get(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Errhandler* errhandler
     );
 MSMPI_DEPRECATE_20( PMPI_Comm_get_errhandler )
-int
-MPIAPI
+MPI_METHOD
 PMPI_Errhandler_get(
-    MPI_Comm comm,
+    _In_ MPI_Comm comm,
     _Out_ MPI_Errhandler* errhandler
     );
 
@@ -5641,46 +5351,40 @@ PMPI_Errhandler_get(
 /* Section 16.2: Fortran Support               */
 /*---------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_create_f90_real(
-    int p,
-    int r,
+    _In_ int p,
+    _In_ int r,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_create_f90_real(
-    int p,
-    int r,
+    _In_ int p,
+    _In_ int r,
     _Out_ MPI_Datatype* newtype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_create_f90_complex(
-    int p,
-    int r,
+    _In_ int p,
+    _In_ int r,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_create_f90_complex(
-    int p,
-    int r,
+    _In_ int p,
+    _In_ int r,
     _Out_ MPI_Datatype* newtype
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_create_f90_integer(
-    int r,
+    _In_ int r,
     _Out_ MPI_Datatype* newtype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_create_f90_integer(
-    int r,
+    _In_ int r,
     _Out_ MPI_Datatype* newtype
     );
 
@@ -5689,19 +5393,17 @@ PMPI_Type_create_f90_integer(
 #define MPI_TYPECLASS_INTEGER   2
 #define MPI_TYPECLASS_COMPLEX   3
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Type_match_size(
-    int typeclass,
-    int size,
-    _Out_ MPI_Datatype* type
+    _In_ int typeclass,
+    _In_ int size,
+    _Out_ MPI_Datatype* datatype
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Type_match_size(
-    int typeclass,
-    int size,
-    _Out_ MPI_Datatype* type
+    _In_ int typeclass,
+    _In_ int size,
+    _Out_ MPI_Datatype* datatype
     );
 
 
@@ -5768,48 +5470,44 @@ PMPI_Type_match_size(
 MPI_File
 MPIAPI
 MPI_File_f2c(
-    MPI_Fint file
+    _In_ MPI_Fint file
     );
 MPI_File
 MPIAPI
 PMPI_File_f2c(
-    MPI_Fint file
+    _In_ MPI_Fint file
     );
 
 MPI_Fint
 MPIAPI
 MPI_File_c2f(
-    MPI_File file
+    _In_ MPI_File file
     );
 MPI_Fint
 MPIAPI
 PMPI_File_c2f(
-    MPI_File file
+    _In_ MPI_File file
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Status_f2c(
-    _In_ MPI_Fint* f_status,
-    _Out_ MPI_Status* status
+    _In_ const MPI_Fint* f_status,
+    _Out_ MPI_Status* c_status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Status_f2c(
-    _In_ MPI_Fint* f_status,
-    _Out_ MPI_Status* status
+    _In_ const MPI_Fint* f_status,
+    _Out_ MPI_Status* c_status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MPI_Status_c2f(
-    _In_ MPI_Status* status,
+    _In_ const MPI_Status* c_status,
     _Out_ MPI_Fint* f_status
     );
-int
-MPIAPI
+MPI_METHOD
 PMPI_Status_c2f(
-    _In_ MPI_Status* status,
+    _In_ const MPI_Status* c_status,
     _Out_ MPI_Fint* f_status
     );
 
@@ -5828,22 +5526,20 @@ extern MPIU_DLL_SPEC MPI_Fint* MPI_F_STATUSES_IGNORE;
 /* Implementation Specific                                                   */
 /*---------------------------------------------------------------------------*/
 
-int
-MPIAPI
+MPI_METHOD
 MPIR_Dup_fn(
-    MPI_Comm oldcomm,
-    int keyval,
+    _In_ MPI_Comm oldcomm,
+    _In_ int keyval,
     _In_opt_ void* extra_state,
-    _In_ void* attribute_val_in,
+    _In_opt_ void* attribute_val_in,
     _Out_ void* attribute_val_out,
-    _Out_ int* flag
+    _mpi_out_flag_ int* flag
     );
 
 
 #if MSMPI_VER >= 0x300
 
-int
-MPIAPI
+MPI_METHOD
 MSMPI_Get_bsend_overhead();
 
 #endif
@@ -5851,8 +5547,7 @@ MSMPI_Get_bsend_overhead();
 
 #if MSMPI_VER >= 0x300
 
-int
-MPIAPI
+MPI_METHOD
 MSMPI_Get_version();
 
 #else
@@ -5864,10 +5559,9 @@ typedef void
     _In_ MPI_Status* status
     );
 
-int
-MPIAPI
+MPI_METHOD
 MSMPI_Request_set_apc(
-    MPI_Request request,
+    _In_ MPI_Request request,
     _In_ MSMPI_Request_callback* callback_fn,
     _In_ MPI_Status* callback_status
     );
@@ -5891,44 +5585,15 @@ MSMPI_Queuelock_release(
     _In_ MSMPI_Lock_queue* queue
     );
 
-int
-MPIAPI
+MPI_METHOD
 MSMPI_Waitsome_interruptible(
-    int incount,
-    _Inout_count_(incount) MPI_Request array_of_requests[],
-    _Out_ int* outcount,
-    _Out_cap_post_count_(incount,*outcount) int array_of_indices[],
-    _Out_cap_post_count_(incount,*outcount) MPI_Status array_of_statuses[]
+    _In_range_(>=, 0) int incount,
+    _Inout_updates_opt_(incount) MPI_Request array_of_requests[],
+    _Out_ _Deref_out_range_(MPI_UNDEFINED, incount) int* outcount,
+    _Out_writes_to_opt_(incount,*outcount) int array_of_indices[],
+    _Out_writes_to_opt_(incount,*outcount) MPI_Status array_of_statuses[]
     );
 
-
-/*---------------------------------------------------------------------------*/
-/* SAL ANNOTATIONS                                                           */
-/*---------------------------------------------------------------------------*/
-
-//OACR_WARNING_POP
-
-#ifdef MSMPI_DEFINED_SAL
-#undef MSMPI_DEFINED_SAL
-#undef _In_
-#undef _In_z_
-#undef _In_opt_
-#undef _In_count_
-#undef _In_bytecount_
-#undef _In_opt_count_
-#undef _Out_
-#undef _Out_cap_
-#undef _Out_cap_post_count_
-#undef _Out_bytecap_
-#undef _Out_z_cap_
-#undef _Out_z_cap_post_count_
-#undef _Out_cap_post_part_
-#undef _Out_opt_
-#undef _Out_opt_cap_
-#undef _Post_z_
-#undef _Inout_
-#undef _Inout_count_
-#endif
 
 #if defined(__cplusplus)
 }

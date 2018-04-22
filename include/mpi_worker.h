@@ -1,9 +1,11 @@
 #pragma once
 #include "mpi_wrapper.h"
 #include "grid3d.h"
+#include <string>
 
 class MPIWorker {
 private:
+    const int n = 2, d = 3; //2 вектора (B, E) из 3 компонент
     int rank;
     int size;
     int domainSize;
@@ -67,6 +69,10 @@ public:
 
     void ExchangeGuard();
 
+    static void ShowMessage(std::string message) {
+        std::cout << "rank " << MPIWrapper::MPIRank() << ": " << message << std::endl;
+    }
+
 private:
     int mod(int a, int b) {
         return ((a + b) % b);
@@ -78,10 +84,11 @@ private:
 
     void CreateGrid(Grid3d& gr);
 
-    void SendGuard(double*& arr, int& size, int n1, int n2, int dest);
-    void RecvGuard(double*& arr, int& size, int n1, int n2, int source);
+    void SendGuard(int n1, int dest, int tag);
+    void RecvGuard(int n1, int source, int tag);
 
     //упаковывает вещественные поля части сетки
-    void PackData(Grid3d& gr, int n1, int n2, double*& arr, int& size);
-    void UnPackData(Grid3d& gr, int n1, int n2, double* arr);
+    int getPackSize();
+    void PackData(int n1, double*& arr);
+    void UnPackData(int n1, double*& arr);
 };
