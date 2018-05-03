@@ -86,3 +86,12 @@ TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_2_main_domain) {
     ASSERT_EQ(6, mpiWorker.getMainDomainStart());
     ASSERT_EQ(9, mpiWorker.getMainDomainEnd());
 }
+
+TEST(TestMPIWorker, mpi_worker_copy_gr_correctly) {
+    Grid3d gr(9, 1, 1, 0, 1, 0, 1, 0, 1);
+    gr(4, 1, 1).E = vec3<double>(1, 1, 1);
+    MPIWorker mpiWorker(gr, 1, 3, 1);
+
+    ASSERT_EQ(gr(4,1,1).E.x(), (mpiWorker.getGrid())(2,1,1).E.x());
+    ASSERT_EQ(1, (mpiWorker.getGrid())(2, 1, 1).E.x());
+}

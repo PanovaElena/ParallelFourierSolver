@@ -5,11 +5,12 @@
 #include "mpi_worker.h"
 #include "mpi_wrapper.h"
 
-const std::string nameFile40Step = "../../files/parallel_field_solver_console/40StepE.csv";
-const std::string nameFile50Step = "../../files/parallel_field_solver_console/50StepE.csv";
-const std::string nameFileLeft50Step = "../../files/parallel_field_solver_console/LeftE50Step.csv";
-const std::string nameFileRight50Step = "../../files/parallel_field_solver_console/RightE50Step.csv";
-const std::string arrNameFile50Step[] = { nameFileLeft50Step, nameFileRight50Step };
+const std::string dir = "../../../files/parallel_field_solver_console/";
+const std::string nameFileFirstSteps = dir + "FirstStepsE.csv";
+const std::string nameFileSecondSteps = dir + "SecondStepsE.csv";
+const std::string nameFileSecondStepsLeft = dir + "SecondStepsELeft.csv";
+const std::string nameFileSecondStepsRight = dir + "SecondStepsERight.csv";
+const std::string arrNameFileSecondSteps[] = { nameFileSecondStepsLeft, nameFileSecondStepsRight };
 
 const int NStartSteps = 20;
 const int NNextSteps = 8;
@@ -18,8 +19,8 @@ void WriteFile(Grid3d& gr, std::string nameFile) {
     std::ofstream file;
     file.open(nameFile);
 
-    for (int i = 0; i < gr.gnxRealNodes(); i++) {
-        for (int j = 0; j < gr.gnyRealNodes(); j++)
+    for (int j = 0; j < gr.gnyRealNodes(); j++) {
+        for (int i = 0; i < gr.gnxRealNodes(); i++)
             file << gr(i, j, gr.gnzRealCells() / 2).E.getNorm() << ";";
         file << std::endl;
     }
@@ -27,23 +28,33 @@ void WriteFile(Grid3d& gr, std::string nameFile) {
     file.close();
 }
 
-void TestBody() {
-    Pulse pulse;
-    MPIWorker worker(pulse.gr, pulse.gr.gnxRealCells() / 8);
-
-    for (int i = 0; i < NStartSteps; i++) {
+void DoFirstPart(Pulse& pulse) {
+    for (int i = 1; i < NStartSteps; i++) {
         pulse.SetJ(i);
         FieldSolverPSATD(pulse.gr, pulse.dt);
     }
 
-    WriteFile(pulse.gr, nameFile40Step);
+    FourierTransformation(pulse.gr, CtoR);
+    if (MPIWrapper::MPIRank() == 0)
+        WriteFile(pulse.gr, nameFileFirstSteps);
+}
 
-    MPIWorker::ShowMessage("doing parallel solver");
+void DoSecondPart(Pulse& pulse) {
+    MPIWorker worker(pulse.gr, pulse.gr.gnxRealCells() / 8);
+
     FieldSolverParallelPSATD(worker, NNextSteps, pulse.dt);
 
-    MPIWorker::ShowMessage("writing file second steps");
-    WriteFile(worker.getGrid(), arrNameFile50Step[MPIWrapper::MPIRank()]);
+    WriteFile(worker.getGrid(), arrNameFileSecondSteps[MPIWrapper::MPIRank()]);
 
+    worker.AssembleResultsToZeroProcess(pulse.gr);
+    if (MPIWrapper::MPIRank()==0)
+        WriteFile(pulse.gr, nameFileSecondSteps);
+}
+
+void TestBody() {
+    Pulse pulse;
+    DoFirstPart(pulse);
+    DoSecondPart(pulse);
 }
 
 int main(int* argc, char** argv) {

@@ -73,6 +73,9 @@ public:
         std::cout << "rank " << MPIWrapper::MPIRank() << ": " << message << std::endl;
     }
 
+    //gr - сетка то размерности, какая должна получиться (rank==0), или любой другой (rank!=0) 
+    void AssembleResultsToZeroProcess(Grid3d& gr);
+
 private:
     int mod(int a, int b) {
         return ((a + b) % b);
@@ -84,11 +87,11 @@ private:
 
     void CreateGrid(Grid3d& gr);
 
-    void SendGuard(int n1, int dest, int tag);
-    void RecvGuard(int n1, int source, int tag);
+    void Send(int n1, int n2, int dest, int tag, Grid3d& grFrom);
+    void Recv(int n1, int n2, int source, int tag, Grid3d& grTo);
 
     //упаковывает вещественные поля части сетки
-    int getPackSize();
-    void PackData(int n1, double*& arr);
-    void UnPackData(int n1, double*& arr);
+    int getPackSize(int width);
+    void PackData(int n1, int n2, double *& arr, Grid3d& grFrom);
+    void UnPackData(int n1, int n2, double *& arr, Grid3d& grTo);
 };

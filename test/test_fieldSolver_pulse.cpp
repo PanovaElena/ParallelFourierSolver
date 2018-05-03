@@ -44,8 +44,9 @@ public:
     void WriteFile(Field field, int iter, std::string name) {
         file.open(name + "iter_" + std::to_string(iter) + ".csv");//freopen?
 
-        for (int i = 0; i < gr.gnxRealCells(); i++) {
-            file << (gr(i, gr.gnyRealCells() / 2, gr.gnzRealNodes() / 2).*GetField(field)).getNorm() << ";";
+        for (int i = 0; i <= gr.gnxRealCells(); i++) {
+            for (int j = 0; j <= gr.gnyRealCells(); j++)
+                file << (gr(i, j, gr.gnzRealCells() / 2).*GetField(field)).getNorm() << ";";
             file << std::endl;
         }
 

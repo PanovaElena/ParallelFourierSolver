@@ -23,45 +23,59 @@ void MPIWorker::CreateGrid(Grid3d & gr)
         for (int j = 0; j < gr.gnyRealNodes(); j++)
             for (int k = 0; k < gr.gnzRealNodes(); k++)
                 grid(i, j, k) = gr(mod(i + getLeftGuardStart(), gr.gnxRealCells()), j, k);
+    SetToZerosQuard();
     FourierTransformation(gr, RtoC);
 }
 
-void MPIWorker::SendGuard(int n1, int dest, int tag)
+void MPIWorker::Send(int n1, int n2, int dest, int tag, Grid3d& grFrom)
 {
-    double* arr = new double[getPackSize()];
-    MPIWorker::ShowMessage("parallel: exchange: send: pack");
-    PackData(n1, arr);
-    MPIWorker::ShowMessage("parallel: exchange: send: start MPI send to "+std::to_string(dest));
-    MPIWrapper::MPISend(arr, getPackSize(), dest, tag);
-    MPIWorker::ShowMessage("parallel: exchange: send: end MPI send to " + std::to_string(dest));
+    double* arr = new double[getPackSize(n2 - n1)];
+    PackData(n1, n2, arr, grFrom);
+    MPIWrapper::MPISend(arr, getPackSize(n2 - n1), dest, tag);
     delete[] arr;
 }
 
-void MPIWorker::RecvGuard(int n1, int source, int tag)
+void MPIWorker::Recv(int n1, int n2, int source, int tag, Grid3d& grTo)
 {
-    double* arr = new double[getPackSize()];
-    MPIWrapper::MPIRecv(arr, getPackSize(), source, tag);
-    UnPackData(n1, arr);
+    double* arr = new double[getPackSize(n2 - n1)];
+    MPIWrapper::MPIRecv(arr, getPackSize(n2 - n1), source, tag);
+    UnPackData(n1, n2, arr, grTo);
     delete[] arr;
 }
 
 void MPIWorker::ExchangeGuard()
 {
-    MPIWorker::ShowMessage("parallel: exchange: send left");
-    SendGuard(0, mod(rank - 1, size), 0);
-    MPIWorker::ShowMessage("parallel: exchange: send right df="+std::to_string(getFullDomainSize()));
-    SendGuard(getGuardSize() + getMainDomainSize(), mod(rank + 1, size), 1);
-    MPIWorker::ShowMessage("parallel: exchange: recv right");
-    RecvGuard(getGuardSize() + getMainDomainSize(), mod(rank + 1, size), 0);
-    MPIWorker::ShowMessage("parallel: exchange: recv left");
-    RecvGuard(0, mod(rank - 1, size), 1);
+    Send(0, 0 + getGuardSize(), mod(rank - 1, size), 0, grid);
+    Send(getGuardSize() + getMainDomainSize(), 2 * getGuardSize() + getMainDomainSize(), mod(rank + 1, size), 1, grid);
+    Recv(getGuardSize() + getMainDomainSize(), 2 * getGuardSize() + getMainDomainSize(), mod(rank + 1, size), 0, grid);
+    Recv(0, 0 + getGuardSize(), mod(rank - 1, size), 1, grid);
+}
+
+void MPIWorker::AssembleResultsToZeroProcess(Grid3d& gr)
+{
+    if (MPIWrapper::MPIRank() != 0)
+        Send(getGuardSize() + 1, getGuardSize() + getMainDomainSize(), 0, 2, grid);
+
+    if (MPIWrapper::MPIRank() == 0) {
+        gr = Grid3d(gr.gnxRealCells(), gr.gnyRealCells(), gr.gnzRealCells(), gr.gax(), gr.gbx(), gr.gay(), gr.gby(), gr.gaz(), gr.gbz());
+
+        for (int i = 0; i <= getMainDomainSize(); i++)
+            for (int j = 0; j < gr.gnyRealNodes(); j++)
+                for (int k = 0; k < gr.gnzRealNodes(); k++)
+                    gr(i, j, k) = grid(i + getGuardSize(), j, k);
+
+        for (int r = 1; r < MPIWrapper::MPISize(); r++) {
+            Recv(r*getMainDomainSize() + 1, (r + 1)*getMainDomainSize(), r, 2, gr);
+            ShowMessage("recv from " + std::to_string(r));
+        }
+    }
 }
 
 void MPIWorker::SetToZerosQuard()
 {
-    for (int i = 0; i <= guardSize; i++)
-        for (int j = 0; j <= grid.gnyRealCells(); j++)
-            for (int k = 0; j <= grid.gnzRealCells(); k++) {
+    for (int i = 0; i <= getGuardSize(); i++)
+        for (int j = 0; j < grid.gnyRealNodes(); j++)
+            for (int k = 0; k < grid.gnzRealNodes(); k++) {
                 grid(i, j, k) = Node();
                 grid(i + getGuardSize() + getMainDomainSize(), j, k) = Node();
             }
@@ -80,41 +94,31 @@ MPIWorker::MPIWorker(Grid3d & gr, int guardWidth, int _size, int _rank)
     CreateGrid(gr);
 }
 
-int MPIWorker::getPackSize()
+int MPIWorker::getPackSize(int width)
 {
-    return n*d*(getGuardSize()+1)*grid.gnyRealNodes()*grid.gnzRealNodes();
+    return n*d*(width +1)*grid.gnyRealNodes()*grid.gnzRealNodes();
 }
 
-void MPIWorker::PackData(int n1, double *& arr)
+void MPIWorker::PackData(int n1, int n2, double *& arr, Grid3d& grFrom)
 {
-    int n2 = n1 + getGuardSize();
-    MPIWorker::ShowMessage("exchange: send: pack: n1 n2 " + std::to_string(n1) + " " + std::to_string(n2));
     for (int i = n1; i <= n2; i++)
-        for (int j = 0; j < grid.gnyRealNodes(); j++)
-            for (int k = 0; k < grid.gnzRealNodes(); k++)
-                for (int coord = 0; coord < 2; coord++) {
-                    int num = n*d*(i*grid.gnyRealNodes()*grid.gnzRealNodes() + j*grid.gnzRealNodes() + k) + n*coord;
-                    try {
-                        arr[num + 0] = grid(i, j, k).E[coord];
-                        arr[num + 1] = grid(i, j, k).B[coord];
-                    }
-                    catch(std::exception e) {
-                        MPIWorker::ShowMessage("exchange: send: pack: fail");
-                        std::exit(1);
-                    }
+        for (int j = 0; j < grFrom.gnyRealNodes(); j++)
+            for (int k = 0; k < grFrom.gnzRealNodes(); k++)
+                for (int coord = 0; coord < 3; coord++) {
+                    int num = n*d*((i - n1)*grFrom.gnyRealNodes()*grFrom.gnzRealNodes() + j*grFrom.gnzRealNodes() + k) + n*coord;
+                    arr[num + 0] = grFrom(i, j, k).E[coord];
+                    arr[num + 1] = grFrom(i, j, k).B[coord];
                 }
-    MPIWorker::ShowMessage("exchange: send: pack: done");
 }
 
-void MPIWorker::UnPackData(int n1, double *& arr)
+void MPIWorker::UnPackData(int n1, int n2, double *& arr, Grid3d& grTo)
 {
-    int n2 = n1 + getGuardSize();
     for (int i = n1; i <= n2; i++)
-        for (int j = 0; j < grid.gnyRealNodes(); j++)
-            for (int k = 0; k < grid.gnzRealNodes(); k++)
-                for (int coord = 0; coord < 2; coord++) {
-                    int num = n*d*(i*grid.gnyRealNodes()*grid.gnzRealNodes() + j*grid.gnzRealNodes() + k) + n*coord;
-                    grid(i, j, k).E[coord] += arr[num + 0];
-                    grid(i, j, k).B[coord] += arr[num + 1];
+        for (int j = 0; j < grTo.gnyRealNodes(); j++)
+            for (int k = 0; k < grTo.gnzRealNodes(); k++)
+                for (int coord = 0; coord < 3; coord++) {
+                    int num = n*d*((i - n1)*grTo.gnyRealNodes()*grTo.gnzRealNodes() + j*grTo.gnzRealNodes() + k) + n*coord;
+                    grTo(i, j, k).E[coord] += arr[num + 0];
+                    grTo(i, j, k).B[coord] += arr[num + 1];
                 }
 }

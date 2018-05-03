@@ -15,7 +15,7 @@ public:
     const double a = 0, b = n*k * constants::c;
     const double d = k * constants::c;
 
-    const int w = 4; //ширина синусоиды в €чейках
+    const int w = n / 16; //ширина синусоиды в €чейках
     const double Tx = d*w / constants::c;
     const double Tt = d*w;
     const double dt = d / constants::c;
