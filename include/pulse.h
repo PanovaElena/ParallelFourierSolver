@@ -10,14 +10,13 @@
 
 class Pulse {
 public:
-    const int n = 64;
-    const int k = 2;
-    const double a = 0, b = n*k * constants::c;
-    const double d = k * constants::c;
+    const int n = 128;    // размерность сетки
+    const double a = 0, b = n* constants::c;    // координаты сетки
+    const double d = constants::c;    // шаг сетки
 
-    const int w = n / 16; //ширина синусоиды в €чейках
-    const double Tx = d*w / constants::c;
-    const double Tt = d*w;
+    const int w = n / 16;    // ширина синусоиды в €чейках
+    const double Tx = d*w / constants::c;    // период по X
+    const double Tt = d*w;    // период по T
     const double dt = d / constants::c;
 
     Grid3d gr;

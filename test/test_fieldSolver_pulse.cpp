@@ -15,8 +15,8 @@ static const std::string strE = "../../files/field_solver_test_pulse_E/";
 static const std::string strB = "../../files/field_solver_test_pulse_B/";
 static const std::string strJ = "../../files/field_solver_test_pulse_J/";
 
-const int maxIt = 32;
-const int itTransform = 1;
+const int maxIt = 41;
+const int itTransform = 5;
 
 class TestPulse :public testing::Test, public Pulse {
 public:
