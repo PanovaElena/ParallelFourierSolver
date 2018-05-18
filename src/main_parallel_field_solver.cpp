@@ -21,12 +21,12 @@ const std::string arrNameFileFinalSecondSteps[] = { nameFileFinalParallelLeft, n
 const std::string arrNameFileStartSecondSteps[] = { nameFileStartParallelLeft, nameFileStartParallelRight };
 const std::string consistentResult = "../../../files/field_solver_test_pulse_E/iter_40.csv";
 
-const int NStartSteps = 31;
+const int NStartSteps = 30;
 const int NNextSteps = 10;
 
 void DoConsistentPart(Pulse& pulse) {
     MPIWorker::ShowMessage("do first steps");
-    for (int i = 1; i < NStartSteps; i++) {
+    for (int i = 1; i <= NStartSteps; i++) {
         pulse.SetJ(i);
         FieldSolverPSATD(pulse.gr, pulse.dt);
     }
