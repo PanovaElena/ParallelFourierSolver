@@ -49,9 +49,9 @@ void MPIWorker::ExchangeGuard()
 
     // неблокирующий send и блокирующий recv
     Send(0, 0 + getGuardSize(), arrS1, mod(rank - 1, size), 0, grid, request1);
-    Send(getGuardSize() + getMainDomainSize(), 2 * getGuardSize() + getMainDomainSize(), arrS2, mod(rank + 1, size), 1, grid, request2);
-    Recv(getGuardSize() + getMainDomainSize(), 2 * getGuardSize() + getMainDomainSize(), mod(rank + 1, size), 0, grid);
-    Recv(0, 0 + getGuardSize(), mod(rank - 1, size), 1, grid);
+    Send(getGuardSize() + getMainDomainSize(), getFullDomainSize(), arrS2, mod(rank + 1, size), 1, grid, request2);
+    Recv(getMainDomainSize(), getGuardSize() + getMainDomainSize(), mod(rank + 1, size), 0, grid);
+    Recv(getGuardSize(), 2 * getGuardSize(), mod(rank - 1, size), 1, grid);
 
     // ждем отправки
     MPIWrapper::MPIWait(request1);
@@ -136,6 +136,9 @@ void MPIWorker::PackData(int n1, int n2, double *& arr, Grid3d& grFrom)
                     int num = n*d*((i - n1)*grFrom.gnyRealNodes()*grFrom.gnzRealNodes() + j*grFrom.gnzRealNodes() + k) + n*coord;
                     arr[num + 0] = grFrom(i, j, k).E[coord];
                     arr[num + 1] = grFrom(i, j, k).B[coord];
+                    if (num % ((n2 - n1 + 1)*grFrom.gnyRealNodes()*grFrom.gnzRealNodes() / 2) == 0)
+                        MPIWorker::ShowMessage("pack num=" + std::to_string(num) + " " + std::to_string(i) + " " + std::to_string(j) + " " + std::to_string(k) +
+                            " arr[num]=" + std::to_string(grFrom(i, j, k).E[coord]));
                 }
 }
 
@@ -146,6 +149,9 @@ void MPIWorker::UnPackData(int n1, int n2, double *& arr, Grid3d& grTo)
             for (int k = 0; k < grTo.gnzRealNodes(); k++)
                 for (int coord = 0; coord < 3; coord++) {
                     int num = n*d*((i - n1)*grTo.gnyRealNodes()*grTo.gnzRealNodes() + j*grTo.gnzRealNodes() + k) + n*coord;
+                    if (num % ((n2 - n1 + 1)*grTo.gnyRealNodes()*grTo.gnzRealNodes() / 2) == 0)
+                        MPIWorker::ShowMessage("unpack num=" + std::to_string(num) + " " + std::to_string(i) + " " + std::to_string(j) + " " + std::to_string(k) 
+                            + " arr[num]=" + std::to_string(arr[num]));
                     grTo(i, j, k).E[coord] += arr[num + 0];
                     grTo(i, j, k).B[coord] += arr[num + 1];
                 }

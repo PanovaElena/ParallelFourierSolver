@@ -32,4 +32,7 @@ public:
     static void MPIFinalize() {
         MPI_Finalize();
     }
+    static void MPIBarrier() {
+        MPI_Barrier(MPI_COMM_WORLD);
+    }
 };

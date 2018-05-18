@@ -11,12 +11,20 @@ const std::string nameFileFirstSteps = dir + "FirstStepsE.csv";
 const std::string nameFileSecondSteps = dir + "SecondStepsE.csv";
 const std::string nameFileSecondStepsLeft = dir + "SecondStepsELeft.csv";
 const std::string nameFileSecondStepsRight = dir + "SecondStepsERight.csv";
-const std::string arrNameFileSecondSteps[] = { nameFileSecondStepsLeft, nameFileSecondStepsRight };
 
-const int NStartSteps = 30;
+const std::string nameFileStartParallelLeft = dir + "SecondStepsStartELeft.csv";
+const std::string nameFileFinalParallelLeft = dir + "SecondStepsFinalELeft.csv";
+const std::string nameFileStartParallelRight = dir + "SecondStepsStartERight.csv";
+const std::string nameFileFinalParallelRight = dir + "SecondStepsFinalERight.csv";
+
+const std::string arrNameFileFinalSecondSteps[] = { nameFileFinalParallelLeft, nameFileFinalParallelRight };
+const std::string arrNameFileStartSecondSteps[] = { nameFileStartParallelLeft, nameFileStartParallelRight };
+const std::string consistentResult = "../../../files/field_solver_test_pulse_E/iter_40.csv";
+
+const int NStartSteps = 31;
 const int NNextSteps = 10;
 
-void DoFirstPart(Pulse& pulse) {
+void DoConsistentPart(Pulse& pulse) {
     MPIWorker::ShowMessage("do first steps");
     for (int i = 1; i < NStartSteps; i++) {
         pulse.SetJ(i);
@@ -29,14 +37,16 @@ void DoFirstPart(Pulse& pulse) {
         WriteFileE(pulse.gr, nameFileFirstSteps);
 }
 
-void DoSecondPart(Pulse& pulse) {
-    MPIWorker worker(pulse.gr, pulse.gr.gnxRealCells() / 8);
+void DoParallelPart(Pulse& pulse) {
+    MPIWorker worker(pulse.gr, pulse.gr.gnxRealCells()/8); //128, 16
+    MPIWorker::ShowMessage("write to file first domain");
+    WriteFileE(worker.getGrid(), arrNameFileStartSecondSteps[MPIWrapper::MPIRank()]);
 
     MPIWorker::ShowMessage("parallel field solver");
     FieldSolverParallelPSATD(worker, NNextSteps, pulse.dt, NNextSteps, dir);
 
     MPIWorker::ShowMessage("write to file parallel result");
-    WriteFileE(worker.getGrid(), arrNameFileSecondSteps[MPIWrapper::MPIRank()]);
+    WriteFileE(worker.getGrid(), arrNameFileFinalSecondSteps[MPIWrapper::MPIRank()]);
 
     MPIWorker::ShowMessage("assemble");
     worker.AssembleResultsToZeroProcess(pulse.gr);
@@ -47,8 +57,8 @@ void DoSecondPart(Pulse& pulse) {
 
 void TestBody() {
     Pulse pulse;
-    DoFirstPart(pulse);
-    DoSecondPart(pulse);
+    DoConsistentPart(pulse);
+    DoParallelPart(pulse);
 }
 
 int main(int* argc, char** argv) {

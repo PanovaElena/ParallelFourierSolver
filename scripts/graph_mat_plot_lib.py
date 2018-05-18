@@ -6,7 +6,7 @@ import sys
 
 #файл
 file=open(sys.argv[1], 'r')
-filePath = sys.argv[1][0:(len(sys.argv[1])-len(sys.argv[1].split('\\').pop()))]+'\\..\\graphics\\'
+filePath = '.\\..\\files\\graphics\\'
 graphName=""
 if (len(sys.argv)>2):
 	graphName=sys.argv[2]
@@ -35,7 +35,8 @@ ax.set_title(graphName)
 
 plt.tight_layout()
 
-plt.savefig(filePath+graphName+'.png')
+if (graphName!=""):
+	plt.savefig(filePath+graphName+'.png')
 
 plt.show()
 
