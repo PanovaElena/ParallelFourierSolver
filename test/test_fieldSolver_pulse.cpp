@@ -9,6 +9,7 @@
 #include "fourier_transformation.h"
 #include "class_member_ptr.h"
 #include "pulse.h"
+#include "write_file.h"
 
 static std::ofstream file;
 static const std::string strE = "../../files/field_solver_test_pulse_E/";
@@ -42,15 +43,7 @@ public:
     }
 
     void WriteFile(Field field, int iter, std::string name) {
-        file.open(name + "iter_" + std::to_string(iter) + ".csv");//freopen?
-
-        for (int i = 0; i <= gr.gnxRealCells(); i++) {
-            for (int j = 0; j <= gr.gnyRealCells(); j++)
-                file << (gr(i, j, gr.gnzRealCells() / 2).*GetField(field)).getNorm() << ";";
-            file << std::endl;
-        }
-
-        file.close();
+        WriteFileE(gr, name + "iter_" + std::to_string(iter) + ".csv");
     }
 
     void PlotJ() {

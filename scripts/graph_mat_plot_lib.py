@@ -38,6 +38,8 @@ plt.tight_layout()
 if (graphName!=""):
 	plt.savefig(filePath+graphName+'.png')
 
+file.close()
+	
 plt.show()
 
 
