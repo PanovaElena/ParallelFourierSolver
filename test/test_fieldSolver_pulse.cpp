@@ -65,6 +65,6 @@ public:
 };
 
 TEST_F(TestPulse, test_pulse_write_file) {
-    MyTestBody();
-    PlotJ();
+    //MyTestBody();
+    //PlotJ();
 }
