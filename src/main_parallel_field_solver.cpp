@@ -9,16 +9,12 @@
 const std::string dir = "../../../files/parallel_field_solver_console/";
 const std::string nameFileFirstSteps = dir + "FirstStepsE.csv";
 const std::string nameFileSecondSteps = dir + "SecondStepsE.csv";
-const std::string nameFileSecondStepsLeft = dir + "SecondStepsELeft.csv";
-const std::string nameFileSecondStepsRight = dir + "SecondStepsERight.csv";
 
-const std::string nameFileStartParallelLeft = dir + "SecondStepsStartELeft.csv";
-const std::string nameFileFinalParallelLeft = dir + "SecondStepsFinalELeft.csv";
-const std::string nameFileStartParallelRight = dir + "SecondStepsStartERight.csv";
-const std::string nameFileFinalParallelRight = dir + "SecondStepsFinalERight.csv";
+const std::string nameFileStartParallel = dir + "SecondStepsStartE";
+const std::string nameFileFinalParallel = dir + "SecondStepsFinalE";
 
-const std::string arrNameFileFinalSecondSteps[] = { nameFileFinalParallelLeft, nameFileFinalParallelRight };
-const std::string arrNameFileStartSecondSteps[] = { nameFileStartParallelLeft, nameFileStartParallelRight };
+std::string arrNameFileFinalSecondSteps[];
+std::string arrNameFileStartSecondSteps[];
 const std::string consistentResult = "../../../files/field_solver_test_pulse_E/iter_40.csv";
 
 const int NStartSteps = 30;
@@ -61,8 +57,16 @@ void TestBody() {
     DoParallelPart(pulse);
 }
 
+void InitFiles() {
+    for (int i = 0; i < MPIWrapper::MPISize(); i++) {
+        arrNameFileFinalSecondSteps[i] = nameFileFinalParallel + std::to_string(i) + ".csv";
+        arrNameFileStartSecondSteps[i] = nameFileStartParallel + std::to_string(i) + ".csv";
+    }
+}
+
 int main(int* argc, char** argv) {
     MPIWrapper::MPIInitialize();
+    InitFiles();
     TestBody();
     MPIWrapper::MPIFinalize();
 }
