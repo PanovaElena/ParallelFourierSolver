@@ -16,7 +16,7 @@ static const std::string strE = "../../files/field_solver_test_pulse_E/";
 static const std::string strB = "../../files/field_solver_test_pulse_B/";
 static const std::string strJ = "../../files/field_solver_test_pulse_J/";
 
-const int maxIt = 41;
+const int maxIt = 40;
 const int itTransform = 5;
 
 class TestPulse :public testing::Test, public Pulse {
@@ -27,7 +27,7 @@ public:
         WriteFile(E, 0, strE);
         WriteFile(B, 0, strB);
 
-        for (int iter = 1; iter < maxIt; iter++) {
+        for (int iter = 1; iter <= maxIt; iter++) {
             SetJ(iter);
 
             FieldSolver(gr, dt);

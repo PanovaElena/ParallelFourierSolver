@@ -275,5 +275,8 @@ __pycache__/
 *.xls
 *.csv
 
+# System file
+*/Thumbs.db
+
 # Cake - Uncomment if you are using it
 # tools/

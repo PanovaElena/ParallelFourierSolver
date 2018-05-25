@@ -93,7 +93,7 @@ private:
     void RecvFromAllProcesses(Grid3d& gr);
 
     //упаковывает вещественные поля части сетки
-    int getPackSize(int width);
+    int getPackSize(int n1, int n2);
     void PackData(int n1, int n2, double *& arr, Grid3d& grFrom);
     void UnPackData(int n1, int n2, double *& arr, Grid3d& grTo);
 };

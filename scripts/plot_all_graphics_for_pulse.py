@@ -14,7 +14,8 @@ name_files=[
 	"..\\files\\parallel_field_solver_console\\SecondStepsFinalELeft.csv",
 	"..\\files\\parallel_field_solver_console\\SecondStepsFinalERight.csv",
 	"..\\files\\parallel_field_solver_console\\SecondStepsE.csv",
-	"..\\files\\field_solver_test_pulse_E\\iter_40.csv"
+	"..\\files\\field_solver_test_pulse_E\\iter_40.csv",
+	"..\\files\\field_solver_test_pulse_E\\iter_30.csv",
 	]
 
 dir="..\\files\\graphics_script\\"
@@ -27,7 +28,7 @@ name_graphics=[
 	"Поле на левом домене после выполнения параллельной части",
 	"Поле на правом домене после выполнения параллельной части",
 	"Поле после выполнения 40 итераций параллельно",
-	"Поле после выполнения 40 итераций последовательно"
+	"Поле после выполнения 40 итераций последовательно",
 ]
 
 def UnPack(file):
@@ -36,8 +37,10 @@ def UnPack(file):
 	for line in file:
 		res.insert(i,line.split(';'))
 		res[i].pop()
+		j=0
 		for elem in res[i]:
-			elem=float(elem)
+			res[i][j]=float(res[i][j])
+			j=j+1
 		i=i+1
 	return res
 	
@@ -46,8 +49,8 @@ def plot(name, dat):
 	ax = fig.add_subplot(111)
 
 	cm='gray'
-	cs = ax.contourf(dat, cmap=cm)
-	#cs = ax.imshow(dat)
+	#cs = ax.contourf(dat, cmap=cm)
+	cs = ax.imshow(dat, cmap=cm)
 	fig.colorbar(cs, ax=ax)
 	ax.set_title(name)
 
@@ -75,18 +78,23 @@ datCons = UnPack(file)
 file.close()
 
 datError=[]
+datErrorAbs=[]
 
 i=0
 for line in datPar:
 	j=0
 	tmpStr=[]
+	tmpStr1=[]
 	for elem in datPar[i]:
-		tmpStr.insert(j, abs(float(datPar[i][j])-float(datCons[i][j])))
+		tmpStr.insert(j, float(datCons[i][j])-float(datPar[i][j]))
+		tmpStr1.insert(j, abs(float(datCons[i][j])-float(datPar[i][j])))
 		j=j+1
 	datError.insert(i, tmpStr)
+	datErrorAbs.insert(i, tmpStr1)
 	i=i+1
 
 plot("Погрешность", datError)
+plot("Погрешность по модулю", datErrorAbs)
 	
 
 			

@@ -27,15 +27,15 @@ void MPIWorker::CreateGrid(Grid3d & gr)
 
 void MPIWorker::Send(int n1, int n2, double*& arr, int dest, int tag, Grid3d& grFrom, MPI_Request& request)
 {
-    arr = new double[getPackSize(n2 - n1)];
+    arr = new double[getPackSize(n1, n2)];
     PackData(n1, n2, arr, grFrom);
-    MPIWrapper::MPIISend(arr, getPackSize(n2 - n1), dest, tag, request);
+    MPIWrapper::MPIISend(arr, getPackSize(n1, n2), dest, tag, request);
 }
 
 void MPIWorker::Recv(int n1, int n2, int source, int tag, Grid3d& grTo)
 {
-    double* arr = new double[getPackSize(n2 - n1)];
-    MPIWrapper::MPIRecv(arr, getPackSize(n2 - n1), source, tag);
+    double* arr = new double[getPackSize(n1, n2)];
+    MPIWrapper::MPIRecv(arr, getPackSize(n1, n2), source, tag);
     UnPackData(n1, n2, arr, grTo);
     delete[] arr;
 }
@@ -118,9 +118,9 @@ MPIWorker::MPIWorker(Grid3d & gr, int guardWidth, int _size, int _rank)
     CreateGrid(gr);
 }
 
-int MPIWorker::getPackSize(int width)
+int MPIWorker::getPackSize(int n1, int n2)
 {
-    return n*d*(width +1)*grid.gnyRealNodes()*grid.gnzRealNodes();
+    return n*d*(n2 - n1 + 1)*grid.gnyRealNodes()*grid.gnzRealNodes();
 }
 
 void MPIWorker::PackData(int n1, int n2, double *& arr, Grid3d& grFrom)

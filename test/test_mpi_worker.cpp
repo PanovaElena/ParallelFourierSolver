@@ -13,6 +13,7 @@ TEST(TestMPIWorker, mpi_worker_sizes_are_correct) {
     ASSERT_EQ(1, mpiWorker.getGuardSize());
     ASSERT_EQ(3, mpiWorker.getMainDomainSize());
     ASSERT_EQ(5, mpiWorker.getFullDomainSize());
+    ASSERT_EQ(6, mpiWorker.getGrid().gnxRealCells());
 }
 
 TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_0_left_guard) {
@@ -63,12 +64,34 @@ TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_1_main_domain) {
     ASSERT_EQ(7, mpiWorker.getMainDomainEnd());
 }
 
-TEST(TestMPIWorker, mpi_worker_copy_gr_correctly) {
+TEST(TestMPIWorker, mpi_worker_copy_gr_correctly_for_process_0) {
     Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
-    gr(3, 1, 1).E = vec3<double>(1, 1, 1);
-    MPIWorker mpiWorker(gr, 1, 2, 0);
+    for (int i = 0; i <= 8; i++)
+        for (int j = 0; j <= gr.gnyRealCells(); j++)
+            for (int k = 0; k <= gr.gnzRealCells(); k++)
+                gr(i, j, k).E[0] = i % 8;
+    int guard = 1;
+    MPIWorker mpiWorker(gr, guard, 2, 0);
 
-    ASSERT_EQ(gr(3,1,1).E.x(), (mpiWorker.getGrid())(4,1,1).E.x());
-    ASSERT_EQ(1, (mpiWorker.getGrid())(4, 1, 1).E.x());
-    ASSERT_EQ(0, (mpiWorker.getGrid())(5, 1, 1).E.x());
+    for (int i = 0; i <= 3; i++)
+        for (int j = 0; j <= gr.gnyRealCells(); j++)
+            for (int k = 0; k <= gr.gnzRealCells(); k++)
+                ASSERT_DOUBLE_EQ(i % 8, (mpiWorker.getGrid())(i + guard, j, k).E.x());
 }
+
+TEST(TestMPIWorker, mpi_worker_copy_gr_correctly_for_process_1) {
+    Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
+    for (int i = 0; i <= 8; i++)
+        for (int j = 0; j <= gr.gnyRealCells(); j++)
+            for (int k = 0; k <= gr.gnzRealCells(); k++)
+                gr(i, j, k).E[0] = i % 8;
+    int guard = 1;
+    MPIWorker mpiWorker(gr, guard, 2, 1);
+
+    for (int i = 4; i <= 7; i++)
+        for (int j = 0; j <= gr.gnyRealCells(); j++)
+            for (int k = 0; k <= gr.gnzRealCells(); k++)
+                ASSERT_DOUBLE_EQ(i % 8, (mpiWorker.getGrid())(i - 4 + guard, j, k).E.x());
+}
+
+
