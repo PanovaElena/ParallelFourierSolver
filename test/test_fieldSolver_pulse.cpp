@@ -17,7 +17,7 @@ static const std::string strB = "../../files/field_solver_test_pulse_B/";
 static const std::string strJ = "../../files/field_solver_test_pulse_J/";
 
 const int maxIt = 40;
-const int itTransform = 5;
+const int itTransform = 40;
 
 class TestPulse :public testing::Test, public Pulse {
 public:
@@ -43,16 +43,13 @@ public:
     }
 
     void WriteFile(Field field, int iter, std::string name) {
-        WriteFileE(gr, name + "iter_" + std::to_string(iter) + ".csv");
+        WriteFileField(field, z, gr, name + "iter_" + std::to_string(iter) + ".csv");
     }
 
     void PlotJ() {
-        file.open("../../files/field_solver_test_pulse_J/FuncJ.csv");
-        for (int iter = 0; iter < maxIt; iter++) {
-            SetJ(iter);
-            file << gr(n / 2, n / 2, n / 2).J.getNorm() <<";"<<f(0,iter*dt)<< std::endl;
-        }
-        file.close();
+        int iter = 2;
+        SetJ(iter);
+        WriteFileField(J, z, gr, "../../files/field_solver_test_pulse_J/FuncJ_iter2.csv");
     }
 
 };

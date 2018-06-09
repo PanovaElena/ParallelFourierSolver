@@ -4,7 +4,7 @@
 #include <string>
 
 class MPIWorker {
-private:
+protected:
     const int n = 2, d = 3; //2 вектора (B, E) из 3 компонент
     int rank;
     int size;
@@ -75,6 +75,8 @@ public:
 
     // gr - сетка той размерности, какая должна получиться (rank==0), или любой другой (rank!=0) 
     void AssembleResultsToZeroProcess(Grid3d& gr);
+
+    virtual void DoAfterSeparation() {}
 
 private:
     int mod(int a, int b) {

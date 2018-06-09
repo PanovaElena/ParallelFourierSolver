@@ -6,7 +6,7 @@
 
 void WriteFile(Grid3d& gr, int iter, std::string dir, int rank) {
     FourierTransformation(gr, CtoR);
-    WriteFileE(gr, dir + "/rank_" + std::to_string(rank) + "_iter_" + std::to_string(iter) + "_E.csv");
+    WriteFileField(E, z, gr, dir + "/rank_" + std::to_string(rank) + "_iter_" + std::to_string(iter) + "_E.csv");
 }
 
 void FieldSolverParallelPSATD(MPIWorker& worker, int numIter, double dt, int iterWriteFile, std::string dir) {

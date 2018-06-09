@@ -80,7 +80,7 @@ void MPIWorker::RecvFromAllProcesses(Grid3d& gr)
                 gr(i, j, k) = grid(i + getGuardSize(), j, k);
 
     for (int r = 1; r < MPIWrapper::MPISize(); r++) 
-        Recv(r*getMainDomainSize()+1, (r+1)*getMainDomainSize() + 1, r, 2, gr);
+        Recv(r*(getMainDomainSize()+1), (r+1)*(getMainDomainSize()+1) - 1, r, 2, gr);
 }
 
 void MPIWorker::AssembleResultsToZeroProcess(Grid3d& gr)
@@ -116,6 +116,7 @@ MPIWorker::MPIWorker(Grid3d & gr, int guardWidth, int _size, int _rank)
     setRightGuardStart(guardSize, gr);
 
     CreateGrid(gr);
+    DoAfterSeparation();
 }
 
 int MPIWorker::getPackSize(int n1, int n2)

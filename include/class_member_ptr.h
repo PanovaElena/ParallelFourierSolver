@@ -1,30 +1,31 @@
 #pragma once
 #include "vec.h"
 #include "grid3d.h"
+#include "simple_types.h"
 
 typedef double (vec3<double>::*MethodCoord)() const;
 typedef vec3<double> Node::* MemberOfNode;
 
-inline MemberOfNode GetField(int f) {
+inline MemberOfNode GetField(Field f) {
     switch (f) {
-    case 0:
+    case E:
         return &Node::E;
-    case 1:
+    case B:
         return &Node::B;
-    case 2:
+    case J:
         return &Node::J;
     default:
         return &Node::E;
     }
 }
 
-inline MethodCoord GetCoord(int coord) {
+inline MethodCoord GetCoord(Coords coord) {
     switch (coord) {
-    case 0:
+    case x:
         return &vec3<double>::x;
-    case 1:
+    case y:
         return &vec3<double>::y;
-    case 2:
+    case z:
         return &vec3<double>::z;
     default:
         return &vec3<double>::x;

@@ -13,7 +13,6 @@ TEST(TestMPIWorker, mpi_worker_sizes_are_correct) {
     ASSERT_EQ(1, mpiWorker.getGuardSize());
     ASSERT_EQ(3, mpiWorker.getMainDomainSize());
     ASSERT_EQ(5, mpiWorker.getFullDomainSize());
-    ASSERT_EQ(6, mpiWorker.getGrid().gnxRealCells());
 }
 
 TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_0_left_guard) {
