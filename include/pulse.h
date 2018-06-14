@@ -13,11 +13,12 @@ public:
     static const int NStartSteps = 30;
     static const int NNextSteps = 10;
 
-    static const int n = 128;    // размерность сетки
-    const double a = 0, b = n* constants::c;    // координаты сетки
+    static const int nx = 128, ny=nx, nz=1;    // размерность сетки
+
+    const double a = 0, b = nx* constants::c;    // координаты сетки
     const double d = constants::c;    // шаг сетки
 
-    const int wt = n / 16;    // ширина синусоиды в ячейках
+    const int wt = nx / 16;    // ширина синусоиды в ячейках
     const double Tt = d*wt / constants::c;    // период по T
     const double dt = d / constants::c;
     const int wx = 12; 
@@ -46,7 +47,7 @@ public:
         return sin(2 * constants::pi / Tx*t);
     }
 
-    Pulse() :gr(n, n, n, a, b, a, b, a, b) {
+    Pulse() :gr(nx, ny, nz, a, b, a, b, 0, d) {
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++)
                 for (int k = 0; k < gr.gnzRealNodes(); k++) {
@@ -59,7 +60,7 @@ public:
     double GetJ(int i, int j, int iter) {
         double x = GetX(i), y = GetY(j), t = iter*dt;
         if (iter > wt) return 0;
-        if (abs(i - n / 2) > wx / 4 || abs(j - n / 2) > wx / 4) return 0;
+        if (abs(i - nx / 2) > wx / 4 || abs(j - ny / 2) > wx / 4) return 0;
         return cos(2 * constants::pi*x / Tx)*cos(2 * constants::pi*x / Tx) *
             cos(2 * constants::pi*y / Ty)*cos(2 * constants::pi*y / Ty) *
             sin(2 * constants::pi*t / Tt);
@@ -70,7 +71,7 @@ public:
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++) {
                 J0 = GetJ(i, j, iter);
-                gr(i, j, n / 2).J = vec3<double>(0, 0, J0);
+                gr(i, j, gr.gnzRealCells() / 2).J = vec3<double>(0, 0, J0);
             }
         FourierTransformation(gr, Jx, RtoC);
         FourierTransformation(gr, Jy, RtoC);

@@ -14,7 +14,7 @@ void FieldSolverParallelPSATD(MPIWorker& worker, int numIter, double dt, int ite
     for (int i = 0; i < numIter; i++) {
         FieldSolverPSATD(worker.getGrid(), dt);
         if ((i + 1) % iterWriteFile == 0) {
-            MPIWorker::ShowMessage("write to file parallel result before setting to zeros guard");
+            MPIWorker::ShowMessage("write to file result PSATD, iter="+std::to_string(i));
             WriteFile(worker.getGrid(), i, dir, MPIWrapper::MPIRank());
         }
     }

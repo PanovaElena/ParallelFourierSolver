@@ -6,6 +6,10 @@
 #include "mpi_wrapper.h"
 #include "write_file.h"
 
+static Pulse PULSE;
+const int N = PULSE.nx;
+const int GUARD = N / 8;
+
 const std::string dir = "../../../files/parallel_field_solver_console/";
 const std::string nameFileFirstSteps = dir + "FirstStepsE.csv";
 const std::string nameFileSecondSteps = dir + "SecondStepsE.csv";
@@ -25,18 +29,18 @@ void DoConsistentPart(Pulse& pulse) {
     }
 
     FourierTransformation(pulse.gr, CtoR);
-    /*MPIWorker::ShowMessage("write to file first steps");
+    MPIWorker::ShowMessage("write to file first steps");
     if (MPIWrapper::MPIRank() == 0)
-        WriteFileFieldAbs(pulse.gr, nameFileFirstSteps);*/
+        WriteFileField(E, z, pulse.gr, nameFileFirstSteps);
 }
 
 void DoParallelPart(Pulse& pulse) {
-    MPIWorker worker(pulse.gr, pulse.gr.gnxRealCells()/4); //128, 16
+    MPIWorker worker(pulse.gr, GUARD);
     MPIWorker::ShowMessage("write to file first domain");
     WriteFileField(E, z, worker.getGrid(), arrNameFileStartSecondSteps[MPIWrapper::MPIRank()]);
 
     MPIWorker::ShowMessage("parallel field solver");
-    FieldSolverParallelPSATD(worker, Pulse::NNextSteps, pulse.dt, NNextSteps, dir);
+    FieldSolverParallelPSATD(worker, Pulse::NNextSteps, pulse.dt, Pulse::NNextSteps, dir);
 
     MPIWorker::ShowMessage("write to file parallel result");
     WriteFileField(E, z, worker.getGrid(), arrNameFileFinalSecondSteps[MPIWrapper::MPIRank()]);
@@ -49,9 +53,10 @@ void DoParallelPart(Pulse& pulse) {
 }
 
 void TestBody() {
-    Pulse pulse;
-    DoConsistentPart(pulse);
-    DoParallelPart(pulse);
+    MPIWorker::ShowMessage("start: size=" + std::to_string(MPIWrapper::MPISize()) +
+        ", n=" + std::to_string(N) + ", guard=" + std::to_string(GUARD));
+    DoConsistentPart(PULSE);
+    DoParallelPart(PULSE);
 }
 
 void InitFiles() {
