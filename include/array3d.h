@@ -7,7 +7,7 @@ class Array3d {
     int ny;
     int nz;
 
-    T* tmp1;//структура выделения памяти
+    T* tmp1;  //структура выделения памяти
     T** tmp2;
     T*** data;
 
@@ -137,8 +137,8 @@ inline T * Array3d<T>::getArray1d()
 template<class T>
 inline void Array3d<T>::Clear()
 {
-    delete[] data;
-    delete[] tmp2;
-    delete[] tmp1;
+    if (data) delete[] data;
+    if (tmp2) delete[] tmp2;
+    if (tmp1) delete[] tmp1;
     tmp1 = 0; tmp2 = 0; data = 0;
 }

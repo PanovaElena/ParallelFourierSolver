@@ -274,6 +274,8 @@ __pycache__/
 # Output files
 *.xls
 *.csv
+*.img
+*.png
 
 # System file
 */Thumbs.db

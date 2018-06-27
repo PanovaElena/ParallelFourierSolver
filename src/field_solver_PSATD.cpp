@@ -26,7 +26,9 @@ void FieldSolverPSATD(Grid3d & gr, double dt) {
                     continue;
                 }
 
-                gr(i, j, k).EF = C*E + complex_i*S*vec3<MyComplex>::VectorProduct(K, B) - S / (normK*constants::c)*J + (1 - C)*El + Jl*(S / (normK*constants::c) - dt);
-                gr(i, j, k).BF = C*B - complex_i*S*vec3<MyComplex>::VectorProduct(K, E) + complex_i*((1 - C) / (normK*constants::c))*vec3<MyComplex>::VectorProduct(K, J);
+                gr(i, j, k).EF = C*E + complex_i*S*vec3<MyComplex>::VectorProduct(K, B) - S /
+                    (normK*constants::c)*J + (1 - C)*El + Jl*(S / (normK*constants::c) - dt);
+                gr(i, j, k).BF = C*B - complex_i*S*vec3<MyComplex>::VectorProduct(K, E) + 
+                    complex_i*((1 - C) / (normK*constants::c))*vec3<MyComplex>::VectorProduct(K, J);
             }
 }

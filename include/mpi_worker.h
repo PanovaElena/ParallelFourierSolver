@@ -2,6 +2,7 @@
 #include "mpi_wrapper.h"
 #include "grid3d.h"
 #include <string>
+#include "write_file.h"
 
 class MPIWorker {
 protected:
@@ -15,12 +16,23 @@ protected:
     int rightGuardStart;
 
     Grid3d grid;
+
+    std::string nameFileAfterExchange;
+    TypeWriteFileField writeFile;
+
 public:
-    MPIWorker(Grid3d& gr, int guardWidth) 
-        : MPIWorker(gr, guardWidth, MPIWrapper::MPISize(), MPIWrapper::MPIRank()) {}
+    MPIWorker() {}
+    MPIWorker(Grid3d& gr, int guardWidth) {
+        Initialize(gr, guardWidth);
+    }
 
     //для последовательного запуска
-    MPIWorker(Grid3d& gr, int guardWidth, int _size, int _rank);
+    MPIWorker(Grid3d& gr, int guardWidth, int _size, int _rank) {
+        Initialize(gr, guardWidth, _size, _rank);
+    }
+
+    void Initialize(Grid3d & gr, int guardWidth, int _size, int _rank);
+    void Initialize(Grid3d & gr, int guardWidth);
 
     int getMainDomainStart() {
         return domainStart;
@@ -77,6 +89,11 @@ public:
     void AssembleResultsToZeroProcess(Grid3d& gr);
 
     virtual void DoAfterSeparation() {}
+
+    void SetOutput(TypeWriteFileField _writeFile, std::string _nameFileAfterExchange) {
+        writeFile = _writeFile;
+        nameFileAfterExchange = _nameFileAfterExchange;
+    }
 
 private:
     int mod(int a, int b) {

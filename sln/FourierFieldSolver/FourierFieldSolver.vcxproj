@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\field_solver_parallel_PSATD.cpp" />
+    <ClCompile Include="..\..\src\field_solver_parallel.cpp" />
     <ClCompile Include="..\..\src\field_solver_PSATD.cpp" />
     <ClCompile Include="..\..\src\mpi_worker.cpp" />
     <ClCompile Include="..\..\src\field_solver_PSTD.cpp" />

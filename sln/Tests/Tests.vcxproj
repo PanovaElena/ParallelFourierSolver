@@ -19,9 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\test\test_fieldSolver_pulse.cpp" />
-    <ClCompile Include="..\..\test\test_fieldSolver_sinus.cpp" />
-    <ClCompile Include="..\..\test\test_fourier_transform.cpp" />
+    <ClCompile Include="..\..\test\test_field_solver_spherical_wave.cpp" />
+    <ClCompile Include="..\..\test\test_field_solver_running_wave.cpp" />
+    <ClCompile Include="..\..\test\test_field_solver_spherical_wave_with_high_frequency.cpp" />
+    <ClCompile Include="..\..\test\test_fourier_transformation.cpp" />
     <ClCompile Include="..\..\test\test_grid3d.cpp" />
     <ClCompile Include="..\..\test\test_lag.cpp" />
     <ClCompile Include="..\..\test\test_main.cpp" />
@@ -36,10 +37,6 @@
     <ProjectReference Include="..\gtest\gtest.vcxproj">
       <Project>{41744fbe-db62-4e66-a109-986f0148ee29}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\include\pulse.h" />
-    <ClInclude Include="..\..\test\field_solver_for_testing.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -33,10 +33,10 @@
     <ClCompile Include="..\..\src\mpi_worker.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\field_solver_parallel_PSATD.cpp">
+    <ClCompile Include="..\..\src\write_file.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\write_file.cpp">
+    <ClCompile Include="..\..\src\field_solver_parallel.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

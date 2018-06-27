@@ -4,7 +4,7 @@
 #include "simple_types.h"
 #include "class_member_ptr.h"
 
-void WriteFileFieldAbs(Field field, Grid3d& gr, std::string nameFile) {
+void WriteFileFieldAbs2d(Field field, Grid3d& gr, std::string nameFile) {
     std::ofstream file;
     file.open(nameFile);
 
@@ -17,7 +17,7 @@ void WriteFileFieldAbs(Field field, Grid3d& gr, std::string nameFile) {
     file.close();
 }
 
-void WriteFileField(Field field, Coords coord, Grid3d& gr, std::string nameFile) {
+void WriteFileField2d(Field field, Coords coord, Grid3d& gr, std::string nameFile) {
     std::ofstream file;
     file.open(nameFile);
 
@@ -26,6 +26,28 @@ void WriteFileField(Field field, Coords coord, Grid3d& gr, std::string nameFile)
             file << ((gr(i, j, gr.gnzRealCells() / 2).*GetField(field)).*GetCoord(coord))() << ";";
         file << "\n";
     }
+
+    file.close();
+}
+
+void WriteFileFieldAbs1d(Field field, Grid3d & gr, std::string nameFile)
+{
+    std::ofstream file;
+    file.open(nameFile);
+
+    for (int i = 0; i < gr.gnxRealNodes(); i++)
+        file << (gr(i, gr.gnyRealCells() / 2, gr.gnzRealCells() / 2).*GetField(field)).getNorm() << "\n";
+
+    file.close();
+}
+
+void WriteFileField1d(Field field, Coords coord, Grid3d & gr, std::string nameFile)
+{
+    std::ofstream file;
+    file.open(nameFile);
+
+    for (int i = 0; i < gr.gnxRealNodes(); i++)
+        file << ((gr(i, gr.gnyRealCells() / 2, gr.gnzRealCells() / 2).*GetField(field)).*GetCoord(coord))() << "\n";
 
     file.close();
 }

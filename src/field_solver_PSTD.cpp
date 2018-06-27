@@ -20,6 +20,7 @@ void RefreshE(Grid3d& gr, double dt) {
                 gr(i, j, k).EF[1] -= complex_i*constants::c*dt*(ox*gr(i, j, k).BF.z() - oz*gr(i, j, k).BF.x());
                 gr(i, j, k).EF[2] += complex_i*constants::c*dt*(ox*gr(i, j, k).BF.y() - oy*gr(i, j, k).BF.x());
 
+                gr(i, j, k).EF -= gr(i, j, k).JF;
             }
 }
 
