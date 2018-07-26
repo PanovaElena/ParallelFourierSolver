@@ -21,13 +21,13 @@
   <ItemGroup>
     <ClCompile Include="..\..\test\test_field_solver_spherical_wave.cpp" />
     <ClCompile Include="..\..\test\test_field_solver_running_wave.cpp" />
-    <ClCompile Include="..\..\test\test_field_solver_spherical_wave_with_high_frequency.cpp" />
+    <ClCompile Include="..\..\test\test_field_solver_running_wave_with_high_frequency.cpp" />
     <ClCompile Include="..\..\test\test_fourier_transformation.cpp" />
     <ClCompile Include="..\..\test\test_grid3d.cpp" />
     <ClCompile Include="..\..\test\test_lag.cpp" />
     <ClCompile Include="..\..\test\test_main.cpp" />
     <ClCompile Include="..\..\test\test_mpi_worker.cpp" />
-    <ClCompile Include="..\..\test\test_myComplex.cpp" />
+    <ClCompile Include="..\..\test\test_my_complex.cpp" />
     <ClCompile Include="..\..\test\test_vec.cpp" />
   </ItemGroup>
   <ItemGroup>

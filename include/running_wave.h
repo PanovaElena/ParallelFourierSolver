@@ -1,39 +1,51 @@
 #pragma once
 #include "grid3d.h"
-#include "constants.h"
-#include "simple_types.h"
+#include "physical_constants.h"
+#include "simple_types_and_constants.h"
 #include "fourier_transformation.h"
 #include "field_solver.h"
 #include "class_member_ptr.h"
-#include "write_file.h"
+#include "file_writer.h"
 
 
 class RunningWave {
 public:
 
+    // вывод
     std::string dir = "../../../files/running_wave/";
+    FileWriter fileWriter;
 
-    TypeWriteFileField writeFile = WriteFileField2d;
+    // сетка
+    int nx = 128, ny = nx, nz = 1;
+    int guard = 64;
 
+    double a = 0, b = nx;    
+    double d = 1;    // шаг сетки
+
+    // параметры счета
     int NStartSteps = 600;
     int NNextSteps = 200;
 
     int maxIt = NStartSteps + NNextSteps;
     int itTransform = 100;
 
-    int nx = 128, ny = nx, nz = 1;
-    int guard = 64;
-
-    double a = 0, b = nx;    // координаты сетки
-    double d = 1;    // шаг сетки
-
     double dt;
+
 
     Grid3d gr;
 
-    RunningWave() :gr(nx, ny, nz, a, b, a, b, a, a+d) {
-        dt = d / (constants::c*sqrt(2)*8);
+    RunningWave() :gr(nx, ny, nz, a, b, a, b, a, a+d), 
+        fileWriter(dir, E, y, Section(Section::XOY, Section::center)) {
+        dt = d / (constants::c*sqrt(2) * 8);
         SetEB();
+    }
+
+    virtual double funcB(double x, double t) {
+        return sin(4 * constants::pi / (b - a) * (-constants::c*t - x));
+    }
+
+    virtual double funcE(double x, double t) {
+        return sin(4 * constants::pi / (b - a) *(constants::c*t + x));
     }
 
     virtual void SetEB() {
@@ -45,14 +57,6 @@ public:
                 }
 
         FourierTransformation(gr, RtoC);
-    }
-
-    virtual double funcB(double x, double t) {
-        return sin(2 * constants::pi / (b - a)*(-constants::c*t - x));
-    }
-
-    virtual double funcE(double x, double t) {
-        return sin(2 * constants::pi / (b - a)*(constants::c*t + x));
     }
 };
 

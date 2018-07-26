@@ -6,14 +6,14 @@ using namespace std;
 
 vec3<double> Node::* OperationWithArrays::DetPDouble(Field field) {
     vec3<double>(Node::*p);
-    switch (field / 3) {
-    case 0:
+    switch (field) {
+    case Field::E:
         p = (vec3<double>(Node::*))&Node::E;
         break;
-    case 1:
+    case Field::B:
         p = (vec3<double>(Node::*))&Node::B;
         break;
-    case 2:
+    case Field::J:
         p = (vec3<double>(Node::*))&Node::J;
         break;
     }
@@ -22,14 +22,14 @@ vec3<double> Node::* OperationWithArrays::DetPDouble(Field field) {
 
 vec3<MyComplex> Node::* OperationWithArrays::DetPComplex(Field field) {
     vec3<MyComplex>(Node::*p);
-    switch (field / 3) {
-    case 0:
+    switch (field) {
+    case Field::E:
         p = (vec3<MyComplex>(Node::*))&Node::EF;
         break;
-    case 1:
+    case Field::B:
         p = (vec3<MyComplex>(Node::*))&Node::BF;
         break;
-    case 2:
+    case Field::J:
         p = (vec3<MyComplex>(Node::*))&Node::JF;
         break;
     }
@@ -39,37 +39,40 @@ vec3<MyComplex> Node::* OperationWithArrays::DetPComplex(Field field) {
 void OperationWithArrays::CopyLastNodesFromFirst(Grid3d & gr)
 {
 	for (int i = 0; i < gr.gnxRealNodes(); i++)
-		gr(i, gr.gnyRealCells(), 0) = gr(i, 0, gr.gnzRealCells()) = gr(i, gr.gnyRealCells(), gr.gnzRealCells()) = gr(i, 0, 0);
+		gr(i, gr.gnyRealCells(), 0) = gr(i, 0, gr.gnzRealCells()) = 
+        gr(i, gr.gnyRealCells(), gr.gnzRealCells()) = gr(i, 0, 0);
 	for (int j = 0; j < gr.gnyRealNodes(); j++)
-		gr(gr.gnxRealCells(), j, 0) = gr(gr.gnxRealCells(), j, gr.gnzRealCells()) = gr(0, j, gr.gnzRealCells()) = gr(0, j, 0);
+		gr(gr.gnxRealCells(), j, 0) = gr(gr.gnxRealCells(), j, gr.gnzRealCells()) = 
+        gr(0, j, gr.gnzRealCells()) = gr(0, j, 0);
 	for (int k = 0; k < gr.gnzRealNodes(); k++)
-		gr(gr.gnxRealCells(), 0, k) = gr(0, gr.gnyRealCells(), k) = gr(gr.gnxRealCells(), gr.gnyRealCells(), k) = gr(0, 0, k);
+		gr(gr.gnxRealCells(), 0, k) = gr(0, gr.gnyRealCells(), k) = 
+        gr(gr.gnxRealCells(), gr.gnyRealCells(), k) = gr(0, 0, k);
 }
 
-void OperationWithArrays::WriteDouble(Grid3d & gr, Field _field, Dir direction, Array3d<double>& arr)
+void OperationWithArrays::WriteDouble(Grid3d & gr, Field _field, Coordinate _coord, Direction direction, Array3d<double>& arr)
 {
     vec3<double>(Node::*p);
     p = DetPDouble(_field);
     switch (direction) {
     case FromGridToArray:
-        WriteFromGridToDoubleArr(gr, arr, _field % 3, p);
+        WriteFromGridToDoubleArr(gr, arr, (int)_coord, p);
         break;
     case FromArrayToGrid:
-        WriteFromDoubleArrToGrid(gr, arr, _field % 3, p);
+        WriteFromDoubleArrToGrid(gr, arr, (int)_coord, p);
         break;
     }
 }
 
-void OperationWithArrays::WriteComplex(Grid3d & gr, Field _field, Dir direction, Array3d<MyComplex>& arr)
+void OperationWithArrays::WriteComplex(Grid3d & gr, Field _field, Coordinate _coord, Direction direction, Array3d<MyComplex>& arr)
 {
     vec3<MyComplex>(Node::*p);
     p = DetPComplex(_field);
     switch (direction) {
     case FromGridToArray:
-        WriteFromGridToComplexArr(gr, arr, _field % 3, p);
+        WriteFromGridToComplexArr(gr, arr, (int)_coord, p);
         break;
     case FromArrayToGrid:
-        WriteFromComplexArrToGrid(gr, arr, _field % 3, p);
+        WriteFromComplexArrToGrid(gr, arr, (int)_coord, p);
         break;
     }
 }

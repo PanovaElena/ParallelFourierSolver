@@ -4,7 +4,7 @@ class Grid3d;
 #define RtoC (-1)
 #define CtoR (+1)
 
-void FourierTransformation(Grid3d& gr, Field _field, int dir);
+void FourierTransformation(Grid3d& gr, Field _field, Coordinate _coord, int dir);
 void FourierTransformation(Grid3d& gr, int dir);
 
 double OmegaX(int i, const Grid3d& gr);

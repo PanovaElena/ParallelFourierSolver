@@ -1,6 +1,6 @@
 #include "mpi_worker.h"
 #include "fourier_transformation.h"
-#include "write_file.h"
+#include "file_writer.h"
 #include "operations_with_arrays.h"
 
 void MPIWorker::setLeftGuardStart(int guardWidth, Grid3d & gr)
@@ -19,10 +19,10 @@ void MPIWorker::CreateGrid(Grid3d & gr)
 {
     double a = getLeftGuardStart()*gr.gdx(), b = gr.gdx()*getFullDomainSize() + a;
     grid = Grid3d(getFullDomainSize(), gr.gnyRealCells(), gr.gnzRealCells(), a, b, gr.gay(), gr.gby(), gr.gaz(), gr.gbz());
-    for (int i = 0; i <= getFullDomainSize(); i++)
+    for (int i = 0; i <= getMainDomainSize(); i++)
         for (int j = 0; j < gr.gnyRealNodes(); j++)
             for (int k = 0; k < gr.gnzRealNodes(); k++)
-                grid(i, j, k) = gr(mod(i + getLeftGuardStart(), gr.gnxRealCells()), j, k);
+                grid(i + getGuardSize(), j, k) = gr(i + getMainDomainStart(), j, k);
     SetToZerosQuard();
     FourierTransformation(gr, RtoC);
 }
@@ -93,7 +93,7 @@ void MPIWorker::ExchangeGuard()
 
     if (nameFileAfterExchange != "") {
         MPIWorker::ShowMessage("writing to file after exchange");
-        WriteFileField2d(E, y, grid, nameFileAfterExchange);
+        fileWriter.WriteFile(grid, nameFileAfterExchange);
     }
 }
 

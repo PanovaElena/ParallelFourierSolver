@@ -22,7 +22,7 @@ name_files=[
 	"consistent_results\\E\\iter_400.csv",
 	]
 
-dirGraphs="running_wave_graphics\\"
+dirGraphs="spherical_wave_graphics\\"
 name_graphics=[
 	arrLetters[0]+"_Поле после выполнения 300 итераций",
 	arrLetters[parRes]+"_Поле после выполнения 400 итераций параллельно",

@@ -4,52 +4,54 @@
 #include "string"
 #include "mpi_worker.h"
 #include "field_solver.h"
-#include "write_file.h"
+#include "file_writer.h"
 #include "running_wave_with_high_frequency.h"
 
 class TestRunningWaveWithHighFrequencyParallel : public TestParallel {
 public:
-    RunningWaveWithHighFrequency runningWave;
 
-    TestRunningWaveWithHighFrequencyParallel() : runningWave() {
-        SetNameFiles(runningWave.dir + "parallel_results/");
-        worker.SetOutput(runningWave.writeFile, nameFileAfterExchange);
+    RunningWaveWithHighFrequency runningWaveWithHighFrequency;
+
+    TestRunningWaveWithHighFrequencyParallel() : runningWaveWithHighFrequency() {
+        runningWaveWithHighFrequency.fileWriter.ChangeDir(runningWaveWithHighFrequency.dir + "parallel_results/");
+        SetNameFiles();
+        worker.SetOutput(runningWaveWithHighFrequency.fileWriter, nameFileAfterExchange);
     }
 
     void DoConsistentPart() {
-        for (int i = 0; i <= runningWave.NStartSteps; i++) {
-            FieldSolver(runningWave.gr, runningWave.dt);
+        for (int i = 0; i <= runningWaveWithHighFrequency.NStartSteps; i++) {
+            FieldSolver(runningWaveWithHighFrequency.gr, runningWaveWithHighFrequency.dt);
         }
 
-        FourierTransformation(runningWave.gr, CtoR);
+        FourierTransformation(runningWaveWithHighFrequency.gr, CtoR);
         MPIWorker::ShowMessage("writing to file first steps");
         if (MPIWrapper::MPIRank() == 0)
-            runningWave.writeFile(E, y, runningWave.gr, nameFileFirstSteps);
+            runningWaveWithHighFrequency.fileWriter.WriteFile(runningWaveWithHighFrequency.gr, nameFileFirstSteps);
     }
 
     void DoParallelPart() {
-        worker.Initialize(runningWave.gr, runningWave.guard);
+        worker.Initialize(runningWaveWithHighFrequency.gr, runningWaveWithHighFrequency.guard);
 
         MPIWorker::ShowMessage("writing to file first domain");
-        runningWave.writeFile(E, y, worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);
+        runningWaveWithHighFrequency.fileWriter.WriteFile(worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);
 
         MPIWorker::ShowMessage("parallel field solver");
-        FieldSolverParallel(worker, runningWave.NNextSteps, runningWave.dt, runningWave.NNextSteps,
-            dir, runningWave.writeFile);
+        FieldSolverParallel(worker, runningWaveWithHighFrequency.NNextSteps, runningWaveWithHighFrequency.dt, runningWaveWithHighFrequency.NNextSteps,
+            runningWaveWithHighFrequency.fileWriter);
 
         MPIWorker::ShowMessage("writing to file parallel result");
-        runningWave.writeFile(E, y, worker.getGrid(), arrNameFileFinalParallelSteps[MPIWrapper::MPIRank()]);
+        runningWaveWithHighFrequency.fileWriter.WriteFile(worker.getGrid(), arrNameFileFinalParallelSteps[MPIWrapper::MPIRank()]);
 
         MPIWorker::ShowMessage("assemble");
-        worker.AssembleResultsToZeroProcess(runningWave.gr);
+        worker.AssembleResultsToZeroProcess(runningWaveWithHighFrequency.gr);
         MPIWorker::ShowMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)
-            runningWave.writeFile(E, y, runningWave.gr, nameFileSecondSteps);
+            runningWaveWithHighFrequency.fileWriter.WriteFile(runningWaveWithHighFrequency.gr, nameFileSecondSteps);
     }
 
     virtual void TestBody() {
         MPIWorker::ShowMessage("start: size=" + std::to_string(MPIWrapper::MPISize()) +
-            ", n=" + std::to_string(runningWave.nx) + ", guard=" + std::to_string(runningWave.guard));
+            ", n=" + std::to_string(runningWaveWithHighFrequency.nx) + ", guard=" + std::to_string(runningWaveWithHighFrequency.guard));
         DoConsistentPart();
         DoParallelPart();
     }

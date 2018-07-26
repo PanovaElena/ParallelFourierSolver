@@ -2,7 +2,7 @@
 #include "mpi_wrapper.h"
 #include "grid3d.h"
 #include <string>
-#include "write_file.h"
+#include "file_writer.h"
 
 class MPIWorker {
 protected:
@@ -18,7 +18,7 @@ protected:
     Grid3d grid;
 
     std::string nameFileAfterExchange;
-    TypeWriteFileField writeFile;
+    FileWriter fileWriter;
 
 public:
     MPIWorker() {}
@@ -90,8 +90,8 @@ public:
 
     virtual void DoAfterSeparation() {}
 
-    void SetOutput(TypeWriteFileField _writeFile, std::string _nameFileAfterExchange) {
-        writeFile = _writeFile;
+    void SetOutput(FileWriter& _fileWriter, std::string _nameFileAfterExchange) {
+        fileWriter = _fileWriter;
         nameFileAfterExchange = _nameFileAfterExchange;
     }
 

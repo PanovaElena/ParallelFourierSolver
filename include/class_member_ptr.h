@@ -1,7 +1,7 @@
 #pragma once
 #include "vec.h"
 #include "grid3d.h"
-#include "simple_types.h"
+#include "simple_types_and_constants.h"
 
 typedef double (vec3<double>::*MethodCoord)() const;
 typedef vec3<double> Node::* MemberOfNode;
@@ -19,7 +19,7 @@ inline MemberOfNode GetField(Field f) {
     }
 }
 
-inline MethodCoord GetCoord(Coords coord) {
+inline MethodCoord GetCoord(Coordinate coord) {
     switch (coord) {
     case x:
         return &vec3<double>::x;

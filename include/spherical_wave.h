@@ -1,5 +1,5 @@
 #pragma once
-#include "constants.h"
+#include "physical_constants.h"
 #include <cmath>
 #include <iostream>
 #include <fstream>
@@ -7,37 +7,43 @@
 #include "grid3d.h"
 #include "fourier_transformation.h"
 #include "class_member_ptr.h"
-#include "write_file.h"
+#include "file_writer.h"
 
 class SphericalWave {
 public:
 
+    // вывод
     std::string dir = "../../../files/spherical_wave/";
+    FileWriter fileWriter;
 
-    TypeWriteFileField writeFile = WriteFileField2d;
-
-    int NStartSteps = 300;
-    int NNextSteps = 100;
-
-    int maxIt = NStartSteps + NNextSteps;
-    int itTransform = 100;
-
+    // сетка
     int nx = 128, ny = nx, nz = 1;
     int guard = 16;
 
     double a = 0, b = nx* constants::c;    // координаты сетки
     double d = constants::c;    // шаг сетки
 
+    // физические параметры
     int wt = nx / 16;    // ширина синусоиды в ячейках
-    double Tt = d*wt / constants::c;    // период по T
-    double dt = d / constants::c / 10;
-    int wx = 12; 
+    double Tt = d*wt / constants::c;    // период по времени
+    int wx = 12;
     double Tx = d*wx;    // период по координате 
     double Ty = Tx;
 
+    // параметры счета
+    int NStartSteps = 300;
+    int NNextSteps = 100;
+
+    int maxIt = NStartSteps + NNextSteps;
+    int itTransform = 100;
+
+    double dt = d / constants::c / 10;;
+
+   
     Grid3d gr;
 
-    SphericalWave() :gr(nx, ny, nz, a, b, a, b, 0, d) {
+    SphericalWave() :gr(nx, ny, nz, a, b, a, b, 0, d),
+        fileWriter(dir, E, z, Section(Section::XOY, Section::center)) {
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++)
                 for (int k = 0; k < gr.gnzRealNodes(); k++) {
@@ -83,9 +89,9 @@ public:
                 J0 = GetJ(i, j, iter);
                 gr(i, j, gr.gnzRealCells() / 2).J = vec3<double>(0, 0, J0);
             }
-        FourierTransformation(gr, Jx, RtoC);
-        FourierTransformation(gr, Jy, RtoC);
-        FourierTransformation(gr, Jz, RtoC);
+        FourierTransformation(gr, J, x, RtoC);
+        FourierTransformation(gr, J, y, RtoC);
+        FourierTransformation(gr, J, z, RtoC);
     }
 
 };

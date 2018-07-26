@@ -1,7 +1,7 @@
 #include "gtest.h"
 #include "grid3d.h"
 #include "fourier_transformation.h"
-#include "constants.h"
+#include "physical_constants.h"
 #include "class_member_ptr.h"
 #include "my_complex.h"
 #include "fftw3.h"
@@ -29,15 +29,15 @@ public:
 
     
  
-    void MyTestBody(Field field) {
+    void MyTestBody(Field field, Coordinate coord) {
 
-        MemberOfNode p = GetField(field/3);
-        MethodCoord m= GetCoord(field % 3);
+        MemberOfNode p = GetField(field);
+        MethodCoord m= GetCoord(coord);
 
         Grid3d grid2 = grid;
 
-        FourierTransformation(grid, field, RtoC);
-        FourierTransformation(grid, field, CtoR);
+        FourierTransformation(grid, field, coord, RtoC);
+        FourierTransformation(grid, field, coord, CtoR);
 
 		for (int i = 0; i < grid.gnxRealCells(); i++)
 			for (int j = 0; j < grid.gnyRealCells(); j++)
@@ -47,35 +47,35 @@ public:
 };
 
 TEST_F(TestFourierTransform, no_throws_RtoC) {
-    ASSERT_NO_THROW(FourierTransformation(grid, Ex, RtoC));
+    ASSERT_NO_THROW(FourierTransformation(grid, E, x, RtoC));
 }
 
 TEST_F(TestFourierTransform, no_throws_CtoR) {
-    ASSERT_NO_THROW(FourierTransformation(grid, Ex, CtoR));
+    ASSERT_NO_THROW(FourierTransformation(grid, E, x, CtoR));
 }
 
 TEST_F(TestFourierTransform, transform_correctly_Ex) {
-    MyTestBody(Ex);
+    MyTestBody(E, x);
 }
 
 TEST_F(TestFourierTransform, transform_correctly_Ey) {
-    MyTestBody(Ey);
+    MyTestBody(E, y);
 }
 
 TEST_F(TestFourierTransform, transform_correctly_Ez) {
-    MyTestBody(Ez);
+    MyTestBody(E, z);
 }
 
 TEST_F(TestFourierTransform, transform_correctly_Bx) {
-    MyTestBody(Bx);
+    MyTestBody(B, x);
 }
 
 TEST_F(TestFourierTransform, transform_correctly_By) {
-    MyTestBody(By);
+    MyTestBody(B, y);
 }
 
 TEST_F(TestFourierTransform, transform_correctly_Bz) {
-    MyTestBody(Bz);
+    MyTestBody(B, z);
 }
 
 
@@ -89,7 +89,7 @@ TEST_F(TestFourierTransform, fourier_transform_writes_data_correctly_to_grid) {
 	fftw_plan plan = fftw_plan_dft_3d(grid.gnxRealCells(), grid.gnyRealCells(), grid.gnzRealCells(), (fftw_complex*)&(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_FORWARD, FFTW_ESTIMATE);
 	fftw_execute(plan);
 
-	FourierTransformation(grid, Ex, RtoC);
+	FourierTransformation(grid, E, x, RtoC);
 
 	for (int i = 0; i < grid.gnxComplexCells(); i++)
 		for (int j = 0; j < grid.gnyComplexCells(); j++)

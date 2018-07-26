@@ -120,4 +120,22 @@ for line in datPar:
 plot(name_graphics[NUM_OF_PROCESSES*graphsForOneProcess+graphsCommon-3], datError)
 plot(name_graphics[NUM_OF_PROCESSES*graphsForOneProcess+graphsCommon-2], datErrorAbs)
 plot(name_graphics[NUM_OF_PROCESSES*graphsForOneProcess+graphsCommon-1], datErrorOtn)
+
+x=[]
+y=[]
+i=0
+while (i<len(datError)):
+	x.insert(i,i)
+	y.insert(i, datError[int(len(datError)/2)][i])
+	i=i+1
+	
+fig = plt.figure()
+ax = fig.add_subplot(111)
+
+ax.plot(x,y)
+ax.set_title("погрешность по X")
+
+plt.tight_layout()
+
+plt.savefig(dirGraphs+"погрешность по X"+".png")	
 	

@@ -13,72 +13,102 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Исходные файлы\FieldSolvers">
+      <UniqueIdentifier>{16d6f60a-66ee-4cc2-8ac2-2e6e991eaadb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\FourierTransformation">
+      <UniqueIdentifier>{69b76b79-9521-4e30-af7b-4fe71db83247}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\FieldSolvers">
+      <UniqueIdentifier>{c09c27dd-2220-4195-bb4f-944809dfff2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\FourierTransformation">
+      <UniqueIdentifier>{d80979a8-faad-4d98-b574-2cbac2f3755d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\MPI">
+      <UniqueIdentifier>{63fcf53d-0a81-4007-a44e-de30513dafe9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\MPI">
+      <UniqueIdentifier>{3c4dc375-ecff-4016-8c4f-1e1f3ab9e82c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Adjuvant">
+      <UniqueIdentifier>{c88b649f-7f8f-4a88-884c-a07af302d531}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Adjuvant">
+      <UniqueIdentifier>{6203e5a4-a820-43d7-82a6-b5ba60053f3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Types">
+      <UniqueIdentifier>{9abb0ed2-352d-4e2c-a5c9-8373c4e56e12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Types">
+      <UniqueIdentifier>{6b51c520-7c26-46f9-9fbe-c7d4fe79c8fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\field_solver_PSTD.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\grid3d.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\fourier_transformation.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\operations_with_arrays.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="..\..\src\field_solver_parallel.cpp">
+      <Filter>Исходные файлы\FieldSolvers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\field_solver_PSATD.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\FieldSolvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\field_solver_PSTD.cpp">
+      <Filter>Исходные файлы\FieldSolvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fourier_transformation.cpp">
+      <Filter>Исходные файлы\FourierTransformation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\operations_with_arrays.cpp">
+      <Filter>Исходные файлы\FourierTransformation</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\mpi_worker.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\MPI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\write_file.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="..\..\src\grid3d.cpp">
+      <Filter>Исходные файлы\Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\field_solver_parallel.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="..\..\src\file_writer.cpp">
+      <Filter>Исходные файлы\Adjuvant</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\field_solver.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\grid3d.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\constants.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\vec.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\FieldSolvers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\fourier_transformation.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\my_complex.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\FourierTransformation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\operations_with_arrays.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\simple_types.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\array3d.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\class_member_ptr.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\FourierTransformation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\mpi_worker.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\MPI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\mpi_wrapper.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\MPI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\write_file.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="..\..\include\grid3d.h">
+      <Filter>Файлы заголовков\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\vec.h">
+      <Filter>Файлы заголовков\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\my_complex.h">
+      <Filter>Файлы заголовков\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\class_member_ptr.h">
+      <Filter>Файлы заголовков\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\array3d.h">
+      <Filter>Файлы заголовков\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\file_writer.h">
+      <Filter>Файлы заголовков\Adjuvant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\simple_types_and_constants.h">
+      <Filter>Файлы заголовков\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\physical_constants.h">
+      <Filter>Файлы заголовков\Adjuvant</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

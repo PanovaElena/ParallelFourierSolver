@@ -21,27 +21,27 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\field_solver_parallel.cpp" />
     <ClCompile Include="..\..\src\field_solver_PSATD.cpp" />
+    <ClCompile Include="..\..\src\file_writer.cpp" />
     <ClCompile Include="..\..\src\mpi_worker.cpp" />
     <ClCompile Include="..\..\src\field_solver_PSTD.cpp" />
     <ClCompile Include="..\..\src\fourier_transformation.cpp" />
     <ClCompile Include="..\..\src\grid3d.cpp" />
     <ClCompile Include="..\..\src\operations_with_arrays.cpp" />
-    <ClCompile Include="..\..\src\write_file.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\array3d.h" />
     <ClInclude Include="..\..\include\class_member_ptr.h" />
+    <ClInclude Include="..\..\include\file_writer.h" />
     <ClInclude Include="..\..\include\mpi_worker.h" />
     <ClInclude Include="..\..\include\mpi_wrapper.h" />
     <ClInclude Include="..\..\include\my_complex.h" />
-    <ClInclude Include="..\..\include\constants.h" />
+    <ClInclude Include="..\..\include\physical_constants.h" />
     <ClInclude Include="..\..\include\field_solver.h" />
     <ClInclude Include="..\..\include\fourier_transformation.h" />
     <ClInclude Include="..\..\include\grid3d.h" />
     <ClInclude Include="..\..\include\operations_with_arrays.h" />
-    <ClInclude Include="..\..\include\simple_types.h" />
+    <ClInclude Include="..\..\include\simple_types_and_constants.h" />
     <ClInclude Include="..\..\include\vec.h" />
-    <ClInclude Include="..\..\include\write_file.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

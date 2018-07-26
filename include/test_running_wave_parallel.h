@@ -4,16 +4,17 @@
 #include "running_wave.h"
 #include "mpi_worker.h"
 #include "field_solver.h"
-#include "write_file.h"
+#include "file_writer.h"
 
 class TestRunningWaveParallel : public TestParallel {
 public:
 
     RunningWave runningWave;
 
-    TestRunningWaveParallel() : runningWave(){
-        SetNameFiles(runningWave.dir+"parallel_results/");
-        worker.SetOutput(runningWave.writeFile, nameFileAfterExchange);
+    TestRunningWaveParallel() : runningWave() {
+        runningWave.fileWriter.ChangeDir(runningWave.dir+"parallel_results/");
+        SetNameFiles();
+        worker.SetOutput(runningWave.fileWriter, nameFileAfterExchange);
     }
 
     void DoConsistentPart() {
@@ -24,27 +25,27 @@ public:
         FourierTransformation(runningWave.gr, CtoR);
         MPIWorker::ShowMessage("writing to file first steps");
         if (MPIWrapper::MPIRank() == 0)
-            runningWave.writeFile(E, y, runningWave.gr, nameFileFirstSteps);
+            runningWave.fileWriter.WriteFile(runningWave.gr, nameFileFirstSteps);
     }
 
     void DoParallelPart() {
         worker.Initialize(runningWave.gr, runningWave.guard);
 
         MPIWorker::ShowMessage("writing to file first domain");
-        runningWave.writeFile(E, y, worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);
+        runningWave.fileWriter.WriteFile(worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);
 
         MPIWorker::ShowMessage("parallel field solver");
         FieldSolverParallel(worker, runningWave.NNextSteps, runningWave.dt, runningWave.NNextSteps, 
-            dir, runningWave.writeFile);
+            runningWave.fileWriter);
 
         MPIWorker::ShowMessage("writing to file parallel result");
-        runningWave.writeFile(E, y, worker.getGrid(), arrNameFileFinalParallelSteps[MPIWrapper::MPIRank()]);
+        runningWave.fileWriter.WriteFile(worker.getGrid(), arrNameFileFinalParallelSteps[MPIWrapper::MPIRank()]);
 
         MPIWorker::ShowMessage("assemble");
         worker.AssembleResultsToZeroProcess(runningWave.gr);
         MPIWorker::ShowMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)
-            runningWave.writeFile(E, y, runningWave.gr, nameFileSecondSteps);
+            runningWave.fileWriter.WriteFile(runningWave.gr, nameFileSecondSteps);
     }
 
     virtual void TestBody() {

@@ -22,7 +22,7 @@ name_files=[
 	"consistent_results\\E\\iter_800_coord_1.csv",
 	]
 
-dirGraphs="running_wave_with_high_frequency_graphics\\"
+dirGraphs="standing_wave_graphics\\"
 name_graphics=[
 	arrLetters[0]+"_Поле после выполнения 600 итераций",
 	arrLetters[parRes]+"_Поле после выполнения 800 итераций параллельно",
@@ -137,5 +137,5 @@ ax.set_title("погрешность по X")
 
 plt.tight_layout()
 
-plt.savefig(dirGraphs+"погрешность по X"+".png")
+plt.savefig(dirGraphs+"погрешность по X"+".png")	
 	

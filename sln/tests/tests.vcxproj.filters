@@ -13,36 +13,42 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Исходные файлы\ConsistentTests">
+      <UniqueIdentifier>{dad11730-d137-4800-813f-39394f720a87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\TestsForClasses">
+      <UniqueIdentifier>{d0b2cc4e-2e37-46e8-a318-0a9aa187ff5f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\test\test_main.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="..\..\test\test_field_solver_running_wave.cpp">
+      <Filter>Исходные файлы\ConsistentTests</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\test_grid3d.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\test\test_myComplex.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\test\test_lag.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\test\test_vec.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\test\test_mpi_worker.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="..\..\test\test_field_solver_running_wave_with_high_frequency.cpp">
+      <Filter>Исходные файлы\ConsistentTests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\test\test_field_solver_spherical_wave.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\test\test_field_solver_running_wave.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\ConsistentTests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\test\test_fourier_transformation.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\TestsForClasses</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\test_field_solver_spherical_wave_with_high_frequency.cpp">
+    <ClCompile Include="..\..\test\test_grid3d.cpp">
+      <Filter>Исходные файлы\TestsForClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\test_lag.cpp">
+      <Filter>Исходные файлы\TestsForClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\test_mpi_worker.cpp">
+      <Filter>Исходные файлы\TestsForClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\test_my_complex.cpp">
+      <Filter>Исходные файлы\TestsForClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\test_vec.cpp">
+      <Filter>Исходные файлы\TestsForClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\test\test_main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

@@ -3,18 +3,26 @@
 #include <string>
 #include "running_wave.h"
 #include "field_solver.h"
-#include "write_file.h"
+#include "file_writer.h"
 
 class TestRunningWave :public testing::Test, public RunningWave  {
 public:
 
-    std::string consDir = "consistent_results/";
-    std::string dirE = dir.substr(3, dir.length() - 3) + consDir + "E/";
-    std::string dirB = dir.substr(3, dir.length() - 3) + consDir + "B/";
+    std::string consDir = dir.substr(3, dir.length() - 3) + "consistent_results/";
+    std::string dirE = "E/";
+    std::string dirB = "B/";
 
-    void WriteFile(Field field, Coords coord, int iter, std::string name) {
-        writeFile(field, coord, gr,
-            name + "iter_" + std::to_string(iter) + "_coord_" + std::to_string(coord) + ".csv");
+    FileWriter fileWriterE;
+    FileWriter fileWriterB;
+
+    TestRunningWave() :
+        fileWriterE(consDir + dirE, E, y, Section(Section::XOY, Section::center)),
+        fileWriterB(consDir + dirB, B, z, Section(Section::XOY, Section::center)) {}
+
+    void WriteFile(FileWriter& fileWriter, int iter) {
+        std::string name = "iter_" + std::to_string(iter) + "_coord_" + 
+            std::to_string(fileWriter.getCoord()) + ".csv";
+        fileWriter.WriteFile(gr, name);
     }
 
     void MyTestBodyCheckOnNull() {
@@ -33,12 +41,6 @@ public:
                 ASSERT_NEAR(0, (gr(i, 0, 0).*GetField(E).*GetCoord(x))(), 1E-5);
                 ASSERT_NEAR(0, (gr(i, 0, 0).*GetField(E).*GetCoord(z))(), 1E-5);
             }
-            
-
-            /*WriteFile(B, othCoordB1, mainC, j, dirB + "test_zeros_");
-            WriteFile(B, othCoordB2, mainC, j, dirB + "test_zeros_");
-            WriteFile(E, othCoordE1, mainC, j, dirE + "test_zeros_");
-            WriteFile(E, othCoordE2, mainC, j, dirE + "test_zeros_");*/
         }
     }
 
@@ -50,8 +52,8 @@ public:
             if (j%itTransform == 0) {
                 FourierTransformation(gr, CtoR);
 
-                WriteFile(E, y, j, dirE);
-                WriteFile(B, z, j, dirB);
+                WriteFile(fileWriterE, j);
+                WriteFile(fileWriterB, j);
             }
         }
 

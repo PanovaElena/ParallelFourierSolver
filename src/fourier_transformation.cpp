@@ -4,7 +4,7 @@
 #include "operations_with_arrays.h"
 #include "my_complex.h"
 #include "fourier_transformation.h"
-#include "constants.h"
+#include "physical_constants.h"
 #include "array3d.h"
 using namespace std;
 
@@ -35,40 +35,40 @@ void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, in
     fftw_destroy_plan(plan);
 }
 
-void FourierTransformation(Grid3d & gr, Field _field, int dir)
+void FourierTransformation(Grid3d & gr, Field _field, Coordinate _coord, int dir)
 {
 	Array3d<double> arrD(gr.gnxRealCells(), gr.gnyRealCells(), gr.gnzRealCells());
 	Array3d<MyComplex> arrC(gr.gnxComplexCells(), gr.gnyComplexCells(), gr.gnzComplexCells());
 
     switch (dir) {
     case RtoC:
-        OperationWithArrays::WriteDouble(gr, _field, FromGridToArray, arrD);
+        OperationWithArrays::WriteDouble(gr, _field, _coord, FromGridToArray, arrD);
         break;
     case  CtoR:
-        OperationWithArrays::WriteComplex(gr, _field, FromGridToArray, arrC);
+        OperationWithArrays::WriteComplex(gr, _field, _coord, FromGridToArray, arrC);
         break;
     }
 	UseFFTW(arrD, arrC, gr.gnxRealCells(), gr.gnyRealCells(), gr.gnzRealCells(), dir);
 
     switch (dir) {
     case RtoC:
-        OperationWithArrays::WriteComplex(gr, _field, FromArrayToGrid, arrC);
+        OperationWithArrays::WriteComplex(gr, _field, _coord, FromArrayToGrid, arrC);
         break;
     case  CtoR:
-        OperationWithArrays::WriteDouble(gr, _field, FromArrayToGrid, arrD);
+        OperationWithArrays::WriteDouble(gr, _field, _coord, FromArrayToGrid, arrD);
         break;
     }
 }
 
 void FourierTransformation(Grid3d & gr, int dir)
 {
-    FourierTransformation(gr, Ex, dir);
-    FourierTransformation(gr, Ey, dir);
-    FourierTransformation(gr, Ez, dir);
-    FourierTransformation(gr, Bx, dir);
-    FourierTransformation(gr, By, dir);
-    FourierTransformation(gr, Bz, dir);
-    FourierTransformation(gr, Jx, dir);
-    FourierTransformation(gr, Jy, dir);
-    FourierTransformation(gr, Jz, dir);
+    FourierTransformation(gr, E, x, dir);
+    FourierTransformation(gr, E, y, dir);
+    FourierTransformation(gr, E, z, dir);
+    FourierTransformation(gr, B, x, dir);
+    FourierTransformation(gr, B, y, dir);
+    FourierTransformation(gr, B, z, dir);
+    FourierTransformation(gr, J, x, dir);
+    FourierTransformation(gr, J, y, dir);
+    FourierTransformation(gr, J, z, dir);
 }
