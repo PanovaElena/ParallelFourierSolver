@@ -278,7 +278,7 @@ __pycache__/
 *.png
 
 # System file
-*/Thumbs.db
+*Thumbs.db
 
 # Cake - Uncomment if you are using it
 # tools/

@@ -31,7 +31,7 @@ public:
     }
 
     void DoParallelPart() {
-        worker.Initialize(sphericalWave.gr, sphericalWave.guard);
+        worker.Initialize(sphericalWave.gr, sphericalWave.guard, sphericalWave.mask);
 
         MPIWorker::ShowMessage("writing to file first domain");
         sphericalWave.fileWriter.WriteFile(worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);

@@ -110,5 +110,8 @@
     <ClInclude Include="..\..\include\physical_constants.h">
       <Filter>Файлы заголовков\Adjuvant</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\masks.h">
+      <Filter>Файлы заголовков\Adjuvant</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

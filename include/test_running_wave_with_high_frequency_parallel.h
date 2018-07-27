@@ -30,7 +30,8 @@ public:
     }
 
     void DoParallelPart() {
-        worker.Initialize(runningWaveWithHighFrequency.gr, runningWaveWithHighFrequency.guard);
+        worker.Initialize(runningWaveWithHighFrequency.gr, runningWaveWithHighFrequency.guard,
+            runningWaveWithHighFrequency.mask);
 
         MPIWorker::ShowMessage("writing to file first domain");
         runningWaveWithHighFrequency.fileWriter.WriteFile(worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);

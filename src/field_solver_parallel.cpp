@@ -22,5 +22,4 @@ void FieldSolverParallel(MPIWorker& worker, int numIter, double dt,
     }
     FourierTransformation(worker.getGrid(), CtoR);
     worker.ExchangeGuard();
-    worker.SetToZerosQuard();
 }

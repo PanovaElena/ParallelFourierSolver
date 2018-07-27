@@ -6,6 +6,7 @@
 #include "field_solver.h"
 #include "class_member_ptr.h"
 #include "file_writer.h"
+#include "masks.h"
 
 class RunningWaveWithHighFrequency {
 public:
@@ -17,6 +18,8 @@ public:
     // сетка
     int nx = 128, ny = nx, nz = 1;
     int guard = 64;
+
+    MaskSineSquare mask;
 
     double a = 0, b = nx;    // координаты сетки
     double d = 1;    // шаг сетки
@@ -37,7 +40,7 @@ public:
     Grid3d gr;
 
     RunningWaveWithHighFrequency() :gr(nx, ny, nz, a, b, a, b, a, a + d),
-        fileWriter(dir, E, y, Section(Section::XOY, Section::center)) {
+        fileWriter(dir, E, y, Section(Section::XOY, Section::center)), mask(8) {
         dt = d / (constants::c*sqrt(2) * 8);
         SetEB();
     }

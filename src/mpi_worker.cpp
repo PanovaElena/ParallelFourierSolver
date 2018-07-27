@@ -15,19 +15,19 @@ void MPIWorker::setRightGuardStart(int guardWidth, Grid3d & gr)
     rightGuardStart = getMainDomainEnd();
 }
 
-void MPIWorker::CreateGrid(Grid3d & gr) 
+void MPIWorker::CreateGrid(Grid3d & gr, Mask& mask)
 {
     double a = getLeftGuardStart()*gr.gdx(), b = gr.gdx()*getFullDomainSize() + a;
     grid = Grid3d(getFullDomainSize(), gr.gnyRealCells(), gr.gnzRealCells(), a, b, gr.gay(), gr.gby(), gr.gaz(), gr.gbz());
-    for (int i = 0; i <= getMainDomainSize(); i++)
+    for (int i = 0; i <= getFullDomainSize(); i++)
         for (int j = 0; j < gr.gnyRealNodes(); j++)
             for (int k = 0; k < gr.gnzRealNodes(); k++)
-                grid(i + getGuardSize(), j, k) = gr(i + getMainDomainStart(), j, k);
-    SetToZerosQuard();
+                grid(i, j, k) = gr(mod(i + getMainDomainStart() - getGuardSize(), gr.gnxRealCells()), j, k);
+    ApplyMask(mask);
     FourierTransformation(gr, RtoC);
 }
 
-void MPIWorker::Initialize(Grid3d & gr, int guardWidth, int _size, int _rank) {
+void MPIWorker::Initialize(Grid3d & gr, int guardWidth, Mask& _mask, int _size, int _rank) {
     rank = _rank;
     size = _size;
     domainSize = gr.gnxRealCells() / size - 1; //делится нацело
@@ -35,13 +35,11 @@ void MPIWorker::Initialize(Grid3d & gr, int guardWidth, int _size, int _rank) {
     guardSize = guardWidth;
     setLeftGuardStart(guardSize, gr);
     setRightGuardStart(guardSize, gr);
-
-    CreateGrid(gr);
-    DoAfterSeparation();
+    CreateGrid(gr, _mask);
 }
 
-void MPIWorker::Initialize(Grid3d & gr, int guardWidth) {
-    Initialize(gr, guardWidth, MPIWrapper::MPISize(), MPIWrapper::MPIRank());
+void MPIWorker::Initialize(Grid3d & gr, int guardWidth, Mask& mask) {
+    Initialize(gr, guardWidth, mask, MPIWrapper::MPISize(), MPIWrapper::MPIRank());
 }
 
 void MPIWorker::Send(int n1, int n2, double*& arr, int dest, int tag, Grid3d& grFrom, MPI_Request& request)
@@ -64,10 +62,10 @@ void MPIWorker::ExchangeGuard()
     double* arrS1 = 0, *arrS2 = 0;
     MPI_Request request1, request2;
 
-    int sl1 = 0, sl2 = getGuardSize() - 1;
-    int sr1 = getGuardSize() + getMainDomainSize() + 1, sr2 = getFullDomainSize();
-    int rr1 = getMainDomainSize() + 1, rr2 = getGuardSize() + getMainDomainSize();
-    int rl1 = getGuardSize(), rl2 = 2 * getGuardSize() - 1;
+    int sl1 = 0, sl2 = 2 * getGuardSize() - 1;
+    int sr1 = getMainDomainSize() + 1, sr2 = getFullDomainSize();
+    int rr1 = getMainDomainSize() + 1, rr2 = getFullDomainSize();
+    int rl1 = 0, rl2 = 2 * getGuardSize() - 1;
 
     // неблокирующий send и блокирующий recv
     MPIWorker::ShowMessage("send left from " + std::to_string(sl1) + " to " + std::to_string(sl2));
@@ -95,6 +93,16 @@ void MPIWorker::ExchangeGuard()
         MPIWorker::ShowMessage("writing to file after exchange");
         fileWriter.WriteFile(grid, nameFileAfterExchange);
     }
+}
+
+void MPIWorker::ApplyMask(Mask& mask) {
+    for (int i=0; i<=grid.gnxRealCells(); i++)
+        for (int j = 0; j <= grid.gnyRealCells(); j++)
+            for (int k = 0; k <= grid.gnzRealCells(); k++) {
+                grid(i, j, k).E *= mask.func(i, getMainDomainSize(), getGuardSize());
+                grid(i, j, k).B *= mask.func(i, getMainDomainSize(), getGuardSize());
+                grid(i, j, k).J *= mask.func(i, getMainDomainSize(), getGuardSize());
+            }
 }
 
 void MPIWorker::SetToZerosQuard()

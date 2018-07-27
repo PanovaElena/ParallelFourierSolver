@@ -55,6 +55,12 @@ struct vec3
         data[2] -= v.z();
         return *this;
     };
+    vec3& operator*=(const Type c) {
+        data[0] *= c;
+        data[1] *= c;
+        data[2] *= c;
+        return *this;
+    };
 
     friend vec3<MyComplex> operator* (MyComplex b, vec3<MyComplex> v);
     vec3<MyComplex> operator* (MyComplex b) const {

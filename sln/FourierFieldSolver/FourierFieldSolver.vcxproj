@@ -32,6 +32,7 @@
     <ClInclude Include="..\..\include\array3d.h" />
     <ClInclude Include="..\..\include\class_member_ptr.h" />
     <ClInclude Include="..\..\include\file_writer.h" />
+    <ClInclude Include="..\..\include\masks.h" />
     <ClInclude Include="..\..\include\mpi_worker.h" />
     <ClInclude Include="..\..\include\mpi_wrapper.h" />
     <ClInclude Include="..\..\include\my_complex.h" />

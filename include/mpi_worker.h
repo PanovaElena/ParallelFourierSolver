@@ -3,6 +3,7 @@
 #include "grid3d.h"
 #include <string>
 #include "file_writer.h"
+#include "masks.h"
 
 class MPIWorker {
 protected:
@@ -22,17 +23,17 @@ protected:
 
 public:
     MPIWorker() {}
-    MPIWorker(Grid3d& gr, int guardWidth) {
-        Initialize(gr, guardWidth);
+    MPIWorker(Grid3d& gr, int guardWidth, Mask& mask) {
+        Initialize(gr, guardWidth, mask);
     }
 
     //для последовательного запуска
-    MPIWorker(Grid3d& gr, int guardWidth, int _size, int _rank) {
-        Initialize(gr, guardWidth, _size, _rank);
+    MPIWorker(Grid3d& gr, int guardWidth, Mask& mask, int _size, int _rank) {
+        Initialize(gr, guardWidth, mask, _size, _rank);
     }
 
-    void Initialize(Grid3d & gr, int guardWidth, int _size, int _rank);
-    void Initialize(Grid3d & gr, int guardWidth);
+    void Initialize(Grid3d & gr, int guardWidth, Mask& mask, int _size, int _rank);
+    void Initialize(Grid3d & gr, int guardWidth, Mask& mask);
 
     int getMainDomainStart() {
         return domainStart;
@@ -77,7 +78,7 @@ public:
         return grid;
     }
 
-    void SetToZerosQuard();
+    void ApplyMask(Mask& mask);
 
     void ExchangeGuard();
 
@@ -85,10 +86,7 @@ public:
         std::cout << "rank " << MPIWrapper::MPIRank() << ": " << message << std::endl;
     }
 
-    // gr - сетка той размерности, какая должна получиться (rank==0), или любой другой (rank!=0) 
     void AssembleResultsToZeroProcess(Grid3d& gr);
-
-    virtual void DoAfterSeparation() {}
 
     void SetOutput(FileWriter& _fileWriter, std::string _nameFileAfterExchange) {
         fileWriter = _fileWriter;
@@ -104,7 +102,9 @@ private:
 
     void setRightGuardStart(int guardWidth, Grid3d& gr);
 
-    void CreateGrid(Grid3d& gr);
+    void CreateGrid(Grid3d& gr, Mask& mask);
+
+    void SetToZerosQuard();
 
     void Send(int n1, int n2, double*& arr, int dest, int tag, Grid3d& grFrom, MPI_Request& request);
     void Recv(int n1, int n2, int source, int tag, Grid3d& grTo);

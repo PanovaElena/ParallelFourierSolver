@@ -8,6 +8,7 @@
 #include "fourier_transformation.h"
 #include "class_member_ptr.h"
 #include "file_writer.h"
+#include "masks.h"
 
 class SphericalWave {
 public:
@@ -19,6 +20,8 @@ public:
     // сетка
     int nx = 128, ny = nx, nz = 1;
     int guard = 16;
+
+    MaskSineSquare mask;
 
     double a = 0, b = nx* constants::c;    // координаты сетки
     double d = constants::c;    // шаг сетки
@@ -37,13 +40,13 @@ public:
     int maxIt = NStartSteps + NNextSteps;
     int itTransform = 100;
 
-    double dt = d / constants::c / 10;;
+    double dt = d / constants::c / 10;
 
    
     Grid3d gr;
 
     SphericalWave() :gr(nx, ny, nz, a, b, a, b, 0, d),
-        fileWriter(dir, E, z, Section(Section::XOY, Section::center)) {
+        fileWriter(dir, E, z, Section(Section::XOY, Section::center)), mask(8) {
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++)
                 for (int k = 0; k < gr.gnzRealNodes(); k++) {
