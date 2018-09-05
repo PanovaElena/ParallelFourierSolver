@@ -273,6 +273,10 @@ __pycache__/
 
 # Output files
 *.xls
+*.csv
+
+# System file
+*/Trumbs.db
 
 # Cake - Uncomment if you are using it
 # tools/

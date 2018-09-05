@@ -2,24 +2,23 @@
 #include "grid3d.h"
 #include "my_complex.h"
 #include "simple_types.h"
-#include <vector>
+#include "array3d.h"
 
 class OperationWithArrays {
 public:
-	
-	static void WriteDouble(Grid3d& gr, Field _field, Dir direction, std::vector<double>& arr);
-	static void WriteComplex(Grid3d& gr, Field _field, Dir direction, std::vector<MyComplex>& arr);
+    
+    static void WriteDouble(Grid3d& gr, Field _field, Dir direction, Array3d<double>& arr);
+    static void WriteComplex(Grid3d& gr, Field _field, Dir direction, Array3d<MyComplex>& arr);
 
-	static void WriteFromGridToDoubleArr(Grid3d& gr, std::vector<double>& arr, int coord, vec3<double>(node::*p));
-	static void WriteFromDoubleArrToGrid(Grid3d& gr, std::vector<double>& arr, int coord, vec3<double>(node::*p));
+    static void WriteFromGridToDoubleArr(Grid3d& gr, Array3d<double>& arr, int coord, vec3<double>(Node::*p));
+    static void WriteFromDoubleArrToGrid(Grid3d& gr, Array3d<double>& arr, int coord, vec3<double>(Node::*p));
 
-	static void WriteFromComplexArrToGrid(Grid3d& gr, std::vector<MyComplex>& arr, int coord, vec3<MyComplex>(node::*p));
-	static void WriteFromGridToComplexArr(Grid3d& gr, std::vector<MyComplex>& arr, int coord, vec3<MyComplex>(node::*p));
+    static void WriteFromComplexArrToGrid(Grid3d& gr, Array3d<MyComplex>& arr, int coord, vec3<MyComplex>(Node::*p));
+    static void WriteFromGridToComplexArr(Grid3d& gr, Array3d<MyComplex>& arr, int coord, vec3<MyComplex>(Node::*p));
 
 private:
-	static vec3<double> node::* DetPDouble(Field field);
-	static vec3<MyComplex> node::* DetPComplex(Field field);
+	static vec3<double> Node::* DetPDouble(Field field);
+	static vec3<MyComplex> Node::* DetPComplex(Field field);
 
-	static vec3<int> GetVecIndex(int index, int nx, int ny, int nz);
-	static int GetIndex(int i, int j, int k, int Nx, int Ny, int Nz);
+	static void CopyLastNodesFromFirst(Grid3d& grid);
 };
