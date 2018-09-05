@@ -19,8 +19,9 @@ public:
         fileWriterE(consDir + dirE, E, y, Section(Section::XOY, Section::center)),
         fileWriterB(consDir + dirB, B, z, Section(Section::XOY, Section::center)) {}
 
-    void WriteFile(FileWriter& fileWriter, int iter) {
-        std::string name = "iter_" + std::to_string(iter) + "_coord_" + 
+    void WriteFile(FileWriter& fileWriter, int iter, std::string name = "") {
+        if (name == "")
+            name = "iter_" + std::to_string(iter) + "_coord_" +
             std::to_string(fileWriter.getCoord()) + ".csv";
         fileWriter.WriteFile(gr, name);
     }
@@ -55,7 +56,10 @@ public:
                 WriteFile(fileWriterE, j);
                 WriteFile(fileWriterB, j);
             }
+
         }
+        WriteFile(fileWriterE, maxIt, "last_iter.csv");
+        WriteFile(fileWriterB, maxIt, "last_iter.csv");
 
     }
 

@@ -15,7 +15,7 @@ void MPIWorker::setRightGuardStart(int guardWidth, Grid3d & gr)
     rightGuardStart = getMainDomainEnd();
 }
 
-void MPIWorker::CreateGrid(Grid3d & gr, Mask& mask)
+void MPIWorker::CreateGrid(Grid3d & gr)
 {
     double a = getLeftGuardStart()*gr.gdx(), b = gr.gdx()*getFullDomainSize() + a;
     grid = Grid3d(getFullDomainSize(), gr.gnyRealCells(), gr.gnzRealCells(), a, b, gr.gay(), gr.gby(), gr.gaz(), gr.gbz());
@@ -23,11 +23,11 @@ void MPIWorker::CreateGrid(Grid3d & gr, Mask& mask)
         for (int j = 0; j < gr.gnyRealNodes(); j++)
             for (int k = 0; k < gr.gnzRealNodes(); k++)
                 grid(i, j, k) = gr(mod(i + getMainDomainStart() - getGuardSize(), gr.gnxRealCells()), j, k);
-    ApplyMask(mask);
+    ApplyMask();
     FourierTransformation(gr, RtoC);
 }
 
-void MPIWorker::Initialize(Grid3d & gr, int guardWidth, Mask& _mask, int _size, int _rank) {
+void MPIWorker::Initialize(Grid3d & gr, int guardWidth, Mask _mask, int _maskWidth, int _size, int _rank) {
     rank = _rank;
     size = _size;
     domainSize = gr.gnxRealCells() / size - 1; //делится нацело
@@ -35,11 +35,13 @@ void MPIWorker::Initialize(Grid3d & gr, int guardWidth, Mask& _mask, int _size, 
     guardSize = guardWidth;
     setLeftGuardStart(guardSize, gr);
     setRightGuardStart(guardSize, gr);
-    CreateGrid(gr, _mask);
+    mask = _mask;
+    maskWidth = _maskWidth;
+    CreateGrid(gr);
 }
 
-void MPIWorker::Initialize(Grid3d & gr, int guardWidth, Mask& mask) {
-    Initialize(gr, guardWidth, mask, MPIWrapper::MPISize(), MPIWrapper::MPIRank());
+void MPIWorker::Initialize(Grid3d & gr, int guardWidth, Mask mask, int maskWidth) {
+    Initialize(gr, guardWidth, mask, maskWidth, MPIWrapper::MPISize(), MPIWrapper::MPIRank());
 }
 
 void MPIWorker::Send(int n1, int n2, double*& arr, int dest, int tag, Grid3d& grFrom, MPI_Request& request)
@@ -68,16 +70,16 @@ void MPIWorker::ExchangeGuard()
     int rl1 = 0, rl2 = 2 * getGuardSize() - 1;
 
     // неблокирующий send и блокирующий recv
-    MPIWorker::ShowMessage("send left from " + std::to_string(sl1) + " to " + std::to_string(sl2));
+    //MPIWorker::ShowMessage("send left from " + std::to_string(sl1) + " to " + std::to_string(sl2));
     Send(sl1, sl2, arrS1, mod(rank - 1, size), 0, grid, request1);
 
-    MPIWorker::ShowMessage("send right from " + std::to_string(sr1) + " to " + std::to_string(sr2));
+    //MPIWorker::ShowMessage("send right from " + std::to_string(sr1) + " to " + std::to_string(sr2));
     Send(sr1, sr2, arrS2, mod(rank + 1, size), 1, grid, request2);
 
-    MPIWorker::ShowMessage("recv right from " + std::to_string(rr1) + " to " + std::to_string(rr2));
+    //MPIWorker::ShowMessage("recv right from " + std::to_string(rr1) + " to " + std::to_string(rr2));
     Recv(rr1, rr2, mod(rank + 1, size), 0, grid);
 
-    MPIWorker::ShowMessage("recv left from " + std::to_string(rl1) + " to " + std::to_string(rl2));
+    //MPIWorker::ShowMessage("recv left from " + std::to_string(rl1) + " to " + std::to_string(rl2));
     Recv(rl1, rl2, mod(rank - 1, size), 1, grid);
 
     // ждем отправки
@@ -85,23 +87,23 @@ void MPIWorker::ExchangeGuard()
     MPIWrapper::MPIWait(request2);
 
     // можно удалить массивы, которые отправляли
-    MPIWorker::ShowMessage("delete arrays");
+    //MPIWorker::ShowMessage("delete arrays");
     if (arrS1) delete[] arrS1;
     if (arrS2) delete[] arrS2;
 
     if (nameFileAfterExchange != "") {
-        MPIWorker::ShowMessage("writing to file after exchange");
+        //MPIWorker::ShowMessage("writing to file after exchange");
         fileWriter.WriteFile(grid, nameFileAfterExchange);
     }
 }
 
-void MPIWorker::ApplyMask(Mask& mask) {
+void MPIWorker::ApplyMask() {
     for (int i=0; i<=grid.gnxRealCells(); i++)
         for (int j = 0; j <= grid.gnyRealCells(); j++)
             for (int k = 0; k <= grid.gnzRealCells(); k++) {
-                grid(i, j, k).E *= mask.func(i, getMainDomainSize(), getGuardSize());
-                grid(i, j, k).B *= mask.func(i, getMainDomainSize(), getGuardSize());
-                grid(i, j, k).J *= mask.func(i, getMainDomainSize(), getGuardSize());
+                grid(i, j, k).E *= mask(i, getMainDomainSize(), getGuardSize(), maskWidth);
+                grid(i, j, k).B *= mask(i, getMainDomainSize(), getGuardSize(), maskWidth);
+                grid(i, j, k).J *= mask(i, getMainDomainSize(), getGuardSize(), maskWidth);
             }
 }
 

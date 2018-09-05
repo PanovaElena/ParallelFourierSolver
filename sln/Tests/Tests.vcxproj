@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\test\test_field_solver_spherical_wave.cpp" />
     <ClCompile Include="..\..\test\test_field_solver_running_wave.cpp" />
-    <ClCompile Include="..\..\test\test_field_solver_running_wave_with_high_frequency.cpp" />
     <ClCompile Include="..\..\test\test_fourier_transformation.cpp" />
     <ClCompile Include="..\..\test\test_grid3d.cpp" />
     <ClCompile Include="..\..\test\test_lag.cpp" />

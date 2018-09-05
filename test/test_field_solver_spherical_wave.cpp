@@ -22,9 +22,9 @@ public:
     FileWriter fileWriterJ;
 
     TestSphericalWave() : 
-        fileWriterE(consDir + dirE, E, z, Section(Section::XOY, Section::center)),
-        fileWriterB(consDir + dirB, B, z, Section(Section::XOY, Section::center)),
-        fileWriterJ(consDir + dirJ, J, z, Section(Section::XOY, Section::center)) {}
+        fileWriterE(consDir + dirE, E, z, section),
+        fileWriterB(consDir + dirB, B, z, section),
+        fileWriterJ(consDir + dirJ, J, z, section) {}
 
     void MyTestBody() {
         FourierTransformation(gr, RtoC);
@@ -35,7 +35,7 @@ public:
         for (int iter = 1; iter <= maxIt; iter++) {
             SetJ(iter);
 
-            FieldSolver(gr, dt);
+            fieldSolver(gr, dt);
 
             if (iter%itTransform == 0) {
                 FourierTransformation(gr, CtoR);
@@ -44,11 +44,18 @@ public:
                 WriteFile(fileWriterB, iter);
                 WriteFile(fileWriterJ, iter);
             }
+
         }
+
+        WriteFile(fileWriterE, maxIt, "last_iter.csv");
+        WriteFile(fileWriterB, maxIt, "last_iter.csv");
+        WriteFile(fileWriterJ, maxIt, "last_iter.csv");
     }
 
-    void WriteFile(FileWriter& fileWriter, int iter) {
-        std::string name="iter_" + std::to_string(iter) + ".csv";
+    void WriteFile(FileWriter& fileWriter, int iter, std::string name = "") {
+        if (name == "")
+            name = "iter_" + std::to_string(iter) + "_coord_" +
+            std::to_string(fileWriter.getCoord()) + ".csv";
         fileWriter.WriteFile(gr, name);
     }
 

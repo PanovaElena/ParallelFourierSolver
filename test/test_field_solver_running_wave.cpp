@@ -16,11 +16,12 @@ public:
     FileWriter fileWriterB;
 
     TestRunningWave() :
-        fileWriterE(consDir + dirE, E, y, Section(Section::XOY, Section::center)),
-        fileWriterB(consDir + dirB, B, z, Section(Section::XOY, Section::center)) {}
+        fileWriterE(consDir + dirE, E, y, section),
+        fileWriterB(consDir + dirB, B, z, section) {}
 
-    void WriteFile(FileWriter& fileWriter, int iter) {
-        std::string name = "iter_" + std::to_string(iter) + "_coord_" + 
+    void WriteFile(FileWriter& fileWriter, int iter, std::string name="") {
+        if (name == "")
+            name = "iter_" + std::to_string(iter) + "_coord_" + 
             std::to_string(fileWriter.getCoord()) + ".csv";
         fileWriter.WriteFile(gr, name);
     }
@@ -28,7 +29,7 @@ public:
     void MyTestBodyCheckOnNull() {
 
         for (int j = 0; j <= maxIt; j++) {
-            FieldSolver(gr, dt);
+            fieldSolver(gr, dt);
 
             if (j%itTransform == 0) {
                 FourierTransformation(gr, CtoR);
@@ -46,8 +47,11 @@ public:
 
     void MyTestBodyWriteFile() {
 
-        for (int j = 0; j <= maxIt; j++) {
-            FieldSolver(gr, dt);
+        WriteFile(fileWriterE, 0);
+        WriteFile(fileWriterB, 0);
+
+        for (int j = 1; j <= maxIt; j++) {
+            fieldSolver(gr, dt);
 
             if (j%itTransform == 0) {
                 FourierTransformation(gr, CtoR);
@@ -56,6 +60,10 @@ public:
                 WriteFile(fileWriterB, j);
             }
         }
+        
+
+        WriteFile(fileWriterE, maxIt, "last_iter.csv");
+        WriteFile(fileWriterB, maxIt, "last_iter.csv");
 
     }
 

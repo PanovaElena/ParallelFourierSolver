@@ -19,7 +19,7 @@ public:
     }
 
     void DoConsistentPart() {
-        for (int i = 0; i <= runningWaveWithHighFrequency.NStartSteps; i++) {
+        for (int i = 0; i <= runningWaveWithHighFrequency.nStartSteps; i++) {
             FieldSolver(runningWaveWithHighFrequency.gr, runningWaveWithHighFrequency.dt);
         }
 
@@ -37,7 +37,7 @@ public:
         runningWaveWithHighFrequency.fileWriter.WriteFile(worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);
 
         MPIWorker::ShowMessage("parallel field solver");
-        FieldSolverParallel(worker, runningWaveWithHighFrequency.NNextSteps, runningWaveWithHighFrequency.dt, runningWaveWithHighFrequency.NNextSteps,
+        FieldSolverParallel(worker, runningWaveWithHighFrequency.nNextSteps, runningWaveWithHighFrequency.dt, runningWaveWithHighFrequency.nNextSteps,
             runningWaveWithHighFrequency.fileWriter);
 
         MPIWorker::ShowMessage("writing to file parallel result");

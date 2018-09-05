@@ -24,14 +24,11 @@ public:
     double a = 0, b = nx;    // координаты сетки
     double d = 1;    // шаг сетки
 
-    // физические параметры
-    double Tx = 8 * d; //период 
-
     // параметры счета
-    int NStartSteps = 600;
-    int NNextSteps = 200;
+    int nStartSteps = 600;
+    int nNextSteps = 200;
 
-    int maxIt = NStartSteps + NNextSteps;
+    int maxIt = nStartSteps + nNextSteps;
     int itTransform = 100;
 
     double dt;

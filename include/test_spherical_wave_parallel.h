@@ -18,34 +18,34 @@ public:
     }
 
     void DoConsistentPart() {
-        MPIWorker::ShowMessage("do first steps");
-        for (int i = 1; i <= sphericalWave.NStartSteps; i++) {
+        //MPIWorker::ShowMessage("do first steps");
+        for (int i = 1; i <= sphericalWave.nStartSteps; i++) {
             sphericalWave.SetJ(i);
-            FieldSolver(sphericalWave.gr, sphericalWave.dt);
+            sphericalWave.fieldSolver(sphericalWave.gr, sphericalWave.dt);
         }
 
         FourierTransformation(sphericalWave.gr, CtoR);
-        MPIWorker::ShowMessage("writing to file first steps");
+        //MPIWorker::ShowMessage("writing to file first steps");
         if (MPIWrapper::MPIRank() == 0)
             sphericalWave.fileWriter.WriteFile(sphericalWave.gr, nameFileFirstSteps);
     }
 
     void DoParallelPart() {
-        worker.Initialize(sphericalWave.gr, sphericalWave.guard, sphericalWave.mask);
+        worker.Initialize(sphericalWave.gr, sphericalWave.guard, sphericalWave.mask, sphericalWave.maskWidth);
 
-        MPIWorker::ShowMessage("writing to file first domain");
+        //MPIWorker::ShowMessage("writing to file first domain");
         sphericalWave.fileWriter.WriteFile(worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);
 
-        MPIWorker::ShowMessage("parallel field solver");
-        FieldSolverParallel(worker, sphericalWave.NNextSteps, sphericalWave.dt, sphericalWave.NNextSteps, 
+        //MPIWorker::ShowMessage("parallel field solver");
+        FieldSolverParallel(worker, sphericalWave.fieldSolver, sphericalWave.nNextSteps, sphericalWave.dt, sphericalWave.nNextSteps, 
             sphericalWave.fileWriter);
 
-        MPIWorker::ShowMessage("writing to file parallel result");
+        //MPIWorker::ShowMessage("writing to file parallel result");
         sphericalWave.fileWriter.WriteFile(worker.getGrid(), arrNameFileFinalParallelSteps[MPIWrapper::MPIRank()]);
 
-        MPIWorker::ShowMessage("assemble");
+        //MPIWorker::ShowMessage("assemble");
         worker.AssembleResultsToZeroProcess(sphericalWave.gr);
-        MPIWorker::ShowMessage("writing to file assembled result");
+        //MPIWorker::ShowMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)
             sphericalWave.fileWriter.WriteFile(sphericalWave.gr, nameFileSecondSteps);    
     }

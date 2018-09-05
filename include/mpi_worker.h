@@ -16,6 +16,9 @@ protected:
     int leftGuardStart;
     int rightGuardStart;
 
+    Mask mask;
+    int maskWidth;
+
     Grid3d grid;
 
     std::string nameFileAfterExchange;
@@ -23,17 +26,17 @@ protected:
 
 public:
     MPIWorker() {}
-    MPIWorker(Grid3d& gr, int guardWidth, Mask& mask) {
-        Initialize(gr, guardWidth, mask);
+    MPIWorker(Grid3d& gr, int guardWidth, Mask mask, int maskWidth) {
+        Initialize(gr, guardWidth, mask, maskWidth);
     }
 
     //для последовательного запуска
-    MPIWorker(Grid3d& gr, int guardWidth, Mask& mask, int _size, int _rank) {
-        Initialize(gr, guardWidth, mask, _size, _rank);
+    MPIWorker(Grid3d& gr, int guardWidth, Mask mask, int maskWidth, int _size, int _rank) {
+        Initialize(gr, guardWidth, mask, maskWidth, _size, _rank);
     }
 
-    void Initialize(Grid3d & gr, int guardWidth, Mask& mask, int _size, int _rank);
-    void Initialize(Grid3d & gr, int guardWidth, Mask& mask);
+    void Initialize(Grid3d & gr, int guardWidth, Mask mask, int maskWidth, int _size, int _rank);
+    void Initialize(Grid3d & gr, int guardWidth, Mask mask, int maskWidth);
 
     int getMainDomainStart() {
         return domainStart;
@@ -78,7 +81,7 @@ public:
         return grid;
     }
 
-    void ApplyMask(Mask& mask);
+    void ApplyMask();
 
     void ExchangeGuard();
 
@@ -102,7 +105,7 @@ private:
 
     void setRightGuardStart(int guardWidth, Grid3d& gr);
 
-    void CreateGrid(Grid3d& gr, Mask& mask);
+    void CreateGrid(Grid3d& gr);
 
     void SetToZerosQuard();
 

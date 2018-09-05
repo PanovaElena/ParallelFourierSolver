@@ -9,22 +9,28 @@
 #include "class_member_ptr.h"
 #include "file_writer.h"
 #include "masks.h"
+#include "field_solver.h"
 
 class SphericalWave {
 public:
 
     // вывод
     std::string dir = "../../../files/spherical_wave/";
+    Section section;
     FileWriter fileWriter;
+
+    //метод
+    FieldSolverType fieldSolver = FieldSolverPSATD;
 
     // сетка
     int nx = 128, ny = nx, nz = 1;
-    int guard = 16;
+    int guard = 32;
 
-    MaskSineSquare mask;
+    Mask mask;
+    int maskWidth = 8;
 
-    double a = 0, b = nx* constants::c;    // координаты сетки
     double d = constants::c;    // шаг сетки
+    double a = 0, b = nx*d;    // координаты сетки
 
     // физические параметры
     int wt = nx / 16;    // ширина синусоиды в ячейках
@@ -34,10 +40,10 @@ public:
     double Ty = Tx;
 
     // параметры счета
-    int NStartSteps = 300;
-    int NNextSteps = 100;
+    int nStartSteps = 300;
+    int nNextSteps = 100;
 
-    int maxIt = NStartSteps + NNextSteps;
+    int maxIt = nStartSteps + nNextSteps;
     int itTransform = 100;
 
     double dt = d / constants::c / 10;
@@ -46,7 +52,9 @@ public:
     Grid3d gr;
 
     SphericalWave() :gr(nx, ny, nz, a, b, a, b, 0, d),
-        fileWriter(dir, E, z, Section(Section::XOY, Section::center)), mask(8) {
+        section(Section::XOY, Section::center){
+        mask = maskSineSquare;
+        fileWriter.Initialize(dir, E, z, section);
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++)
                 for (int k = 0; k < gr.gnzRealNodes(); k++) {
@@ -95,6 +103,13 @@ public:
         FourierTransformation(gr, J, x, RtoC);
         FourierTransformation(gr, J, y, RtoC);
         FourierTransformation(gr, J, z, RtoC);
+    }
+
+    void SetParamsForTest(FieldSolverType _fieldSolver, int n_cons_steps, int n_par_steps) {
+        fieldSolver = _fieldSolver;
+        nStartSteps = n_cons_steps;
+        nNextSteps = n_par_steps;
+        maxIt = nStartSteps + nNextSteps;
     }
 
 };

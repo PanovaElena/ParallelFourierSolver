@@ -72,6 +72,12 @@ public:
         *this = fileWriter;
         dir = _dir;
     }
+    void Initialize(std::string _dir, Field _field, Coordinate _coord, Section _section) {
+        dir = _dir;
+        field = _field;
+        coord = _coord;
+        section = _section;
+    }
 
     void WriteFile(Grid3d& gr, std::string name, std::string message="") {
         if (message!="") std::cout << message << "\n";

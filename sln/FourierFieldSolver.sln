@@ -19,7 +19,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParallelFieldSolver_Running
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParallelFieldSolver_SphericalWave", "ParallelFieldSolver_SphericalWave\ParallelFieldSolver_SphericalWave.vcxproj", "{79A06853-3B4F-4529-B843-895101BA0EBA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParallelFieldSolver_RunningWaveWithHighFrequency", "ParallelFieldSolver_RunningWaveWithHighFrequency\ParallelFieldSolver_RunningWaveWithHighFrequency.vcxproj", "{6FDE964F-5BCB-4148-A9FE-8CD2A9D4BF2B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConsistentTests", "ConsistentTests", "{D8275224-DDFA-42A4-927E-824AFC3B492C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsistentFieldSolver_RunningWave", "ConsistentFieldSolver_RunningWave\ConsistentFieldSolver_RunningWave.vcxproj", "{8B3B2147-F05F-411A-93D5-5A2E47D0A874}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsistentFieldSolver_SphericalWave", "ConsistentFieldSolver_SphericalWave\ConsistentFieldSolver_SphericalWave.vcxproj", "{15A70595-7BE6-4A78-86B1-714B9DD40032}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,14 +73,22 @@ Global
 		{79A06853-3B4F-4529-B843-895101BA0EBA}.Release|x64.Build.0 = Release|x64
 		{79A06853-3B4F-4529-B843-895101BA0EBA}.Release|x86.ActiveCfg = Release|Win32
 		{79A06853-3B4F-4529-B843-895101BA0EBA}.Release|x86.Build.0 = Release|Win32
-		{6FDE964F-5BCB-4148-A9FE-8CD2A9D4BF2B}.Debug|x64.ActiveCfg = Debug|x64
-		{6FDE964F-5BCB-4148-A9FE-8CD2A9D4BF2B}.Debug|x64.Build.0 = Debug|x64
-		{6FDE964F-5BCB-4148-A9FE-8CD2A9D4BF2B}.Debug|x86.ActiveCfg = Debug|Win32
-		{6FDE964F-5BCB-4148-A9FE-8CD2A9D4BF2B}.Debug|x86.Build.0 = Debug|Win32
-		{6FDE964F-5BCB-4148-A9FE-8CD2A9D4BF2B}.Release|x64.ActiveCfg = Release|x64
-		{6FDE964F-5BCB-4148-A9FE-8CD2A9D4BF2B}.Release|x64.Build.0 = Release|x64
-		{6FDE964F-5BCB-4148-A9FE-8CD2A9D4BF2B}.Release|x86.ActiveCfg = Release|Win32
-		{6FDE964F-5BCB-4148-A9FE-8CD2A9D4BF2B}.Release|x86.Build.0 = Release|Win32
+		{8B3B2147-F05F-411A-93D5-5A2E47D0A874}.Debug|x64.ActiveCfg = Debug|x64
+		{8B3B2147-F05F-411A-93D5-5A2E47D0A874}.Debug|x64.Build.0 = Debug|x64
+		{8B3B2147-F05F-411A-93D5-5A2E47D0A874}.Debug|x86.ActiveCfg = Debug|Win32
+		{8B3B2147-F05F-411A-93D5-5A2E47D0A874}.Debug|x86.Build.0 = Debug|Win32
+		{8B3B2147-F05F-411A-93D5-5A2E47D0A874}.Release|x64.ActiveCfg = Release|x64
+		{8B3B2147-F05F-411A-93D5-5A2E47D0A874}.Release|x64.Build.0 = Release|x64
+		{8B3B2147-F05F-411A-93D5-5A2E47D0A874}.Release|x86.ActiveCfg = Release|Win32
+		{8B3B2147-F05F-411A-93D5-5A2E47D0A874}.Release|x86.Build.0 = Release|Win32
+		{15A70595-7BE6-4A78-86B1-714B9DD40032}.Debug|x64.ActiveCfg = Debug|x64
+		{15A70595-7BE6-4A78-86B1-714B9DD40032}.Debug|x64.Build.0 = Debug|x64
+		{15A70595-7BE6-4A78-86B1-714B9DD40032}.Debug|x86.ActiveCfg = Debug|Win32
+		{15A70595-7BE6-4A78-86B1-714B9DD40032}.Debug|x86.Build.0 = Debug|Win32
+		{15A70595-7BE6-4A78-86B1-714B9DD40032}.Release|x64.ActiveCfg = Release|x64
+		{15A70595-7BE6-4A78-86B1-714B9DD40032}.Release|x64.Build.0 = Release|x64
+		{15A70595-7BE6-4A78-86B1-714B9DD40032}.Release|x86.ActiveCfg = Release|Win32
+		{15A70595-7BE6-4A78-86B1-714B9DD40032}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -84,7 +96,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{79488128-224B-4621-BF36-0AF6BCBD5B3A} = {955B92A7-8C59-499D-8BBF-CB426621DF18}
 		{79A06853-3B4F-4529-B843-895101BA0EBA} = {955B92A7-8C59-499D-8BBF-CB426621DF18}
-		{6FDE964F-5BCB-4148-A9FE-8CD2A9D4BF2B} = {955B92A7-8C59-499D-8BBF-CB426621DF18}
+		{8B3B2147-F05F-411A-93D5-5A2E47D0A874} = {D8275224-DDFA-42A4-927E-824AFC3B492C}
+		{15A70595-7BE6-4A78-86B1-714B9DD40032} = {D8275224-DDFA-42A4-927E-824AFC3B492C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {47F7BAAC-837B-43A7-9B3B-27DF4DCC2858}

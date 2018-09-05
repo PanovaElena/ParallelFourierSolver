@@ -18,39 +18,41 @@ public:
     }
 
     void DoConsistentPart() {
-        for (int i = 0; i <= runningWave.NStartSteps; i++) {
-            FieldSolver(runningWave.gr, runningWave.dt);
+        for (int i = 1; i <= runningWave.nStartSteps; i++) {
+            runningWave.fieldSolver(runningWave.gr, runningWave.dt);
         }
 
         FourierTransformation(runningWave.gr, CtoR);
-        MPIWorker::ShowMessage("writing to file first steps");
+        //MPIWorker::ShowMessage("writing to file first steps");
         if (MPIWrapper::MPIRank() == 0)
             runningWave.fileWriter.WriteFile(runningWave.gr, nameFileFirstSteps);
     }
 
     void DoParallelPart() {
-        worker.Initialize(runningWave.gr, runningWave.guard, runningWave.mask);
+        worker.Initialize(runningWave.gr, runningWave.guard, runningWave.mask, runningWave.maskWidth);
 
-        MPIWorker::ShowMessage("writing to file first domain");
+        //MPIWorker::ShowMessage("writing to file first domain");
         runningWave.fileWriter.WriteFile(worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);
 
-        MPIWorker::ShowMessage("parallel field solver");
-        FieldSolverParallel(worker, runningWave.NNextSteps, runningWave.dt, runningWave.NNextSteps, 
+        //MPIWorker::ShowMessage("parallel field solver");
+        FieldSolverParallel(worker, runningWave.fieldSolver, runningWave.nNextSteps, runningWave.dt, runningWave.nNextSteps, 
             runningWave.fileWriter);
 
-        MPIWorker::ShowMessage("writing to file parallel result");
+        //MPIWorker::ShowMessage("writing to file parallel result");
         runningWave.fileWriter.WriteFile(worker.getGrid(), arrNameFileFinalParallelSteps[MPIWrapper::MPIRank()]);
 
-        MPIWorker::ShowMessage("assemble");
+        //MPIWorker::ShowMessage("assemble");
         worker.AssembleResultsToZeroProcess(runningWave.gr);
-        MPIWorker::ShowMessage("writing to file assembled result");
+        //MPIWorker::ShowMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)
             runningWave.fileWriter.WriteFile(runningWave.gr, nameFileSecondSteps);
     }
 
     virtual void TestBody() {
         MPIWorker::ShowMessage("start: size=" + std::to_string(MPIWrapper::MPISize()) +
-            ", n=" + std::to_string(runningWave.nx) + ", guard=" + std::to_string(runningWave.guard));
+            ", n=" + std::to_string(runningWave.nx) + ", guard=" + std::to_string(runningWave.guard)
+            + ", lambda = " + std::to_string(runningWave.lambda) +
+            ", num of par steps=" + std::to_string(runningWave.nNextSteps));
         DoConsistentPart();
         DoParallelPart();
     }
