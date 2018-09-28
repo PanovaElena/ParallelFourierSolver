@@ -281,6 +281,10 @@ __pycache__/
 *Thumbs.db
 */Trumbs.db
 
+# CMake files
+*/CMakeFiles
+*/cmake_install.cmake
+./build
 
 # Cake - Uncomment if you are using it
 # tools/
