@@ -1,0 +1,2 @@
+add_subdirectory(FourierFieldSolver)
+add_subdirectory(Examples)
