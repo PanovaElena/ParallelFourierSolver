@@ -106,8 +106,8 @@ TEST(TestVector, normalize_double) {
 }
 
 TEST(TestVector, normalize_complex) {
-    vec3<MyComplex> a(MyComplex(1,0), MyComplex(1, 1), MyComplex(0, 1));
-    ASSERT_EQ(a.Normalize(), a*MyComplex(1.0/2,0));
+    vec3<MyComplex> a(MyComplex(1, 0), MyComplex(1, 1), MyComplex(0, 1));
+    ASSERT_EQ(a*0.5, a.Normalize());
 }
 
 TEST(TestVector, normalize_complex_2) {

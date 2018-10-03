@@ -1,0 +1,1 @@
+create_executable(runningWave_parallel EXAMPLES_INCLUDE)

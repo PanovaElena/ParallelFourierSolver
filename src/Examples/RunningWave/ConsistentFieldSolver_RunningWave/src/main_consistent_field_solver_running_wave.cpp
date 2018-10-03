@@ -4,7 +4,7 @@
 #include <string>
 #include "fourier_transformation.h"
 
-static double LAMBDA;
+static double LAMBDA = 2;
 static FieldSolverType FIELD_SOLVER = FieldSolverPSATD;
 static double N_PERIODS = -1;
 static double N_STEPS_IN_PERIOD = -1;

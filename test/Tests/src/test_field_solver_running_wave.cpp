@@ -8,7 +8,7 @@
 class TestRunningWave :public testing::Test, public RunningWave  {
 public:
 
-    std::string consDir = dir.substr(3, dir.length() - 3) + "consistent_results/";
+    std::string consDir = dir + "consistent_results/";
     std::string dirE = "E/";
     std::string dirB = "B/";
 

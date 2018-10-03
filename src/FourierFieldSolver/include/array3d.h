@@ -12,6 +12,11 @@ class Array3d {
     T*** data;
 
     void AllocMem();
+    void SetPointersInNull() {
+        tmp1 = 0;
+        tmp2 = 0;
+        data = 0;
+    }
 
 public:
 
@@ -73,15 +78,14 @@ inline void Array3d<T>::Initialize(int _nx, int _ny, int _nz)
 template<class T>
 inline Array3d<T>::Array3d()
 {
-    tmp1 = 0;
-    tmp2 = 0; 
-    data = 0;
+    SetPointersInNull();
 }
 
 template<class T>
 inline Array3d<T>::Array3d(const Array3d & arr)
 {
     nx = arr.nx; ny = arr.ny; nz = arr.nz;
+    SetPointersInNull();
 
     AllocMem();
 
@@ -94,6 +98,7 @@ inline Array3d<T>::Array3d(const Array3d & arr)
 template<class T>
 inline Array3d<T>::Array3d(int _nx, int _ny, int _nz)
 {
+    SetPointersInNull();
     Initialize(_nx, _ny, _nz);
 }
 
@@ -140,5 +145,5 @@ inline void Array3d<T>::Clear()
     if (data) delete[] data;
     if (tmp2) delete[] tmp2;
     if (tmp1) delete[] tmp1;
-    tmp1 = 0; tmp2 = 0; data = 0;
+    SetPointersInNull();
 }

@@ -1,4 +1,1 @@
-add_library(gtest
-    gtest.h
-
-    gtest-all.cc)
+create_library(gtest)

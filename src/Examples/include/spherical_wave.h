@@ -15,7 +15,7 @@ class SphericalWave {
 public:
 
     // вывод
-    std::string dir = "../../../files/spherical_wave/";
+    std::string dir = std::string(ROOT_DIR) + "/files/spherical_wave/";
     Section section;
     FileWriter fileWriter;
 

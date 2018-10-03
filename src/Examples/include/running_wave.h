@@ -13,7 +13,7 @@ class RunningWave {
 public:
 
     // вывод
-    std::string dir = "../../../files/running_wave/";
+    std::string dir = std::string(ROOT_DIR) + "/files/running_wave/";
     Section section;
     FileWriter fileWriter;
 

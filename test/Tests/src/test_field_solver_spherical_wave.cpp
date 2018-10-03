@@ -12,7 +12,7 @@
 class TestSphericalWave :public testing::Test, public SphericalWave {
 public:
 
-    std::string consDir = dir.substr(3, dir.length() - 3) + "consistent_results/";
+    std::string consDir = dir + "consistent_results/";
     std::string dirE = "E/";
     std::string dirB = "B/";
     std::string dirJ = "J/";

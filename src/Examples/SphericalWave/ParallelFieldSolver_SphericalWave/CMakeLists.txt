@@ -1,0 +1,1 @@
+create_executable(sphericalWave_parallel EXAMPLES_INCLUDE)
