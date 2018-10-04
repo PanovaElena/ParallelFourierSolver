@@ -1,5 +1,5 @@
-#include "gtest.h"
 #include "mpi_worker.h"
+#include "gtest.h"
 #include "masks.h"
 
 TEST(TestMPIWorker, mpi_worker_dont_fail) {

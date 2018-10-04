@@ -1,8 +1,8 @@
 #pragma once
+#include "mpi_worker.h"
 #include "test_parallel.h"
 #include "string"
 #include "running_wave.h"
-#include "mpi_worker.h"
 #include "field_solver.h"
 #include "file_writer.h"
 

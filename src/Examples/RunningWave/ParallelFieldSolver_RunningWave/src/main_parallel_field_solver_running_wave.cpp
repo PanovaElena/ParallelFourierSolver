@@ -1,6 +1,6 @@
-#include "test_running_wave_parallel.h"
-#include "test_parallel.h"
 #include "mpi_wrapper.h"
+#include "test_parallel.h"
+#include "test_running_wave_parallel.h"
 #include <string>
 #include <iostream>
 #include "field_solver.h"

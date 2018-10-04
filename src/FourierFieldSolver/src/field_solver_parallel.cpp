@@ -1,6 +1,6 @@
+#include "mpi_worker.h"
 #include "field_solver.h"
 #include "fourier_transformation.h"
-#include "mpi_worker.h"
 #include <fstream>
 #include "file_writer.h"
 #include "simple_types_and_constants.h"

@@ -2,7 +2,7 @@
 #include "grid3d.h"
 
 TEST(TestGrid, created_correctly) {
-    ASSERT_NO_THROW(Grid3d;);
+    ASSERT_NO_THROW(Grid3d());
 }
 
 TEST(TestGrid, created_correctly_with_parameters) {

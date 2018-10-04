@@ -1,6 +1,6 @@
 #pragma once
-#include <string>
 #include "mpi_worker.h"
+#include <string>
 #include "file_writer.h"
 
 class TestParallel {
