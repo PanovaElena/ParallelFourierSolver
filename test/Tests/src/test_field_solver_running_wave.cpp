@@ -28,10 +28,10 @@ public:
 
     void MyTestBodyCheckOnNull() {
 
-        for (int j = 0; j <= maxIt; j++) {
-            fieldSolver(gr, dt);
+        for (int j = 0; j <= parameters.nConsSteps+ parameters.nParSteps; j++) {
+            parameters.fieldSolver(gr, parameters.dt);
 
-            if (j%itTransform == 0) {
+            if (j%parameters.nIterBetweenDumps == 0) {
                 FourierTransformation(gr, CtoR);
             }
 
@@ -50,10 +50,10 @@ public:
         WriteFile(fileWriterE, 0);
         WriteFile(fileWriterB, 0);
 
-        for (int j = 1; j <= maxIt; j++) {
-            fieldSolver(gr, dt);
+        for (int j = 1; j <= parameters.getNSteps(); j++) {
+            parameters.fieldSolver(gr, parameters.dt);
 
-            if (j%itTransform == 0) {
+            if (j%parameters.nIterBetweenDumps == 0) {
                 FourierTransformation(gr, CtoR);
 
                 WriteFile(fileWriterE, j);
@@ -62,8 +62,8 @@ public:
         }
         
 
-        WriteFile(fileWriterE, maxIt, "last_iter.csv");
-        WriteFile(fileWriterB, maxIt, "last_iter.csv");
+        WriteFile(fileWriterE, parameters.getNSteps(), "last_iter.csv");
+        WriteFile(fileWriterB, parameters.getNSteps(), "last_iter.csv");
 
     }
 

@@ -1,30 +1,19 @@
 #include <string>
 #include <iostream>
+#include "parser_spherical_wave.h"
 #include "spherical_wave.h"
-#include <string>
 #include "fourier_transformation.h"
+#include "field_solver.h"
 
-static FieldSolverType FIELD_SOLVER = FieldSolverPSATD;
-static int N_STEPS = 400;
-
-void CheckArgv(int argc, char** argv, SphericalWave& sphericalWave) {
-    if (argc > 1) {
-        if (std::string(argv[1]) == "PSTD")
-            FIELD_SOLVER = FieldSolverPSTD;
-        else FIELD_SOLVER = FieldSolverPSATD;
-        if (argc > 2)
-            N_STEPS = atoi(argv[2]);
-    }
-}
 
 void TestBody(SphericalWave& sphericalWave) {
     FourierTransformation(sphericalWave.gr, RtoC);
-    for (int j = 1; j <= sphericalWave.nNextSteps; j++) {
+    for (int j = 1; j <= sphericalWave.parameters.getNSteps(); j++) {
         /*FourierTransformation(sphericalWave.gr, CtoR);
         sphericalWave.fileWriter.WriteFile(sphericalWave.gr, "/consistent_results/cons_res_"+
         std::to_string(j-1)+".csv");*/
         sphericalWave.SetJ(j);
-        sphericalWave.fieldSolver(sphericalWave.gr, sphericalWave.dt);
+        sphericalWave.parameters.fieldSolver(sphericalWave.gr, sphericalWave.parameters.dt);
     }
 
     FourierTransformation(sphericalWave.gr, CtoR);
@@ -32,8 +21,13 @@ void TestBody(SphericalWave& sphericalWave) {
 }
 
 int main(int argc, char** argv) {
-    SphericalWave sphericalWave;
-    CheckArgv(argc, argv, sphericalWave);
-    sphericalWave.SetParamsForTest(FIELD_SOLVER, 0, N_STEPS);
-    TestBody(sphericalWave);
+    SphericalWave runningWave;
+    ParserSphericalWave parser;
+    ParametersForSphericalWave params;
+    int status = parser.parseArgs(argc, argv, params);
+    if (status != 0) return 0;
+    params.nParSteps = 0;
+    params.print();
+    runningWave.SetParamsForTest(params);
+    TestBody(runningWave);
 }

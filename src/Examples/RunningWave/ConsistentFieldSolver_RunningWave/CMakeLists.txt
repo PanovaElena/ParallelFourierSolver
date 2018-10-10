@@ -1,1 +1,1 @@
-create_executable(runningWave_consistent EXAMPLES_INCLUDE)
+create_executable(runningWave_consistent RUNNING_WAVE_INCLUDE)

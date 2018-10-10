@@ -1,8 +1,8 @@
 #pragma once
-#include "test_parallel.h"
-#include "string"
-#include "spherical_wave.h"
 #include "mpi_worker.h"
+#include "test_parallel.h"
+#include <string>
+#include "spherical_wave.h"
 #include "field_solver.h"
 #include "file_writer.h"
 
@@ -19,9 +19,9 @@ public:
 
     void DoConsistentPart() {
         //MPIWorker::ShowMessage("do first steps");
-        for (int i = 1; i <= sphericalWave.nStartSteps; i++) {
+        for (int i = 1; i <= sphericalWave.parameters.nConsSteps; i++) {
             sphericalWave.SetJ(i);
-            sphericalWave.fieldSolver(sphericalWave.gr, sphericalWave.dt);
+            sphericalWave.parameters.fieldSolver(sphericalWave.gr, sphericalWave.parameters.dt);
         }
 
         FourierTransformation(sphericalWave.gr, CtoR);
@@ -31,13 +31,13 @@ public:
     }
 
     void DoParallelPart() {
-        worker.Initialize(sphericalWave.gr, sphericalWave.guard, sphericalWave.mask, sphericalWave.maskWidth);
+        worker.Initialize(sphericalWave.gr, sphericalWave.parameters.guard, sphericalWave.parameters.mask, sphericalWave.parameters.maskWidth);
 
         //MPIWorker::ShowMessage("writing to file first domain");
         sphericalWave.fileWriter.WriteFile(worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);
 
         //MPIWorker::ShowMessage("parallel field solver");
-        FieldSolverParallel(worker, sphericalWave.fieldSolver, sphericalWave.nNextSteps, sphericalWave.dt, sphericalWave.nNextSteps, 
+        FieldSolverParallel(worker, sphericalWave.parameters.fieldSolver, sphericalWave.parameters.nParSteps, sphericalWave.parameters.dt, sphericalWave.parameters.nParSteps, 
             sphericalWave.fileWriter);
 
         //MPIWorker::ShowMessage("writing to file parallel result");
@@ -52,7 +52,7 @@ public:
 
     virtual void TestBody() {
         MPIWorker::ShowMessage("start: size=" + std::to_string(MPIWrapper::MPISize()) +
-            ", n=" + std::to_string(sphericalWave.nx) + ", guard=" + std::to_string(sphericalWave.guard));
+            ", n=" + std::to_string(sphericalWave.parameters.nx) + ", guard=" + std::to_string(sphericalWave.parameters.guard));
         DoConsistentPart();
         DoParallelPart();
     }

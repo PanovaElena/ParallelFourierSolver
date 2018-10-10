@@ -32,12 +32,12 @@ public:
         WriteFile(fileWriterE, 0);
         WriteFile(fileWriterB, 0);
 
-        for (int iter = 1; iter <= maxIt; iter++) {
+        for (int iter = 1; iter <= parameters.getNSteps(); iter++) {
             SetJ(iter);
 
-            fieldSolver(gr, dt);
+            parameters.fieldSolver(gr, parameters.dt);
 
-            if (iter%itTransform == 0) {
+            if (iter%parameters.nIterBetweenDumps == 0) {
                 FourierTransformation(gr, CtoR);
 
                 WriteFile(fileWriterE, iter);
@@ -47,9 +47,9 @@ public:
 
         }
 
-        WriteFile(fileWriterE, maxIt, "last_iter.csv");
-        WriteFile(fileWriterB, maxIt, "last_iter.csv");
-        WriteFile(fileWriterJ, maxIt, "last_iter.csv");
+        WriteFile(fileWriterE, parameters.getNSteps(), "last_iter.csv");
+        WriteFile(fileWriterB, parameters.getNSteps(), "last_iter.csv");
+        WriteFile(fileWriterJ, parameters.getNSteps(), "last_iter.csv");
     }
 
     void WriteFile(FileWriter& fileWriter, int iter, std::string name = "") {

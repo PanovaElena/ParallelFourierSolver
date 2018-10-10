@@ -1,1 +1,6 @@
-create_executable(tests EXAMPLES_INCLUDE)
+get_property( PROP GLOBAL PROPERTY EXAMPLES_INCLUDE)
+get_property( PROP_A GLOBAL PROPERTY RUNNING_WAVE_INCLUDE)
+get_property( PROP_B GLOBAL PROPERTY SPHERICAL_WAVE_INCLUDE)
+add_element_to_global_property(TESTS_INCLUDE "${PROP};${PROP_A};${PROP_B};${CMAKE_CURRENT_SOURCE_DIR}/include;")
+
+create_executable(tests TESTS_INCLUDE)

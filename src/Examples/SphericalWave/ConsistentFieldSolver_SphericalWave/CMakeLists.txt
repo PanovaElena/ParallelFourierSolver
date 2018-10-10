@@ -1,1 +1,1 @@
-create_executable(sphericalWave_consistent EXAMPLES_INCLUDE)
+create_executable(sphericalWave_consistent SPHERICAL_WAVE_INCLUDE)

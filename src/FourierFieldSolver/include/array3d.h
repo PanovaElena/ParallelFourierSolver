@@ -7,9 +7,9 @@ class Array3d {
     int ny;
     int nz;
 
-    T* tmp1;  //структура выделения памяти
-    T** tmp2;
-    T*** data;
+    T* tmp1 = 0;  //структура выделения памяти
+    T** tmp2 = 0;
+    T*** data = 0;
 
     void AllocMem();
     void SetPointersInNull() {
@@ -78,14 +78,12 @@ inline void Array3d<T>::Initialize(int _nx, int _ny, int _nz)
 template<class T>
 inline Array3d<T>::Array3d()
 {
-    SetPointersInNull();
 }
 
 template<class T>
 inline Array3d<T>::Array3d(const Array3d & arr)
 {
     nx = arr.nx; ny = arr.ny; nz = arr.nz;
-    SetPointersInNull();
 
     AllocMem();
 
@@ -98,7 +96,6 @@ inline Array3d<T>::Array3d(const Array3d & arr)
 template<class T>
 inline Array3d<T>::Array3d(int _nx, int _ny, int _nz)
 {
-    SetPointersInNull();
     Initialize(_nx, _ny, _nz);
 }
 

@@ -1,1 +1,1 @@
-create_executable(runningWave_parallel EXAMPLES_INCLUDE)
+create_executable(runningWave_parallel RUNNING_WAVE_INCLUDE)

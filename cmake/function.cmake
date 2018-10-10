@@ -19,7 +19,7 @@ endfunction()
 
 
 function(create_executable TARGET PROP_NAME_PROPERTY)	
-    file(GLOB TARGET_SRC "src/*.cpp" "include/*.h")
+    file(GLOB TARGET_SRC "src/*.cpp" "include/*.h" "../include/*.h")
     add_executable(${TARGET} ${TARGET_SRC})
 	
     get_property ( INCLUDE_DIRS GLOBAL PROPERTY ${PROP_NAME_PROPERTY})

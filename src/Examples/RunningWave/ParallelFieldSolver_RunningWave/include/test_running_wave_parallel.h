@@ -18,8 +18,8 @@ public:
     }
 
     void DoConsistentPart() {
-        for (int i = 1; i <= runningWave.nStartSteps; i++) {
-            runningWave.fieldSolver(runningWave.gr, runningWave.dt);
+        for (int i = 1; i <= runningWave.parameters.nConsSteps; i++) {
+            runningWave.parameters.fieldSolver(runningWave.gr, runningWave.parameters.dt);
         }
 
         FourierTransformation(runningWave.gr, CtoR);
@@ -29,13 +29,13 @@ public:
     }
 
     void DoParallelPart() {
-        worker.Initialize(runningWave.gr, runningWave.guard, runningWave.mask, runningWave.maskWidth);
+        worker.Initialize(runningWave.gr, runningWave.parameters.guard, runningWave.parameters.mask, runningWave.parameters.maskWidth);
 
         //MPIWorker::ShowMessage("writing to file first domain");
         runningWave.fileWriter.WriteFile(worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);
 
         //MPIWorker::ShowMessage("parallel field solver");
-        FieldSolverParallel(worker, runningWave.fieldSolver, runningWave.nNextSteps, runningWave.dt, runningWave.nNextSteps, 
+        FieldSolverParallel(worker, runningWave.parameters.fieldSolver, runningWave.parameters.nParSteps, runningWave.parameters.dt, runningWave.parameters.nParSteps, 
             runningWave.fileWriter);
 
         //MPIWorker::ShowMessage("writing to file parallel result");
@@ -50,9 +50,9 @@ public:
 
     virtual void TestBody() {
         MPIWorker::ShowMessage("start: size=" + std::to_string(MPIWrapper::MPISize()) +
-            ", n=" + std::to_string(runningWave.nx) + ", guard=" + std::to_string(runningWave.guard)
-            + ", lambda = " + std::to_string(runningWave.lambda) +
-            ", num of par steps=" + std::to_string(runningWave.nNextSteps));
+            ", n=" + std::to_string(runningWave.parameters.nx) + ", guard=" + std::to_string(runningWave.parameters.guard)
+            + ", lambda = " + std::to_string(runningWave.parameters.lambda) +
+            ", num of par steps=" + std::to_string(runningWave.parameters.nParSteps));
         DoConsistentPart();
         DoParallelPart();
     }

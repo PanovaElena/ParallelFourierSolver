@@ -53,7 +53,7 @@ public:
 	~Grid3d();
 	//сравнение только по вещественным полям
 	int operator==(const Grid3d& grid2);
-	//только сетки одинаковой размерности, присвоение поля
+
 	Grid3d& operator=(const Grid3d& grid2);
 
 	void Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
