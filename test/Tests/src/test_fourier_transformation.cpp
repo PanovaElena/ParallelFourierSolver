@@ -84,7 +84,7 @@ TEST_F(TestFourierTransform, fourier_transform_writes_data_correctly_to_grid) {
 	for (int i = 0; i < arr1.gnx(); i++)
 		for (int j = 0; j < arr1.gny(); j++)
 			for (int k = 0; k < arr1.gnz(); k++)
-				arr1(i,j,k).SetReal(grid(i, j, k).E.x());
+				arr1(i,j,k).SetReal(grid(i, j, k).E.get_x());
 
 	fftw_plan plan = fftw_plan_dft_3d(grid.gnxRealCells(), grid.gnyRealCells(), grid.gnzRealCells(), (fftw_complex*)&(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_FORWARD, FFTW_ESTIMATE);
 	fftw_execute(plan);

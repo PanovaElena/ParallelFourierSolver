@@ -1,5 +1,6 @@
 #pragma once
 #include "mpi_worker.h"
+#include "mpi_wrapper_3d.h"
 #include "test_parallel.h"
 #include "string"
 #include "running_wave.h"
@@ -11,13 +12,15 @@ public:
 
     RunningWave runningWave;
 
-    TestRunningWaveParallel() : runningWave() {
+    TestRunningWaveParallel(MPIWrapper3d& _mpiWrapper) : runningWave() {
         runningWave.fileWriter.ChangeDir(runningWave.dir+"parallel_results/");
         SetNameFiles();
         worker.SetOutput(runningWave.fileWriter, nameFileAfterExchange);
+        worker.setMPIWrapper3d(_mpiWrapper);
     }
 
     void DoConsistentPart() {
+        FourierTransformation(runningWave.gr, RtoC);
         for (int i = 1; i <= runningWave.parameters.nConsSteps; i++) {
             runningWave.parameters.fieldSolver(runningWave.gr, runningWave.parameters.dt);
         }
@@ -29,7 +32,12 @@ public:
     }
 
     void DoParallelPart() {
-        worker.Initialize(runningWave.gr, runningWave.parameters.guard, runningWave.parameters.mask, runningWave.parameters.maskWidth);
+        if (worker.Initialize(runningWave.gr, runningWave.parameters.guard,
+            runningWave.parameters.mask, runningWave.parameters.maskWidth, worker.getMPIWrapper())==1)
+            return;
+
+        MPIWorker::ShowMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +
+            to_string(worker.getMainDomainEnd()) + "; guard is " + to_string(worker.getGuardSize()));
 
         //MPIWorker::ShowMessage("writing to file first domain");
         runningWave.fileWriter.WriteFile(worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);
@@ -49,10 +57,6 @@ public:
     }
 
     virtual void TestBody() {
-        MPIWorker::ShowMessage("start: size=" + std::to_string(MPIWrapper::MPISize()) +
-            ", n=" + std::to_string(runningWave.parameters.nx) + ", guard=" + std::to_string(runningWave.parameters.guard)
-            + ", lambda = " + std::to_string(runningWave.parameters.lambda) +
-            ", num of par steps=" + std::to_string(runningWave.parameters.nParSteps));
         DoConsistentPart();
         DoParallelPart();
     }

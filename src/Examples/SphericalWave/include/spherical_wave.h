@@ -18,8 +18,8 @@ struct ParametersForSphericalWave : public ParametersForTest {
     FieldSolverType fieldSolver = FieldSolverPSATD;
 
     // сетка
-    int nx = 150, ny = nx, nz = 1;
-    int guard = 32;
+    int nx = 128, ny = nx, nz = 1;
+    int guard = 16;
 
     double d = constants::c;    // шаг сетки
     double a = 0, b = nx*d;    // координаты сетки
@@ -34,6 +34,7 @@ struct ParametersForSphericalWave : public ParametersForTest {
     int wx = 12;
     double Tx = d*wx;    // период по координате 
     double Ty = Tx;
+    double Tz = Tx;
 
     // параметры счета
     int nConsSteps = 300;
@@ -111,22 +112,27 @@ public:
         return sin(2 * constants::pi / parameters.Tx*t);
     }
 
-    double GetJ(int i, int j, int iter) {
-        double x = GetX(i), y = GetY(j), t = iter*parameters.dt;
+    double GetJ(int i, int j, int k, int iter) {
+        double x = GetX(i), y = GetY(j), z = GetZ(k), t = iter*parameters.dt;
         if (iter > parameters.wt) return 0;
-        if (abs(i - parameters.nx / 2) > parameters.wx / 4 || abs(j - parameters.ny / 2) >  parameters.wx / 4) return 0;
+        if (abs(i - parameters.nx / 2) > parameters.wx / 4 || 
+            abs(j - parameters.ny / 2) >  parameters.wx / 4 ||
+            abs(k - parameters.nz / 2) >  parameters.wx / 4) return 0;
         return cos(2 * constants::pi*x / parameters.Tx)*cos(2 * constants::pi*x / parameters.Tx) *
             cos(2 * constants::pi*y / parameters.Ty)*cos(2 * constants::pi*y / parameters.Ty) *
+            cos(2 * constants::pi*z / parameters.Tz)*cos(2 * constants::pi*z / parameters.Tz) *
             sin(2 * constants::pi*t / parameters.Tt);
     }
 
     void SetJ(int iter) {
         double J0;
         for (int i = 0; i < gr.gnxRealNodes(); i++)
-            for (int j = 0; j < gr.gnyRealNodes(); j++) {
-                J0 = GetJ(i, j, iter);
-                gr(i, j, gr.gnzRealCells() / 2).J = vec3<double>(0, 0, J0);
-            }
+            for (int j = 0; j < gr.gnyRealNodes(); j++) 
+                for (int k = 0; k < gr.gnzRealNodes(); k++)
+                {
+                    J0 = GetJ(i, j, k, iter);
+                    gr(i, j, k).J = vec3<double>(J0, J0, J0);
+                }
         FourierTransformation(gr, J, x, RtoC);
         FourierTransformation(gr, J, y, RtoC);
         FourierTransformation(gr, J, z, RtoC);

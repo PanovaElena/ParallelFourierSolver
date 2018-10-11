@@ -11,14 +11,16 @@ public:
 
     SphericalWave sphericalWave;
 
-    TestSphericalWaveParallel() : sphericalWave() {
+    TestSphericalWaveParallel(MPIWrapper3d& _mpiWrapper) : sphericalWave() {
         sphericalWave.fileWriter.ChangeDir(sphericalWave.dir + "parallel_results/");
         SetNameFiles();
         worker.SetOutput(sphericalWave.fileWriter, nameFileAfterExchange);
+        worker.setMPIWrapper3d(_mpiWrapper);
     }
 
     void DoConsistentPart() {
         //MPIWorker::ShowMessage("do first steps");
+        FourierTransformation(sphericalWave.gr, RtoC);
         for (int i = 1; i <= sphericalWave.parameters.nConsSteps; i++) {
             sphericalWave.SetJ(i);
             sphericalWave.parameters.fieldSolver(sphericalWave.gr, sphericalWave.parameters.dt);
@@ -31,7 +33,13 @@ public:
     }
 
     void DoParallelPart() {
-        worker.Initialize(sphericalWave.gr, sphericalWave.parameters.guard, sphericalWave.parameters.mask, sphericalWave.parameters.maskWidth);
+        //MPIWorker::ShowMessage("start init worker");
+        if (worker.Initialize(sphericalWave.gr, sphericalWave.parameters.guard, 
+            sphericalWave.parameters.mask, sphericalWave.parameters.maskWidth, worker.getMPIWrapper())==1)
+            return;
+
+        MPIWorker::ShowMessage("start par: domain from " +to_string(worker.getMainDomainStart())+" to "+
+            to_string(worker.getMainDomainEnd()) + "; guard is " + to_string(worker.getGuardSize()));
 
         //MPIWorker::ShowMessage("writing to file first domain");
         sphericalWave.fileWriter.WriteFile(worker.getGrid(), arrNameFileStartParallelSteps[MPIWrapper::MPIRank()]);
@@ -51,9 +59,8 @@ public:
     }
 
     virtual void TestBody() {
-        MPIWorker::ShowMessage("start: size=" + std::to_string(MPIWrapper::MPISize()) +
-            ", n=" + std::to_string(sphericalWave.parameters.nx) + ", guard=" + std::to_string(sphericalWave.parameters.guard));
         DoConsistentPart();
+        MPIWrapper::MPIBarrier();
         DoParallelPart();
     }
 

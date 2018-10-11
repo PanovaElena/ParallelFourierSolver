@@ -1,6 +1,8 @@
 #pragma once
 #include <cmath>
 #include "my_complex.h"
+#include <iostream>
+#include <string>
 
 
 inline double absSquare(double a) {
@@ -13,70 +15,108 @@ inline double absSquare(MyComplex a) {
 template <class Type>
 struct vec3
 {
-    Type data[3];
+    Type x;
+    Type y;
+    Type z;
 
     vec3() {};
 
     vec3(Type a, Type b, Type c) {
-        data[0] = a;
-        data[1] = b;
-        data[2] = c;
+        x = a;
+        y = b;
+        z = c;
+    };
+
+    vec3(Type a) {
+        x = a;
+        y = a;
+        z = a;
     };
 
     Type& operator[](int i) {
-        return data[i];
+        switch (i) {
+        case 0: return x;
+        case 1: return y;
+        case 2: return z;
+        default: return x;
+        }
     };
 
-    Type x() const { return data[0]; }
-    Type y() const { return data[1]; }
-    Type z() const { return data[2]; }
+    Type get_x() const { return x; }
+    Type get_y() const { return y; }
+    Type get_z() const { return z; }
 
     vec3(const vec3<Type> &c) {
-        data[0] = c.data[0];
-        data[1] = c.data[1];
-        data[2] = c.data[2];
+        x = c.x;
+        y = c.y;
+        z = c.z;
     };
 
+    template<class T>
+    operator vec3<T> () {
+        return vec3<T>(x, y, z);
+    }
+
+
     vec3 operator+(const vec3 &v)  const {
-        return vec3(x() + v.x(), y() + v.y(), z() + v.z());
+        return vec3(x + v.get_x(), y + v.get_y(), z + v.get_z());
     };
     vec3 operator-(const vec3 &v)  const {
-        return vec3(x() - v.x(), y() - v.y(), z() - v.z());
+        return vec3(x - v.get_x(), y - v.get_y(), z - v.get_z());
+    };
+
+    //by components
+    vec3 operator*(const vec3 &v)  const {
+        return vec3(x * v.get_x(), y * v.get_y(), z * v.get_z());
+    };
+    //by components
+    vec3 operator/(const vec3 &v)  const {
+        return vec3(x / v.get_x(), y / v.get_y(), z / v.get_z());
+    };
+    //by components
+    vec3 operator%(const vec3 &v)  const {
+        return vec3(x % v.get_x(), y % v.get_y(), z % v.get_z());
     };
     vec3& operator+=(const vec3 &v) {
-        data[0] += v.x();
-        data[1] += v.y();
-        data[2] += v.z();
+        x += v.get_x();
+        y += v.get_y();
+        z += v.get_z();
         return *this;
     };
     vec3& operator-=(const vec3 &v) {
-        data[0] -= v.x();
-        data[1] -= v.y();
-        data[2] -= v.z();
+        x -= v.get_x();
+        y -= v.get_y();
+        z -= v.get_z();
         return *this;
     };
     vec3& operator*=(const Type c) {
-        data[0] *= c;
-        data[1] *= c;
-        data[2] *= c;
+        x *= c;
+        y *= c;
+        z *= c;
         return *this;
     };
 
     friend vec3<MyComplex> operator* (MyComplex b, vec3<MyComplex> v);
     vec3<MyComplex> operator* (MyComplex b) const {
-        return vec3<MyComplex>(x()*b, y()*b, z()*b);
+        return vec3<MyComplex>(x*b, y*b, z*b);
     };
     vec3 operator* (double b) const {
-        return vec3(x()*b, y()*b, z()*b);
+        return vec3(x*b, y*b, z*b);
+    };
+    vec3 operator* (int b) const {
+        return vec3(x*b, y*b, z*b);
     };
     friend vec3 operator* (double b, vec3 v) {
+        return v*b;
+    };
+    friend vec3 operator* (int b, vec3 v) {
         return v*b;
     };
 
 
     friend bool operator==(const vec3& a, const vec3& b)  
     {
-        return ((a.x() == b.x()) && (a.y() == b.y()) && (a.z() == b.z()));
+        return ((a.get_x() == b.get_x()) && (a.get_y() == b.get_y()) && (a.get_z() == b.get_z()));
     };
     friend bool operator!=(const vec3& a, const vec3& b) {
         return !(a == b);
@@ -84,16 +124,16 @@ struct vec3
 
 	double getNorm()  const
 	{
-		return sqrt(absSquare(x())+ absSquare(y())+ absSquare(z()));
+		return sqrt(absSquare(x)+ absSquare(y)+ absSquare(z));
 	};
     static Type ScalarProduct(const vec3& a, const vec3& b) {
-        return (a.data[0] * b.data[0] + a.data[1] * b.data[1] + a.data[2] * b.data[2]);
+        return (a.x * b.x + a.y * b.y + a.z * b.z);
     };
     static vec3 VectorProduct(const vec3& a, const vec3& b) {
         Type c1, c2, c3;
-        c1 = a.data[1] * b.data[2] - a.data[2] * b.data[1];
-        c2 = a.data[2] * b.data[0] - a.data[0] * b.data[2];
-        c3 = a.data[0] * b.data[1] - a.data[1] * b.data[0];
+        c1 = a.y * b.z - a.z * b.y;
+        c2 = a.z * b.x - a.x * b.z;
+        c3 = a.x * b.y - a.y * b.x;
         return vec3(c1, c2, c3);
     };
     vec3 Normalize() {
@@ -101,6 +141,17 @@ struct vec3
         (*this)=(*this)*(1.0/getNorm());
         return *this;
     };
+
+    friend std::ostream& operator<<(std::ostream& ost, vec3& vec) {
+        ost << std::to_string(vec);
+        return ost;
+    }
+
+    friend std::string to_string(vec3<Type>& vec) {
+        std::string str="("+ std::to_string(vec.x) + "," + std::to_string(vec.y) + "," +
+            std::to_string(vec.z) + ")";
+        return str;
+    }
 };
 
 

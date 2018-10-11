@@ -3,93 +3,131 @@
 #include "file_writer.h"
 #include "operations_with_arrays.h"
 
-void MPIWorker::setLeftGuardStart(int guardWidth, Grid3d & gr)
-{
-    if (rank == 0)
-        leftGuardStart = gr.gnxRealCells() - guardWidth;
-    else leftGuardStart = getMainDomainStart() - guardWidth;
-}
-
-void MPIWorker::setRightGuardStart(int guardWidth, Grid3d & gr)
-{
-    rightGuardStart = getMainDomainEnd();
-}
-
 void MPIWorker::CreateGrid(Grid3d & gr)
 {
-    double a = getLeftGuardStart()*gr.gdx(), b = gr.gdx()*getFullDomainSize() + a;
-    grid = Grid3d(getFullDomainSize(), gr.gnyRealCells(), gr.gnzRealCells(), a, b, gr.gay(), gr.gby(), gr.gaz(), gr.gbz());
-    for (int i = 0; i <= getFullDomainSize(); i++)
-        for (int j = 0; j < gr.gnyRealNodes(); j++)
-            for (int k = 0; k < gr.gnzRealNodes(); k++)
-                grid(i, j, k) = gr(mod(i + getMainDomainStart() - getGuardSize(), gr.gnxRealCells()), j, k);
+    vec3<double> a = 0, b = gr.gd()*getFullDomainSize() + a;
+    grid = Grid3d(getFullDomainSize(), a, b);
+    for (int i = 0; i <= getFullDomainSize().x; i++)
+        for (int j = 0; j <= getFullDomainSize().y; j++)
+            for (int k = 0; k <= getFullDomainSize().z; k++)
+                grid(i, j, k) = gr(mod(vec3<int>(i, j, k) + getMainDomainStart() - getGuardSize(), gr.gnRealCells()));
     ApplyMask();
     FourierTransformation(gr, RtoC);
 }
 
-void MPIWorker::Initialize(Grid3d & gr, int guardWidth, Mask _mask, int _maskWidth, int _size, int _rank) {
-    rank = _rank;
-    size = _size;
-    domainSize = gr.gnxRealCells() / size - 1; //делится нацело
-    domainStart = (domainSize + 1)*rank;
-    guardSize = guardWidth;
-    setLeftGuardStart(guardSize, gr);
-    setRightGuardStart(guardSize, gr);
+int MPIWorker::Init(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _maskWidth) {
+    if (checkAndSetParams(gr, guardWidth) == 1)
+        return 1;
     mask = _mask;
     maskWidth = _maskWidth;
     CreateGrid(gr);
+    return 0;
 }
 
-void MPIWorker::Initialize(Grid3d & gr, int guardWidth, Mask mask, int maskWidth) {
-    Initialize(gr, guardWidth, mask, maskWidth, MPIWrapper::MPISize(), MPIWrapper::MPIRank());
+int MPIWorker::Initialize(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _maskWidth, int _size, int _rank) {
+    MPIWrapper3d _mpiWrapper3d;
+    _mpiWrapper3d.SetSize(_size, 1, 1);
+    size = vec3<int>(_size, 1, 1);
+    rank = _mpiWrapper3d.getVecRank(_rank);
+    mpiWrapper3d = _mpiWrapper3d;
+    return Init(gr, guardWidth, _mask, _maskWidth);
 }
 
-void MPIWorker::Send(int n1, int n2, double*& arr, int dest, int tag, Grid3d& grFrom, MPI_Request& request)
+int MPIWorker::Initialize(Grid3d & gr, vec3<int> _guardWidth, Mask _mask, int _maskWidth, MPIWrapper3d& _mpiWrapper3d) {
+    setMPIWrapper3d(mpiWrapper3d);
+    size = mpiWrapper3d.MPISize();
+    rank = mpiWrapper3d.MPIRank();
+    return Init(gr, _guardWidth, _mask, _maskWidth);
+}
+
+int MPIWorker::Send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, Grid3d& grFrom, MPI_Request& request)
 {
+    if (n1.x > n2.x || n1.y > n2.y || n1.z > n2.z) return 1;
     arr = new double[getPackSize(n1, n2)];
     PackData(n1, n2, arr, grFrom);
-    MPIWrapper::MPIISend(arr, getPackSize(n1, n2), dest, tag, request);
+    mpiWrapper3d.MPIISend(arr, getPackSize(n1, n2), dest, tag, request);
+    return 0;
 }
 
-void MPIWorker::Recv(int n1, int n2, int source, int tag, Grid3d& grTo)
+int MPIWorker::Recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Grid3d& grTo)
 {
+    if (n1.x > n2.x || n1.y > n2.y || n1.z > n2.z) return 1;
     double* arr = new double[getPackSize(n1, n2)];
-    MPIWrapper::MPIRecv(arr, getPackSize(n1, n2), source, tag);
+    mpiWrapper3d.MPIRecv(arr, getPackSize(n1, n2), source, tag);
     UnPackData(n1, n2, arr, grTo);
     if (arr) delete[] arr;
+    return 0;
+}
+
+// неблокирующий send
+void MPIWorker::ExchangeSend(double** arrS, MPI_Request* request) {
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            for (int k = 0; k < 3; k++) {
+                if (i == 1 && j == 1 && k == 1) continue;
+                else {
+                    vec3<int> n1 = getN1Send(i, j, k);
+                    vec3<int> n2 = getN2Send(i, j, k);
+                    vec3<int> dim = getDim(i, j, k);
+                    vec3<int> dest = mod(rank + dim, size);
+                    if (dest != rank) {
+                        Send(n1, n2, arrS[getNum(i, j, k)], dest, mpiWrapper3d.getTag(dim), grid, request[getNum(i, j, k)]);
+                            /*MPIWorker::ShowMessage("rank=" + to_string(rank) + " send to " + to_string(dest) +
+                                " from " + to_string(n1) + " to " + to_string(n2) + " tag is " +
+                                std::to_string(mpiWrapper3d.getTag(dim)));*/
+                    }
+                }
+            }
+}
+
+// блокирующий recv
+void MPIWorker::ExchangeRecv() {
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            for (int k = 0; k < 3; k++) {
+                if (i == 1 && j == 1 && k == 1) continue;
+                else {
+                    vec3<int> n1 = getN1Recv(i, j, k);
+                    vec3<int> n2 = getN2Recv(i, j, k);
+                    vec3<int> dim = getDim(i, j, k);
+                    vec3<int> source = mod(rank + dim, size);
+                    if (source != rank) {
+                        Recv(n1, n2, source, mpiWrapper3d.getTag(-1 * dim), grid);
+                            /*MPIWorker::ShowMessage("rank=" + to_string(rank) + " recv from " + to_string(source) +
+                                " from " + to_string(n1) + " to " + to_string(n2) + " tag is " +
+                                std::to_string(mpiWrapper3d.getTag(-1 * dim)));*/
+                    }
+                }
+            }
+}
+
+// ждем отправки
+void MPIWorker::ExchangeWait(MPI_Request* request) {
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            for (int k = 0; k < 3; k++) {
+                if (i == 1 && j == 1 && k == 1) continue;
+                else if (request[getNum(i, j, k)] != 0)
+                    MPIWrapper::MPIWait(request[getNum(i, j, k)]);
+            }
 }
 
 void MPIWorker::ExchangeGuard()
 {
-    double* arrS1 = 0, *arrS2 = 0;
-    MPI_Request request1, request2;
+    const int N = 3 * 3 * 3;
+    double* arrS[N] = { 0 };
+    MPI_Request request[N] = { 0 };
 
-    int sl1 = 0, sl2 = 2 * getGuardSize() - 1;
-    int sr1 = getMainDomainSize() + 1, sr2 = getFullDomainSize();
-    int rr1 = getMainDomainSize() + 1, rr2 = getFullDomainSize();
-    int rl1 = 0, rl2 = 2 * getGuardSize() - 1;
-
-    // неблокирующий send и блокирующий recv
-    //MPIWorker::ShowMessage("send left from " + std::to_string(sl1) + " to " + std::to_string(sl2));
-    Send(sl1, sl2, arrS1, mod(rank - 1, size), 0, grid, request1);
-
-    //MPIWorker::ShowMessage("send right from " + std::to_string(sr1) + " to " + std::to_string(sr2));
-    Send(sr1, sr2, arrS2, mod(rank + 1, size), 1, grid, request2);
-
-    //MPIWorker::ShowMessage("recv right from " + std::to_string(rr1) + " to " + std::to_string(rr2));
-    Recv(rr1, rr2, mod(rank + 1, size), 0, grid);
-
-    //MPIWorker::ShowMessage("recv left from " + std::to_string(rl1) + " to " + std::to_string(rl2));
-    Recv(rl1, rl2, mod(rank - 1, size), 1, grid);
-
-    // ждем отправки
-    MPIWrapper::MPIWait(request1);
-    MPIWrapper::MPIWait(request2);
+    ExchangeSend(arrS, request);
+    ExchangeRecv();
+    ExchangeWait(request);
 
     // можно удалить массивы, которые отправляли
     //MPIWorker::ShowMessage("delete arrays");
-    if (arrS1) delete[] arrS1;
-    if (arrS2) delete[] arrS2;
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            for (int k = 0; k < 3; k++)
+                if (arrS[getNum(i, j, k)]) delete[] arrS[getNum(i, j, k)];
 
     if (nameFileAfterExchange != "") {
         //MPIWorker::ShowMessage("writing to file after exchange");
@@ -97,32 +135,20 @@ void MPIWorker::ExchangeGuard()
     }
 }
 
+
 void MPIWorker::ApplyMask() {
     for (int i=0; i<=grid.gnxRealCells(); i++)
         for (int j = 0; j <= grid.gnyRealCells(); j++)
             for (int k = 0; k <= grid.gnzRealCells(); k++) {
-                grid(i, j, k).E *= mask(i, getMainDomainSize(), getGuardSize(), maskWidth);
-                grid(i, j, k).B *= mask(i, getMainDomainSize(), getGuardSize(), maskWidth);
-                grid(i, j, k).J *= mask(i, getMainDomainSize(), getGuardSize(), maskWidth);
+                grid(i, j, k).E *= mask(vec3<int>(i, j,k), getMainDomainSize(), getGuardSize(), maskWidth);
+                grid(i, j, k).B *= mask(vec3<int>(i, j, k), getMainDomainSize(), getGuardSize(), maskWidth);
+                grid(i, j, k).J *= mask(vec3<int>(i, j, k), getMainDomainSize(), getGuardSize(), maskWidth);
             }
 }
 
-void MPIWorker::SetToZerosQuard()
+void MPIWorker::SendToOneProcess(vec3<int> dest)
 {
-    for (int i = 0; i < getGuardSize(); i++)
-        for (int j = 0; j < grid.gnyRealNodes(); j++)
-            for (int k = 0; k < grid.gnzRealNodes(); k++)
-                grid(i, j, k) = Node();
-
-    for (int i = getGuardSize() + getMainDomainSize() + 1; i <= getFullDomainSize(); i++)
-        for (int j = 0; j < grid.gnyRealNodes(); j++)
-            for (int k = 0; k < grid.gnzRealNodes(); k++)
-                grid(i, j, k) = Node();
-}
-
-void MPIWorker::SendToOneProcess(int dest)
-{
-    double* arrS;
+    double* arrS=0;
     MPI_Request request;
     Send(getGuardSize(), getGuardSize() + getMainDomainSize(), arrS, dest, 2, grid, request);
     MPIWrapper::MPIWait(request);
@@ -131,51 +157,55 @@ void MPIWorker::SendToOneProcess(int dest)
 
 void MPIWorker::RecvFromAllProcesses(Grid3d& gr)
 {
-    gr = Grid3d(gr.gnxRealCells(), gr.gnyRealCells(), gr.gnzRealCells(), 
-        gr.gax(), gr.gbx(), gr.gay(), gr.gby(), gr.gaz(), gr.gbz());
+    gr = Grid3d(gr.gnRealCells(), gr.ga(), gr.gb());
 
-    for (int i = 0; i <= getMainDomainSize(); i++)
-        for (int j = 0; j <= gr.gnyRealCells(); j++)
-            for (int k = 0; k <= gr.gnzRealCells(); k++)
-                gr(i, j, k) = grid(i + getGuardSize(), j, k);
+    for (int i = 0; i <= getMainDomainSize().x; i++)
+        for (int j = 0; j <= getMainDomainSize().y; j++)
+            for (int k = 0; k <= getMainDomainSize().z; k++)
+                gr(i, j, k) = grid(vec3<int>(i, j, k) + getGuardSize());
 
-    for (int r = 1; r < MPIWrapper::MPISize(); r++) 
-        Recv(r*(getMainDomainSize()+1), (r+1)*(getMainDomainSize()+1) - 1, r, 2, gr);
+    for (int i = 0; i < size.x; i++)
+        for (int j = 0; j < size.y; j++)
+            for (int k = 0; k < size.z; k++) {
+                if (i ==0 && j ==0 && k == 0) continue;
+                vec3<int> r(i, j, k);
+                Recv(r*(getMainDomainSize() + 1), (r + 1)*(getMainDomainSize() + 1) - 1, r, 2, gr);
+            }
 }
 
 void MPIWorker::AssembleResultsToZeroProcess(Grid3d& gr)
 {
-    if (MPIWrapper::MPIRank() != 0)
+    if (mpiWrapper3d.MPIRank() != 0)
         SendToOneProcess(0);
-    if (MPIWrapper::MPIRank() == 0) {
+    if (mpiWrapper3d.MPIRank() == 0) {
         RecvFromAllProcesses(gr);
         OperationWithArrays::CopyLastNodesFromFirst(gr);
     }
 }
 
-int MPIWorker::getPackSize(int n1, int n2)
+int MPIWorker::getPackSize(vec3<int> n1, vec3<int> n2)
 {
-    return n*d*(n2 - n1 + 1)*grid.gnyRealNodes()*grid.gnzRealNodes();
+    return n*d*(n2.x - n1.x + 1)*(n2.y - n1.y + 1)*(n2.z - n1.z + 1);
 }
 
-void MPIWorker::PackData(int n1, int n2, double *& arr, Grid3d& grFrom)
+void MPIWorker::PackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grFrom)
 {
     int num = 0;
-    for (int i = n1; i <= n2; i++)
-        for (int j = 0; j < grFrom.gnyRealNodes(); j++)
-            for (int k = 0; k < grFrom.gnzRealNodes(); k++)
+    for (int i = n1.x; i <= n2.x; i++)
+        for (int j = n1.y; j <= n2.y; j++)
+            for (int k = n1.z; k <= n2.z; k++)
                 for (int coord = 0; coord < 3; coord++) {
                     arr[num++] = grFrom(i, j, k).E[coord];
                     arr[num++] = grFrom(i, j, k).B[coord];
                 }
 }
 
-void MPIWorker::UnPackData(int n1, int n2, double *& arr, Grid3d& grTo)
+void MPIWorker::UnPackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo)
 {
     int num = 0;
-    for (int i = n1; i <= n2; i++)
-        for (int j = 0; j < grTo.gnyRealNodes(); j++)
-            for (int k = 0; k < grTo.gnzRealNodes(); k++)
+    for (int i = n1.x; i <= n2.x; i++)
+        for (int j = n1.y; j <= n2.y; j++)
+            for (int k = n1.z; k <= n2.z; k++)
                 for (int coord = 0; coord < 3; coord++) { 
                     grTo(i, j, k).E[coord] += arr[num++];
                     grTo(i, j, k).B[coord] += arr[num++];

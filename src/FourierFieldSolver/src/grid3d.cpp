@@ -4,13 +4,17 @@ Grid3d::Grid3d():nodes(){}
 
 Grid3d::Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz)
 {
-    Initialize(_nx, _ny, _nz, _ax, _bx, _ay, _by, _az, _bz);
+    Initialize(vec3<int>(_nx, _ny, _nz), vec3<double>(_ax, _ay, _az), vec3<double>(_bx, _by, _bz));
 }
 Grid3d::Grid3d(const Grid3d& gr)
 {
-    Initialize(gr.nx, gr.ny, gr.nz, gr.ax, gr.bx, gr.ay, gr.by, gr.az, gr.bz);
+    Initialize(gr.n, gr.a, gr.b);
 
     nodes = gr.nodes;
+}
+Grid3d::Grid3d(vec3<int> n, vec3<double> a, vec3<double> b)
+{
+    Initialize(n, a, b);
 }
 void Grid3d::clearGrid()
 {
@@ -23,115 +27,143 @@ Grid3d::~Grid3d()
 }
 
 
-void Grid3d::Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz)
+void Grid3d::Initialize(vec3<int> _n, vec3<double> _a, vec3<double> _b)
 {
     clearGrid();
 
-    nx = _nx; ny = _ny; nz = _nz; ax = _ax; ay = _ay; az = _az; bx = _bx; by = _by; bz = _bz;
+    n = _n; a = _a; b = _b;
 
-    dx = (bx - ax) / nx;
-    dy = (by - ay) / ny;
-    dz = (bz - az) / nz;
+    d = (b - a) / n;
 
-	nodes.Initialize(nx + 1, ny + 1, nz + 1);
+    nodes.Initialize(n.x + 1, n.y + 1, n.z + 1);
 }
 
 int Grid3d::operator==(const Grid3d& gr) {
-    if (ax != gr.ax) return 0;
-    if (ay != gr.ay) return 0;
-    if (az != gr.az) return 0;
-    if (bx != gr.bx) return 0;
-    if (by != gr.by) return 0;
-    if (bz != gr.bz) return 0;
+    if (a.x != gr.a.x) return 0;
+    if (a.y != gr.a.y) return 0;
+    if (a.z != gr.a.z) return 0;
+    if (b.x != gr.b.x) return 0;
+    if (b.y != gr.b.y) return 0;
+    if (b.z != gr.b.z) return 0;
 
     return nodes == gr.nodes;
 }
 
 Grid3d& Grid3d::operator=(const Grid3d & gr)
 {
-    Initialize(gr.nx, gr.ny, gr.nz, gr.ax, gr.bx, gr.ay, gr.by, gr.az, gr.bz);
+    Initialize(gr.n, gr.a, gr.b);
     nodes = gr.nodes;
     return *this;
 }
 
 int Grid3d::gnxRealCells() const
 {
-    return nx;
+    return n.x;
 }
 int Grid3d::gnyRealCells() const
 {
-    return ny;
+    return n.y;
 }
 int Grid3d::gnzRealCells() const
 {
-    return nz;
+    return n.z;
+}
+
+vec3<int> Grid3d::gnRealCells() const
+{
+    return n;
 }
 
 int Grid3d::gnxComplexCells() const
 {
-    return nx;
+    return n.x;
 }
 
 int Grid3d::gnyComplexCells() const
 {
-    return ny;
+    return n.y;
 }
 
 int Grid3d::gnzComplexCells() const
 {
-    return nz/2+1;
+    return n.z/2+1;
+}
+
+vec3<int> Grid3d::gnComplexCells() const
+{
+    return vec3<int>(gnxComplexCells(), gnyComplexCells(), gnzComplexCells());
 }
 
 int Grid3d::gnxRealNodes() const
 {
-    return nx + 1;
+    return n.x + 1;
 }
 int Grid3d::gnyRealNodes() const
 {
-    return ny + 1;
+    return n.y + 1;
 }
 int Grid3d::gnzRealNodes() const
 {
-    return nz + 1;
+    return n.z + 1;
+}
+
+vec3<int> Grid3d::gnRealNodes() const
+{
+    return vec3<int>(gnxRealNodes(), gnyRealNodes(), gnzRealNodes());
 }
 
 
 double Grid3d::gdx() const
 {
-    return dx;
+    return d.x;
 }
 double Grid3d::gdy() const
 {
-    return dy;
+    return d.y;
 }
 double Grid3d::gdz() const
 {
-    return dz;
+    return d.z;
+}
+
+vec3<double> Grid3d::gd() const
+{
+    return d;
 }
 
 double Grid3d::gax() const
 {
-    return ax;
+    return a.x;
 }
 double Grid3d::gay() const
 {
-    return ay;
+    return a.y;
 }
 double Grid3d::gaz() const
 {
-    return az;
+    return a.z;
+}
+
+vec3<double> Grid3d::ga() const
+{
+    return a;
 }
 
 double Grid3d::gbx() const
 {
-    return bx;
+    return b.x;
 }
 double Grid3d::gby() const
 {
-    return by;
+    return b.y;
 }
 double Grid3d::gbz() const
 {
-    return bz;
+    return b.z;
+}
+
+vec3<double> Grid3d::gb() const
+{
+    return b;
 }
 

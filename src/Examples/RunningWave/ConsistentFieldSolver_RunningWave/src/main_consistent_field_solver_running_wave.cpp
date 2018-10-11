@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     RunningWave runningWave;
     ParserRunningWave parser;
     ParametersForRunningWave params;
-    int status = parser.parseArgs(argc, argv, params);
+    int status = parser.parseArgsForConsistent(argc, argv, params);
     if (status != 0) return 0;
     params.nParSteps = 0;
     params.print();

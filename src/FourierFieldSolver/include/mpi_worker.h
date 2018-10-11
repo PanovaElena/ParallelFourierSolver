@@ -1,5 +1,5 @@
 #pragma once
-#include "mpi_wrapper.h"
+#include "mpi_wrapper_3d.h"
 #include "grid3d.h"
 #include <string>
 #include "file_writer.h"
@@ -7,14 +7,16 @@
 
 class MPIWorker {
 protected:
+    MPIWrapper3d mpiWrapper3d;
+
     const int n = 2, d = 3; //2 вектора (B, E) из 3 компонент
-    int rank;
-    int size;
-    int domainSize;
-    int guardSize;
-    int domainStart;
-    int leftGuardStart;
-    int rightGuardStart;
+    vec3<int> rank;
+    vec3<int> size;
+    vec3<int> domainSize;
+    vec3<int> guardSize;
+    vec3<int> domainStart;
+    vec3<int> leftGuardStart;
+    vec3<int> rightGuardStart;
 
     Mask mask;
     int maskWidth;
@@ -26,55 +28,62 @@ protected:
 
 public:
     MPIWorker() {}
-    MPIWorker(Grid3d& gr, int guardWidth, Mask mask, int maskWidth) {
-        Initialize(gr, guardWidth, mask, maskWidth);
+    MPIWorker(Grid3d& gr, vec3<int> guardWidth, Mask mask, int maskWidth, MPIWrapper3d& _mpiWrapper3d) {
+        Initialize(gr, guardWidth, mask, maskWidth, _mpiWrapper3d);
     }
 
     //для последовательного запуска
-    MPIWorker(Grid3d& gr, int guardWidth, Mask mask, int maskWidth, int _size, int _rank) {
+    MPIWorker(Grid3d& gr, vec3<int> guardWidth, Mask mask, int maskWidth, int _size, int _rank) {
         Initialize(gr, guardWidth, mask, maskWidth, _size, _rank);
     }
 
-    void Initialize(Grid3d & gr, int guardWidth, Mask mask, int maskWidth, int _size, int _rank);
-    void Initialize(Grid3d & gr, int guardWidth, Mask mask, int maskWidth);
+    int Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, int maskWidth, int _size, int _rank);
+    int Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, int maskWidth, MPIWrapper3d& _mpiWrapper3d);
 
-    int getMainDomainStart() {
+    void setMPIWrapper3d(MPIWrapper3d& _mpiWrapper) {
+        mpiWrapper3d = _mpiWrapper;
+    }
+    MPIWrapper3d& getMPIWrapper() {
+        return mpiWrapper3d;
+    }
+
+    vec3<int> getMainDomainStart() {
         return domainStart;
     }
-    int getFullDomainStart() {
+    vec3<int> getFullDomainStart() {
         return leftGuardStart;
     }
-    int getMainDomainEnd() {
+    vec3<int> getMainDomainEnd() {
         return domainStart + domainSize;
     }
-    int getFullDomainEnd() {
+    vec3<int> getFullDomainEnd() {
         return rightGuardStart + guardSize;
     }
-    int getLeftGuardStart() {
+    vec3<int> getLeftGuardStart() {
         return leftGuardStart;
     }
-    int getLeftGuardEnd() {
+    vec3<int> getLeftGuardEnd() {
         return leftGuardStart + guardSize;
     }
-    int getRightGuardStart() {
+    vec3<int> getRightGuardStart() {
         return rightGuardStart;
     }
-    int getRightGuardEnd() {
+    vec3<int> getRightGuardEnd() {
         return rightGuardStart + guardSize;
     }
-    int getFullDomainSize() {
+    vec3<int> getFullDomainSize() {
         return 2 * guardSize + domainSize;
     }
-    int getMainDomainSize() {
+    vec3<int> getMainDomainSize() {
         return domainSize;
     }
-    int getGuardSize() {
+    vec3<int> getGuardSize() {
         return guardSize;
     }
-    int getSize() { 
+    vec3<int> getSize() { 
         return size; 
     }
-    int getRank() {
+    vec3<int> getRank() {
         return rank;
     }
     Grid3d& getGrid() {
@@ -97,25 +106,139 @@ public:
     }
 
 private:
-    int mod(int a, int b) {
+    vec3<int> mod(vec3<int> a, vec3<int> b) {
         return ((a + b) % b);
     }
 
-    void setLeftGuardStart(int guardWidth, Grid3d& gr);
+    int Init(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _maskWidth);
 
-    void setRightGuardStart(int guardWidth, Grid3d& gr);
+    //чтобы не было доменов нулевого размера
+    int checkAndSetParams(Grid3d& gr, vec3<int> _guardSize) {
+        if (setCheckGuardSizeAndDomainStart(gr) == 1)
+            return 1;
+        setGuardSize(_guardSize);
+        setLeftGuardStart(guardSize, gr);
+        setRightGuardStart(guardSize, gr);
+        return 0;
+    }
+    int setCheckGuardSizeAndDomainStart(Grid3d& gr) {
+        if (gr.gnRealCells().x < size.x || gr.gnRealCells().y < size.y || gr.gnRealCells().z < size.z) {
+            ShowMessage("ERROR: domain size is less than MPISize");
+            return 1;
+        }
+        domainSize = gr.gnRealCells() / size - 1; //делится нацело
+        domainStart = (domainSize + 1)*rank;
+        if (domainSize.x == 0) {
+            if (size.x == 1)
+                domainSize.x = 1;
+            else {
+                ShowMessage("ERROR: domain size x is 0");
+                return 1;
+            }
+        }
+        if (domainSize.y == 0) {
+            if (size.y == 1)
+                domainSize.y = 1;
+            else {
+                ShowMessage("ERROR: domain size y is 0");
+                return 1;
+            }
+        }
+        if (domainSize.z == 0) {
+            if (size.z == 1)
+                domainSize.z = 1;
+            else {
+                ShowMessage("ERROR: domain size z is 0");
+                return 1;
+            }
+        }
+        return 0;
+    }
+    void setGuardSize(vec3<int> _guardSize) {
+        guardSize = _guardSize;
+        if (domainSize.x <= _guardSize.x) guardSize.x = domainSize.x - 1;
+        if (domainSize.y <= _guardSize.y) guardSize.y = domainSize.y - 1;
+        if (domainSize.z <= _guardSize.z) guardSize.z = domainSize.z - 1;
+    }
+    void setLeftGuardStart(vec3<int> guardWidth, Grid3d& gr) {
+        leftGuardStart = getMainDomainStart() - guardWidth;
+        if (rank.x == 0)
+            leftGuardStart.x = gr.gnRealCells().x - guardWidth.x;
+        if (rank.y == 0)
+            leftGuardStart.y = gr.gnRealCells().y - guardWidth.y;
+        if (rank.z == 0)
+            leftGuardStart.z = gr.gnRealCells().z - guardWidth.z;
+    }
+    void setRightGuardStart(vec3<int> guardWidth, Grid3d& gr) {
+        rightGuardStart = getMainDomainEnd();
+    }
 
     void CreateGrid(Grid3d& gr);
 
-    void SetToZerosQuard();
-
-    void Send(int n1, int n2, double*& arr, int dest, int tag, Grid3d& grFrom, MPI_Request& request);
-    void Recv(int n1, int n2, int source, int tag, Grid3d& grTo);
-    void SendToOneProcess(int dest);
+    int Send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, Grid3d& grFrom, MPI_Request& request);
+    int Recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Grid3d& grTo);
+    void SendToOneProcess(vec3<int> dest);
     void RecvFromAllProcesses(Grid3d& gr);
 
+    void ExchangeSend(double** arrS, MPI_Request* request);
+    void ExchangeRecv();
+    void ExchangeWait(MPI_Request* request);
+
     //упаковывает вещественные поля части сетки
-    int getPackSize(int n1, int n2);
-    void PackData(int n1, int n2, double *& arr, Grid3d& grFrom);
-    void UnPackData(int n1, int n2, double *& arr, Grid3d& grTo);
+    int getPackSize(vec3<int> n1, vec3<int> n2);
+    void PackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grFrom);
+    void UnPackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo);
+
+    vec3<int> getZero() { return 0; }
+    vec3<int> getSumGuardAndMainDomainSizes() { return getGuardSize()+getMainDomainSize(); }
+    typedef vec3<int>(MPIWorker::*F)();
+    F arrF[4] = { &MPIWorker::getZero, &MPIWorker::getGuardSize,
+        &MPIWorker::getSumGuardAndMainDomainSizes, &MPIWorker::getFullDomainSize };
+
+    //возвращает смещение, необходимое для получения домена, которого касается область
+    vec3<int> getDim(int i, int j, int k) {
+        int x = i == 0 ? -1 : (i == 2 ? 1 : 0);
+        int y = j == 0 ? -1 : (j == 2 ? 1 : 0);
+        int z = k == 0 ? -1 : (k == 2 ? 1 : 0);
+        return vec3<int>(x, y, z);
+    }
+
+    int getNum(int i, int j, int k) {
+        return (i * 3 + j) * 3 + k;
+    }
+
+    vec3<int> getN1Send(int i, int j, int k) {
+        vec3<int> dim = getDim(i, j, k);
+        vec3<int> n1((this->*arrF[i])().x, (this->*arrF[j])().y, (this->*arrF[k])().z);
+        if (dim.x == 1) n1.x += 1;
+        if (dim.y == 1) n1.y += 1;
+        if (dim.z == 1) n1.z += 1;
+        return n1;
+    }
+    vec3<int> getN2Send(int i, int j, int k) {
+        vec3<int> dim = getDim(i, j, k);
+        vec3<int> n2((this->*arrF[i + 1])().x, (this->*arrF[j + 1])().y, (this->*arrF[k + 1])().z);
+        if (dim.x == -1) n2.x += -1;
+        if (dim.y == -1) n2.y += -1;
+        if (dim.z == -1) n2.z += -1;
+        return n2;
+    }
+    vec3<int> getN1Recv(int i, int j, int k) {
+        vec3<int> dim = getDim(i, j, k);
+        vec3<int> n1((this->*arrF[i])().x, (this->*arrF[j])().y, (this->*arrF[k])().z);
+        n1 = n1 - dim*guardSize;
+        if (dim.x == 1) n1.x += 1;
+        if (dim.y == 1) n1.y += 1;
+        if (dim.z == 1) n1.z += 1;
+        return n1;
+    }
+    vec3<int> getN2Recv(int i, int j, int k) {
+        vec3<int> dim = getDim(i, j, k);
+        vec3<int> n2((this->*arrF[i + 1])().x, (this->*arrF[j + 1])().y, (this->*arrF[k + 1])().z);
+        n2 = n2 - dim*guardSize;
+        if (dim.x == -1) n2.x += -1;
+        if (dim.y == -1) n2.y += -1;
+        if (dim.z == -1) n2.z += -1;
+        return n2;
+    }
 };

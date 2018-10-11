@@ -4,6 +4,8 @@
 #include <fstream>
 #include "file_writer.h"
 #include "simple_types_and_constants.h"
+#include <algorithm>
+#include <limits>
 
 void WriteFile(Grid3d& gr, int iter, int rank, FileWriter& fileWriter) {
     FourierTransformation(gr, CtoR);
@@ -23,13 +25,22 @@ void FieldSolverParallelInnerCircle(MPIWorker& worker, FieldSolverType fieldSolv
     worker.ExchangeGuard();
 }
 
-double round(double x, int signAfterDot) {
-    return ((int)(x*pow(10, signAfterDot) + 0.5)) / pow(10, signAfterDot);
+vec3<double> round(vec3<double> a, int signAfterDot) {
+    double p = pow(10, signAfterDot);
+    return (vec3<double>((int)(a.x*p), (int)(a.y*p), (int)(a.z*p)) + 0.5) / p;
+}
+
+int CalcMaxInnerIter(MPIWorker& worker, double dt) {
+    vec3<int> tmpVec = static_cast<vec3<int>>(round(0.75*worker.getGrid().gd()*worker.getGuardSize() / (constants::c*dt), 6));
+    if (tmpVec.x == 0 && worker.getSize().x == 1) tmpVec.x = std::numeric_limits<int>::max();
+    if (tmpVec.y == 0 && worker.getSize().y == 1) tmpVec.y = std::numeric_limits<int>::max();
+    if (tmpVec.z == 0 && worker.getSize().z == 1) tmpVec.z = std::numeric_limits<int>::max();
+    return std::min(tmpVec.x, std::min(tmpVec.y, tmpVec.z));
 }
 
 void FieldSolverParallel(MPIWorker& worker, FieldSolverType fieldSolver, int numIter, double dt,
     int iterWriteFile, FileWriter& fileWriter) {
-    int maxInnerIter = (int) round(0.75*worker.getGuardSize()*worker.getGrid().gdx() / (constants::c*dt), 6);
+    int maxInnerIter = CalcMaxInnerIter(worker, dt);
     int numOuterIter = numIter / maxInnerIter;
     int numRemaindIter = numIter % maxInnerIter;
     if (MPIWrapper::MPIRank() == 0) {

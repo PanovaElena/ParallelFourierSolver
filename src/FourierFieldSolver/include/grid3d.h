@@ -28,20 +28,12 @@ struct Node
 class Grid3d
 {
 private:
-    int nx; //храним число ячеек
-    int ny;
-    int nz;
+    vec3<int> n;
 
-    double ax; //абсцисса начала рабочей области
-    double bx; //абсцисса конца рабочей области
-    double ay; //ордината начала рабочей области
-    double by; //ордината конца рабочей области
-    double az; //аппликата начала рабочей области
-    double bz; //аппликата конца рабочей области
+    vec3<double>a; // начало рабочей области
+    vec3<double>b; // конец рабочей области
 
-    double dx;// dx = x / nx
-    double dy;// dy = y / ny
-    double dz;// dz = z / nz
+    vec3<double> d; // dx = x / nx, dy = y / ny, dz = z / nz
 
     Array3d<Node> nodes;
 
@@ -49,6 +41,7 @@ private:
 public:
 	Grid3d();
 	Grid3d(const Grid3d& gr);
+    Grid3d(vec3<int> n, vec3<double> a, vec3<double> b);
 	Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
 	~Grid3d();
 	//сравнение только по вещественным полям
@@ -56,46 +49,52 @@ public:
 
 	Grid3d& operator=(const Grid3d& grid2);
 
-	void Initialize(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
+	void Initialize(vec3<int> n, vec3<double> _a, vec3<double> b);
 
 	int gnxRealCells() const;//get nx 
 	int gnyRealCells() const;//get ny
 	int gnzRealCells() const;//get nz
+    vec3<int> gnRealCells() const;
 
 	int gnxComplexCells() const;//get nx 
 	int gnyComplexCells() const;//get ny
 	int gnzComplexCells() const;//get nz/2+1
+    vec3<int> gnComplexCells() const;
 
 	int gnxRealNodes() const;//get nx+1
 	int gnyRealNodes() const;//get ny+1
 	int gnzRealNodes() const;//get nz+1
+    vec3<int> gnRealNodes() const;
 
 	double gdx() const; //get dx
 	double gdy() const;//get dy
 	double gdz() const;//get dz
+    vec3<double> gd() const;
 
 	double gax() const; //get ax
 	double gay() const;//get ay
 	double gaz() const;//get az
+    vec3<double> ga() const;
 
 	double gbx() const; //get bx
-	double gby() const;//get by
-	double gbz() const;//get bz
+	double gby() const; //get by
+	double gbz() const; //get bz
+    vec3<double> gb() const;
 
 	Node& operator()(int i, int j, int k) { 
-		if (i > nx || j > ny || k>nz) 
+		if (i > n.get_x() || j > n.get_y() || k>n.get_z()) 
 		{
-			throw "bad index";
+			throw "wrong index";
 		}
 		return nodes(i,j,k); 
 	}
 
 	Node& operator()(vec3<int> ind) {
-		if (ind[0] > nx || ind[1] > ny || ind[2]>nz)
+		if (ind.x > n.get_x() || ind.y > n.get_y() || ind.z>n.get_z())
 		{
-			throw "bad index";
+			throw "wrong index";
 		}
-		return nodes(ind[0],ind[1],ind[2]);
+		return nodes(ind.x,ind.y,ind.z);
 	}
 
 

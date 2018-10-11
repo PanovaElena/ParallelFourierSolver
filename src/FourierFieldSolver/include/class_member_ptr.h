@@ -22,12 +22,12 @@ inline MemberOfNode GetField(Field f) {
 inline MethodCoord GetCoord(Coordinate coord) {
     switch (coord) {
     case x:
-        return &vec3<double>::x;
+        return &vec3<double>::get_x;
     case y:
-        return &vec3<double>::y;
+        return &vec3<double>::get_y;
     case z:
-        return &vec3<double>::z;
+        return &vec3<double>::get_z;
     default:
-        return &vec3<double>::x;
+        return &vec3<double>::get_x;
     }
 }
