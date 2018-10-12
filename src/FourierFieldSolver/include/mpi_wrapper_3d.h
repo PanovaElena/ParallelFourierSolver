@@ -1,15 +1,16 @@
 #pragma once
 #include "mpi_wrapper.h"
 #include "vec.h"
+#include "status.h"
 
 class MPIWrapper3d {
     int sizeX = 1, sizeY = 1, sizeZ = 1;
 public:
-    int CheckAndSetSize(int _sizeX, int _sizeY, int _sizeZ) {
+    Status CheckAndSetSize(int _sizeX, int _sizeY, int _sizeZ) {
         if (_sizeX*_sizeY*_sizeZ != MPIWrapper::MPISize())
-            return 1;
+            return Status::ERROR;
         SetSize(_sizeX, _sizeY, _sizeZ);
-        return 0;
+        return Status::OK;
     }
 
     void SetSize(int _sizeX, int _sizeY, int _sizeZ) {

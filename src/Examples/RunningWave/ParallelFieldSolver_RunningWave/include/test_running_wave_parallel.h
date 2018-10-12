@@ -33,7 +33,7 @@ public:
 
     void DoParallelPart() {
         if (worker.Initialize(runningWave.gr, runningWave.parameters.guard,
-            runningWave.parameters.mask, runningWave.parameters.maskWidth, worker.getMPIWrapper())==1)
+            runningWave.parameters.mask, runningWave.parameters.maskWidth, worker.getMPIWrapper())==Status::Error)
             return;
 
         MPIWorker::ShowMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +

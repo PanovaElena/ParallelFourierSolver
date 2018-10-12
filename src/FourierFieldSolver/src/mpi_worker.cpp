@@ -15,16 +15,16 @@ void MPIWorker::CreateGrid(Grid3d & gr)
     FourierTransformation(gr, RtoC);
 }
 
-int MPIWorker::Init(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _maskWidth) {
-    if (checkAndSetParams(gr, guardWidth) == 1)
-        return 1;
+Status MPIWorker::Init(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _maskWidth) {
+    if (checkAndSetParams(gr, guardWidth) == Status::ERROR)
+        return Status::ERROR;
     mask = _mask;
     maskWidth = _maskWidth;
     CreateGrid(gr);
-    return 0;
+    return Status::OK;
 }
 
-int MPIWorker::Initialize(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _maskWidth, int _size, int _rank) {
+Status MPIWorker::Initialize(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _maskWidth, int _size, int _rank) {
     MPIWrapper3d _mpiWrapper3d;
     _mpiWrapper3d.SetSize(_size, 1, 1);
     size = vec3<int>(_size, 1, 1);
@@ -33,30 +33,30 @@ int MPIWorker::Initialize(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _ma
     return Init(gr, guardWidth, _mask, _maskWidth);
 }
 
-int MPIWorker::Initialize(Grid3d & gr, vec3<int> _guardWidth, Mask _mask, int _maskWidth, MPIWrapper3d& _mpiWrapper3d) {
+Status MPIWorker::Initialize(Grid3d & gr, vec3<int> _guardWidth, Mask _mask, int _maskWidth, MPIWrapper3d& _mpiWrapper3d) {
     setMPIWrapper3d(mpiWrapper3d);
     size = mpiWrapper3d.MPISize();
     rank = mpiWrapper3d.MPIRank();
     return Init(gr, _guardWidth, _mask, _maskWidth);
 }
 
-int MPIWorker::Send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, Grid3d& grFrom, MPI_Request& request)
+Status MPIWorker::Send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, Grid3d& grFrom, MPI_Request& request)
 {
-    if (n1.x > n2.x || n1.y > n2.y || n1.z > n2.z) return 1;
+    if (n1.x > n2.x || n1.y > n2.y || n1.z > n2.z) return Status::STOP;
     arr = new double[getPackSize(n1, n2)];
     PackData(n1, n2, arr, grFrom);
     mpiWrapper3d.MPIISend(arr, getPackSize(n1, n2), dest, tag, request);
-    return 0;
+    return Status::OK;
 }
 
-int MPIWorker::Recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Grid3d& grTo)
+Status MPIWorker::Recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Grid3d& grTo)
 {
-    if (n1.x > n2.x || n1.y > n2.y || n1.z > n2.z) return 1;
+    if (n1.x > n2.x || n1.y > n2.y || n1.z > n2.z) return Status::ERROR;
     double* arr = new double[getPackSize(n1, n2)];
     mpiWrapper3d.MPIRecv(arr, getPackSize(n1, n2), source, tag);
     UnPackData(n1, n2, arr, grTo);
     if (arr) delete[] arr;
-    return 0;
+    return Status::OK;
 }
 
 // неблокирующий send

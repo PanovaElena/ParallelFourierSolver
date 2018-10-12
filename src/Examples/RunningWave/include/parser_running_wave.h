@@ -25,12 +25,12 @@ public:
         if (task == Task::parallel) {
             std::cout <<
                 "--nPar                    set number of parallel steps, less important then \"--nT\" and \"--nIter\", default value is " << p.nParSteps << "\n" <<
-                "--npx, --npy, --npz       set num of domains for every dimension, sqrt3(MPISize)\n";
+                "--npx, --npy, --npz       set num of domains for every dimension, default value is sqrt3(MPISize)\n";
         }
         std::cout << std::endl;
     }
 
-    int saveArgs(ParametersForTest& p, Task task) override {
+    Status saveArgs(ParametersForTest& p, Task task) override {
         ParametersForRunningWave& params = static_cast<ParametersForRunningWave&>(p);
         int npx = mpiWrapper.MPISize().x, npy = mpiWrapper.MPISize().y, npz = mpiWrapper.MPISize().z;
         bool fnT = false, fnIter = false;
@@ -80,6 +80,6 @@ public:
         if (task == Task::parallel) {
             return mpiWrapper.CheckAndSetSize(npx, npy, npz);
         }
-        return 0;
+        return Status::OK;
     }
 };

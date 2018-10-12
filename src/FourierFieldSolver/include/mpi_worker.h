@@ -4,6 +4,7 @@
 #include <string>
 #include "file_writer.h"
 #include "masks.h"
+#include "status.h"
 
 class MPIWorker {
 protected:
@@ -37,8 +38,8 @@ public:
         Initialize(gr, guardWidth, mask, maskWidth, _size, _rank);
     }
 
-    int Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, int maskWidth, int _size, int _rank);
-    int Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, int maskWidth, MPIWrapper3d& _mpiWrapper3d);
+    Status Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, int maskWidth, int _size, int _rank);
+	Status Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, int maskWidth, MPIWrapper3d& _mpiWrapper3d);
 
     void setMPIWrapper3d(MPIWrapper3d& _mpiWrapper) {
         mpiWrapper3d = _mpiWrapper;
@@ -110,21 +111,22 @@ private:
         return ((a + b) % b);
     }
 
-    int Init(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _maskWidth);
+    Status Init(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _maskWidth);
 
     //чтобы не было доменов нулевого размера
-    int checkAndSetParams(Grid3d& gr, vec3<int> _guardSize) {
-        if (setCheckGuardSizeAndDomainStart(gr) == 1)
-            return 1;
-        setGuardSize(_guardSize);
+	Status checkAndSetParams(Grid3d& gr, vec3<int> _guardSize) {
+        if (checkAndSetGuardSizeAndDomainStart(gr) == Status::ERROR)
+            return Status::ERROR;
+        if (setGuardSize(_guardSize)==Status::ERROR)
+			return Status::ERROR;
         setLeftGuardStart(guardSize, gr);
         setRightGuardStart(guardSize, gr);
-        return 0;
+        return Status::OK;
     }
-    int setCheckGuardSizeAndDomainStart(Grid3d& gr) {
+	Status checkAndSetGuardSizeAndDomainStart(Grid3d& gr) {
         if (gr.gnRealCells().x < size.x || gr.gnRealCells().y < size.y || gr.gnRealCells().z < size.z) {
             ShowMessage("ERROR: domain size is less than MPISize");
-            return 1;
+            return Status::ERROR;
         }
         domainSize = gr.gnRealCells() / size - 1; //делится нацело
         domainStart = (domainSize + 1)*rank;
@@ -133,7 +135,7 @@ private:
                 domainSize.x = 1;
             else {
                 ShowMessage("ERROR: domain size x is 0");
-                return 1;
+                return Status::ERROR;
             }
         }
         if (domainSize.y == 0) {
@@ -141,7 +143,7 @@ private:
                 domainSize.y = 1;
             else {
                 ShowMessage("ERROR: domain size y is 0");
-                return 1;
+                return Status::ERROR;
             }
         }
         if (domainSize.z == 0) {
@@ -149,16 +151,19 @@ private:
                 domainSize.z = 1;
             else {
                 ShowMessage("ERROR: domain size z is 0");
-                return 1;
+                return Status::ERROR;
             }
         }
-        return 0;
+        return Status::OK;
     }
-    void setGuardSize(vec3<int> _guardSize) {
+    Status setGuardSize(vec3<int> _guardSize) {
         guardSize = _guardSize;
         if (domainSize.x <= _guardSize.x) guardSize.x = domainSize.x - 1;
         if (domainSize.y <= _guardSize.y) guardSize.y = domainSize.y - 1;
         if (domainSize.z <= _guardSize.z) guardSize.z = domainSize.z - 1;
+		if (domainSize.x == 0 || domainSize.y == 0 || domainSize.z == 0)
+			return Status::ERROR;
+		return Status::OK;
     }
     void setLeftGuardStart(vec3<int> guardWidth, Grid3d& gr) {
         leftGuardStart = getMainDomainStart() - guardWidth;
@@ -175,8 +180,8 @@ private:
 
     void CreateGrid(Grid3d& gr);
 
-    int Send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, Grid3d& grFrom, MPI_Request& request);
-    int Recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Grid3d& grTo);
+    Status Send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, Grid3d& grFrom, MPI_Request& request);
+    Status Recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Grid3d& grTo);
     void SendToOneProcess(vec3<int> dest);
     void RecvFromAllProcesses(Grid3d& gr);
 
