@@ -22,12 +22,12 @@ public:
         if (task == Task::parallel) {
             std::cout <<
                 "--nPar                    set number of parallel steps, default value is " << p.nParSteps << "\n" <<
-                "--npx, --npy, --npz       set num of domains for every dimension, sqrt3(MPISize)\n";
+                "--npx, --npy, --npz       set num of domains for every dimension, default value is sqrt3(MPISize)\n";
         }
         std::cout << std::endl;
     }
 
-    int saveArgs(ParametersForTest& p, Task task) override {
+    Status saveArgs(ParametersForTest& p, Task task) override {
         ParametersForSphericalWave& params = static_cast<ParametersForSphericalWave&>(p);
         int npx = mpiWrapper.MPISize().x, npy = mpiWrapper.MPISize().y, npz = mpiWrapper.MPISize().z;
         for (auto it = m.begin(); it != m.end(); it++) {
@@ -58,7 +58,7 @@ public:
         if (task == Task::parallel) {
             return mpiWrapper.CheckAndSetSize(npx, npy, npz);
         }
-        return 0;
+        return Status::OK;
 
     }
 };
