@@ -43,6 +43,17 @@ endif()
 message(STATUS "MPI: ${MPI_LIBRARIES}")
 include_directories(${MPI_INCLUDE_PATH})
 
+#OpenMP
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+    message(STATUS "OpenMP was found successfully")
+else()
+    message(WARNING "Cannot find OpenMP")
+endif()
+
 # fftw
 if (WIN32)
     set(FFTW_DIR ${CMAKE_SOURCE_DIR}/lib/fftw-3.3.5_windows_x64)
