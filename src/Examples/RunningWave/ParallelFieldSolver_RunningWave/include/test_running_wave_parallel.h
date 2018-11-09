@@ -17,10 +17,11 @@ public:
         worker.SetOutput(runningWave.fileWriter, nameFileAfterExchange);
     }
 
-    TestRunningWaveParallel() : runningWave() {
+    TestRunningWaveParallel(MPIWrapper3d& _mpiWrapper) : runningWave() {
         runningWave.fileWriter.ChangeDir(runningWave.dir+"parallel_results/");
         SetNameFiles();
         worker.SetOutput(runningWave.fileWriter, nameFileAfterExchange);
+        worker.setMPIWrapper3d(_mpiWrapper);
     }
 
     void DoConsistentPart() {
@@ -37,7 +38,7 @@ public:
 
     void DoParallelPart() {
         if (worker.Initialize(runningWave.gr, runningWave.parameters.guard,
-            runningWave.parameters.mask, runningWave.parameters.maskWidth, worker.getMPIWrapper())==Status::Error)
+            runningWave.parameters.mask, runningWave.parameters.maskWidth, worker.getMPIWrapper())==Status::ERROR)
             return;
 
         MPIWorker::ShowMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +

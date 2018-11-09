@@ -16,12 +16,6 @@ public:
         worker.SetOutput(sphericalWave.fileWriter, nameFileAfterExchange);
     }
 
-    TestSphericalWaveParallel() : sphericalWave() {
-        sphericalWave.fileWriter.ChangeDir(sphericalWave.dir + "parallel_results/");
-        SetNameFiles();
-        worker.SetOutput(sphericalWave.fileWriter, nameFileAfterExchange);
-    }
-
     TestSphericalWaveParallel(MPIWrapper3d& _mpiWrapper) : sphericalWave() {
         sphericalWave.fileWriter.ChangeDir(sphericalWave.dir + "parallel_results/");
         SetNameFiles();

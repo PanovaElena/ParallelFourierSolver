@@ -1,3 +1,4 @@
+#include "file_writer.h"
 #include <fstream>
 #include "grid3d.h"
 #include "simple_types_and_constants.h"
@@ -26,7 +27,7 @@ void FileWriter::Write(Grid3d & gr, std::string name, std::string si, std::strin
     for (int k = section.startZ; k <= section.endZ; k++) {
         for (int j = section.startY; j <= section.endY; j++) {
             for (int i = section.startX; i <= section.endX; i++)
-                file << std::setprecision(15)<<(gr(i, j, k).*GetField(field).*GetCoord(coord))() << si;
+                file << std::setprecision(15) << (gr(i, j, k).*GetField(field).*GetCoord(coord))() << si;
             file << sj;
         }
         file << sk;
@@ -50,7 +51,7 @@ void FileWriter::WriteFile2d(Grid3d & gr, std::string name)
     std::string si, sj, sk;
     SetSymb(section.plane1, si, sj, sk);
     Write(gr, name, si, sj, sk);
-} 
+}
 
 void SetCoordUsingLocation(Section::LocationOfPlane loc, int& start, int& end, int n) {
     switch (loc) {
@@ -58,7 +59,7 @@ void SetCoordUsingLocation(Section::LocationOfPlane loc, int& start, int& end, i
         start = end = 0;
         break;
     case Section::center:
-        start = end = n/2;
+        start = end = n / 2;
         break;
     case Section::end:
         start = end = n;
@@ -75,7 +76,7 @@ void Section::SetBorders(Grid3d& gr)
     endY = gr.gnyRealCells();
     endZ = gr.gnzRealCells();
     if (plane1 == Plane::XOY || plane2 == Plane::XOY || plane3 == Plane::XOY) {
-        LocationOfPlane loc = plane1 == Plane::XOY ? loc1 : plane2 == Plane::XOY ? loc2 : plane3 == Plane::XOY? loc3 : LocationOfPlane::noneLocation;
+        LocationOfPlane loc = plane1 == Plane::XOY ? loc1 : plane2 == Plane::XOY ? loc2 : plane3 == Plane::XOY ? loc3 : LocationOfPlane::noneLocation;
         SetCoordUsingLocation(loc, startZ, endZ, gr.gnzRealCells());
     }
     if (plane1 == Plane::XOZ || plane2 == Plane::XOZ || plane3 == Plane::XOZ) {

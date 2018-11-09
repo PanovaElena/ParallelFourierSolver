@@ -24,9 +24,7 @@ public:
         MPI_Status status;
         MPI_Wait(&request, &status);
     }
-    static void MPIInitialize() {
-        int argc;
-        char** argv;
+    static void MPIInitialize(int& argc, char**& argv) {
         MPI_Init(&argc, &argv);
     }
     static void MPIFinalize() {

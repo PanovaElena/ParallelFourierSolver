@@ -5,6 +5,7 @@
 #include "file_writer.h"
 #include "simple_types_and_constants.h"
 #include <limits>
+#include <algorithm>
 
 void WriteFile(Grid3d& gr, int iter, FileWriter& fileWriter) {
     FourierTransformation(gr, CtoR);
@@ -43,10 +44,18 @@ void printInfo(MPIWorker& worker, int numExchanges, int maxIterBetweenExchange, 
     }
 }
 
+int getMaxIterBetweenExchange(MPIWorker& worker, double dt) {
+    const double P = 0.8; // какую часть перекрытия волна должна пройти
+    double gsx = worker.getGuardSize().get_x() == 0 ? std::numeric_limits<double>::max() : worker.getGuardSize().get_x()*worker.getGrid().gdx(),
+        gsy = worker.getGuardSize().get_y() == 0 ? std::numeric_limits<double>::max() : worker.getGuardSize().get_y()*worker.getGrid().gdy(),
+        gsz = worker.getGuardSize().get_z() == 0 ? std::numeric_limits<double>::max() : worker.getGuardSize().get_z()*worker.getGrid().gdz();
+    double gs = std::min(gsx, std::min(gsy, gsz));
+    return (int) myRound(P*gs / (constants::c*dt));
+}
+
 void FieldSolverParallel(MPIWorker& worker, FieldSolver fieldSolver, int numIter, double dt,
     int iterBetweenDumps, FileWriter& fileWriter) {
-    const double P = 0.8; // какую часть перекрытия волна должна пройти
-    int maxIterBetweenExchange = (int) myRound(P*worker.getGuardSize()*worker.getGrid().gdx() / (constants::c*dt));
+    int maxIterBetweenExchange = getMaxIterBetweenExchange(worker, dt);
     int numExchanges = numIter / maxIterBetweenExchange;
     int numIterBeforeLastExchange = numIter % maxIterBetweenExchange;
     printInfo(worker, numExchanges, maxIterBetweenExchange, numIterBeforeLastExchange);

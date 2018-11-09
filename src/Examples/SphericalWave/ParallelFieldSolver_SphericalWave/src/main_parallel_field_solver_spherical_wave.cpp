@@ -7,7 +7,7 @@
 #include "status.h"
 
 int main(int argc, char** argv) {
-    MPIWrapper::MPIInitialize();
+    MPIWrapper::MPIInitialize(argc, argv);
     MPIWrapper3d mpiWrapper;
     ParametersForSphericalWave params;
     ParserSphericalWave parser;
