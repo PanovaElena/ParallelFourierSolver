@@ -89,35 +89,25 @@ struct vec3
         z -= v.get_z();
         return *this;
     };
-    vec3& operator*=(const Type c) {
-        x *= c;
-        y *= c;
-        z *= c;
+    vec3& operator*=(const Type &v) {
+        x *= v;
+        y *= v;
+        z *= v;
         return *this;
     };
 
-    friend vec3<MyComplex> operator* (MyComplex b, vec3<MyComplex> v);
-    vec3<MyComplex> operator* (MyComplex b) const {
-        return vec3<MyComplex>(x*b, y*b, z*b);
-    };
-    vec3 operator* (double b) const {
+    vec3 operator* (Type b) const {
         return vec3(x*b, y*b, z*b);
     };
-    vec3 operator* (int b) const {
-        return vec3(x*b, y*b, z*b);
-    };
-    friend vec3 operator* (double b, vec3 v) {
+    friend vec3 operator* (Type b, vec3 v) {
         return v*b;
     };
-    friend vec3 operator* (int b, vec3 v) {
-        return v*b;
-    };
-
 
     friend bool operator==(const vec3& a, const vec3& b)  
     {
         return ((a.get_x() == b.get_x()) && (a.get_y() == b.get_y()) && (a.get_z() == b.get_z()));
     };
+
     friend bool operator!=(const vec3& a, const vec3& b) {
         return !(a == b);
     };
@@ -152,9 +142,4 @@ struct vec3
             std::to_string(vec.z) + ")";
         return str;
     }
-};
-
-
-inline vec3<MyComplex> operator* (MyComplex b, vec3<MyComplex> v) {
-    return v*b;
 };

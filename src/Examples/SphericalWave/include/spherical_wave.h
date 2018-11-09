@@ -5,7 +5,6 @@
 #include <fstream>
 #include <string>
 #include "grid3d.h"
-#include "fourier_transformation.h"
 #include "class_member_ptr.h"
 #include "file_writer.h"
 #include "masks.h"
@@ -15,11 +14,11 @@
 
 struct ParametersForSphericalWave : public ParametersForTest {
     //метод
-    FieldSolverType fieldSolver = FieldSolverPSATD;
+    FieldSolver fieldSolver = PSATD;
 
     // сетка
     int nx = 128, ny = nx, nz = 1;
-    int guard = 16;
+    int guard = 32;
 
     double d = constants::c;    // шаг сетки
     double a = 0, b = nx*d;    // координаты сетки
@@ -29,12 +28,11 @@ struct ParametersForSphericalWave : public ParametersForTest {
     int maskWidth = 8;
 
     // физические параметры
-    int wt = nx / 16;    // ширина синусоиды в ячейках
-    double Tt = d*wt / constants::c;    // период по времени
-    int wx = 12;
-    double Tx = d*wx;    // период по координате 
+    double T = 16;   //период источника
+    double omega = 2*constants::pi/T;    // частота источника
+    double omegaEnv = omega;    //частота огибающей
+    double Tx = constants::c*8;    // период по координате 
     double Ty = Tx;
-    double Tz = Tx;
 
     // параметры счета
     int nConsSteps = 300;
@@ -45,6 +43,7 @@ struct ParametersForSphericalWave : public ParametersForTest {
     double dt;
 
     ParametersForSphericalWave() : dt(0.1) {
+        nIterBetweenDumps = nParSteps;
     }
 
     int getNSteps() {
@@ -53,10 +52,16 @@ struct ParametersForSphericalWave : public ParametersForTest {
 
     void print() {
         std::cout <<
+            "field solver: "<<fieldSolver.to_string()<<"\n"<<
             "dt = " << dt << "\n" <<
+            "omega = " << omega << "\n" <<
+            "omegaEnv = " << omegaEnv << "\n" <<
+            "T = " << T << "\n" <<
+            "TCoord = " << Tx << "\n" <<
             "nx = " << nx << "\n" <<
             "ny = " << ny << "\n" <<
             "nz = " << nz << "\n" <<
+            "d = " << d << "\n" <<
             "guard = " << guard << "\n" <<
             "num of steps = " << getNSteps() << "\n" <<
             "num of consistent steps = " << nConsSteps << "\n" <<
@@ -88,7 +93,10 @@ public:
     }
 
     void Initialize() {
-        gr = Grid3d(parameters.nx, parameters.ny, parameters.nz, parameters.a, parameters.b, parameters.a, parameters.b, parameters.a, parameters.a + parameters.d);
+        gr = Grid3d(parameters.nx, parameters.ny, parameters.nz, 
+            parameters.a, parameters.a+parameters.nx*parameters.d,
+            parameters.a, parameters.a + parameters.ny*parameters.d, 
+            parameters.a, parameters.a + parameters.nz*parameters.d);
         SetEB();
     }
 
@@ -112,30 +120,29 @@ public:
         return sin(2 * constants::pi / parameters.Tx*t);
     }
 
-    double GetJ(int i, int j, int k, int iter) {
-        double x = GetX(i), y = GetY(j), z = GetZ(k), t = iter*parameters.dt;
-        if (iter > parameters.wt) return 0;
-        if (abs(i - parameters.nx / 2) > parameters.wx / 4 || 
-            abs(j - parameters.ny / 2) >  parameters.wx / 4 ||
-            abs(k - parameters.nz / 2) >  parameters.wx / 4) return 0;
-        return cos(2 * constants::pi*x / parameters.Tx)*cos(2 * constants::pi*x / parameters.Tx) *
-            cos(2 * constants::pi*y / parameters.Ty)*cos(2 * constants::pi*y / parameters.Ty) *
-            cos(2 * constants::pi*z / parameters.Tz)*cos(2 * constants::pi*z / parameters.Tz) *
-            sin(2 * constants::pi*t / parameters.Tt);
+    double GetJ(int i, int j, int iter) {
+        int nIterJ = int(parameters.T / parameters.dt)+1;
+        if (iter > nIterJ) return 0;
+        double x = GetX(i), y = GetY(j), t = iter*parameters.dt;
+        if (abs(i - parameters.nx / 2) > parameters.Tx / parameters.d / 4 ||
+            abs(j - parameters.ny / 2) > parameters.Ty / parameters.d / 4)
+            return 0;
+        return pow(cos(2 * constants::pi*x / parameters.Tx), 2) *
+            pow(cos(2 * constants::pi*y / parameters.Ty), 2) *
+            sin(parameters.omega*t)*
+            pow(sin(parameters.omegaEnv*t), 2);
     }
 
     void SetJ(int iter) {
         double J0;
         for (int i = 0; i < gr.gnxRealNodes(); i++)
-            for (int j = 0; j < gr.gnyRealNodes(); j++) 
-                for (int k = 0; k < gr.gnzRealNodes(); k++)
-                {
-                    J0 = GetJ(i, j, k, iter);
-                    gr(i, j, k).J = vec3<double>(J0, J0, J0);
-                }
-        FourierTransformation(gr, J, x, RtoC);
-        FourierTransformation(gr, J, y, RtoC);
-        FourierTransformation(gr, J, z, RtoC);
+            for (int j = 0; j < gr.gnyRealNodes(); j++) {
+                J0 = GetJ(i, j, iter);
+                gr(i, j, gr.gnzRealCells() / 2).J = vec3<double>(0, 0, J0);
+            }
+        TransformGridIfNecessary(parameters.fieldSolver, gr, J, x, RtoC);
+        TransformGridIfNecessary(parameters.fieldSolver, gr, J, y, RtoC);
+        TransformGridIfNecessary(parameters.fieldSolver, gr, J, z, RtoC);
     }
 
     virtual void SetEB() {
@@ -146,7 +153,8 @@ public:
                     gr(i, j, k).B = vec3<double>(0, 0, 0);
                 }
 
-        FourierTransformation(gr, RtoC);
+        TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
     }
 
 };
+

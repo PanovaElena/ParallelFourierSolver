@@ -1,8 +1,8 @@
-#include "file_writer.h"
 #include <fstream>
 #include "grid3d.h"
 #include "simple_types_and_constants.h"
 #include "class_member_ptr.h"
+#include <iomanip>
 
 void SetSymb(Section::Plane plane, std::string& si, std::string& sj, std::string& sk) {
     switch (plane) {
@@ -26,7 +26,7 @@ void FileWriter::Write(Grid3d & gr, std::string name, std::string si, std::strin
     for (int k = section.startZ; k <= section.endZ; k++) {
         for (int j = section.startY; j <= section.endY; j++) {
             for (int i = section.startX; i <= section.endX; i++)
-                file << (gr(i, j, k).*GetField(field).*GetCoord(coord))() << si;
+                file << std::setprecision(15)<<(gr(i, j, k).*GetField(field).*GetCoord(coord))() << si;
             file << sj;
         }
         file << sk;

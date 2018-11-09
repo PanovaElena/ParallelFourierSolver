@@ -8,15 +8,19 @@
 #include "file_writer.h"
 
 class TestRunningWaveParallel : public TestParallel {
+	RunningWave runningWave;
+	
 public:
 
-    RunningWave runningWave;
+    void SetParamsForTest(ParametersForRunningWave p) {
+        runningWave.SetParamsForTest(p);
+        worker.SetOutput(runningWave.fileWriter, nameFileAfterExchange);
+    }
 
-    TestRunningWaveParallel(MPIWrapper3d& _mpiWrapper) : runningWave() {
+    TestRunningWaveParallel() : runningWave() {
         runningWave.fileWriter.ChangeDir(runningWave.dir+"parallel_results/");
         SetNameFiles();
         worker.SetOutput(runningWave.fileWriter, nameFileAfterExchange);
-        worker.setMPIWrapper3d(_mpiWrapper);
     }
 
     void DoConsistentPart() {

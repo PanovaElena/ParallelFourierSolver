@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
     if (status == Status::OK) {
         if (MPIWrapper::MPIRank() == 0) params.print();
         TestRunningWaveParallel test(mpiWrapper);
-        test.runningWave.SetParamsForTest(params);
+        test.SetParamsForTest(params);
         test.TestBody();
     }
     else if (status == Status::ERROR) std::cout << "There are some problems in args" << std::endl;

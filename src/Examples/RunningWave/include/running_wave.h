@@ -12,10 +12,10 @@
 
 struct ParametersForRunningWave : public ParametersForTest {
     //метод
-    FieldSolverType fieldSolver = FieldSolverPSATD;
+    FieldSolver fieldSolver = PSATD;
 
     // сетка
-    int nx = 256, ny = nx, nz = 1;
+    int nx = 256, ny = 1, nz = nx;
     int guard = 64;
 
     double d = sqrt(6)*constants::pi;    // шаг сетки
@@ -27,16 +27,20 @@ struct ParametersForRunningWave : public ParametersForTest {
 
     // физические параметры
     double lambda = 8 * d;
+    double angle = 0;
 
     // параметры счета
     int nConsSteps = 200;
     int nParSteps = 600;
 
-    int nIterBetweenDumps = 100;
+    int nIterBetweenDumps;
+    int dimensionOfOutputData = 1;
 
     double dt;
 
-    ParametersForRunningWave() : dt(COURANT_CONDITION_PSTD(d)) {
+    ParametersForRunningWave() {
+        dt = COURANT_CONDITION_PSTD(d) / 2;
+        nIterBetweenDumps = nParSteps;
     }
 
     int getNSteps() {
@@ -45,7 +49,9 @@ struct ParametersForRunningWave : public ParametersForTest {
 
     void print() {
         std::cout <<
+            "field solver: " << fieldSolver.to_string() << "\n" <<
             "lambda = " << lambda << "\n" <<
+            "angle = " << angle << "\n" <<
             "dt = " << dt << "\n" <<
             "nx = " << nx << "\n" <<
             "ny = " << ny << "\n" <<
@@ -55,6 +61,7 @@ struct ParametersForRunningWave : public ParametersForTest {
             "num of steps = " << getNSteps() << "\n" <<
             "num of consistent steps = " << nConsSteps << "\n" <<
             "num of parallel steps = " << nParSteps << "\n" <<
+            "dimension of output data = " << dimensionOfOutputData << "\n" <<
             std::endl;
     }
 };
@@ -79,31 +86,43 @@ public:
 
     void SetParamsForTest(ParametersForRunningWave p) {
         parameters = p;
+        if (parameters.dimensionOfOutputData == 2) 
+            fileWriter.SetSection(Section(Section::XOZ, Section::center));
         Initialize();
     }
 
     void Initialize() {
-        gr = Grid3d(parameters.nx, parameters.ny, parameters.nz, parameters.a, parameters.b, parameters.a, parameters.b, parameters.a, parameters.a + parameters.d);
+        gr = Grid3d(parameters.nx, parameters.ny, parameters.nz,
+            parameters.a, parameters.a + parameters.nx*parameters.d,
+            parameters.a, parameters.a + parameters.ny*parameters.d,
+            parameters.a, parameters.a + parameters.nz*parameters.d);
         SetEB();
     }
 
-    virtual double funcB(double x) {
+    double f(double x) {
         return sin(2 * constants::pi / parameters.lambda*x);
     }
 
-    virtual double funcE(double x) {
-        return sin(2 * constants::pi / parameters.lambda*x);
+    virtual double funcB(double x, double z) {
+        double x2 = x*cos(parameters.angle) + z*sin(parameters.angle);
+        return f(x2);
+    }
+
+    virtual double funcE(double x, double z) {
+        double x2 = x*cos(parameters.angle) + z*sin(parameters.angle);
+        return f(x2);
     }
 
     virtual void SetEB() {
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++)
                 for (int k = 0; k < gr.gnzRealNodes(); k++) {
-                    gr(i, j, k).E = vec3<double>(0, 1, 0)*funcE(i*parameters.d + parameters.a);
-                    gr(i, j, k).B = vec3<double>(0, 0, 1)*funcB(i*parameters.d + parameters.a);
+                    gr(i, j, k).E = vec3<double>(0, 1, 0)
+                        *funcE(i*parameters.d + parameters.a, k*parameters.d + parameters.a);
+                    gr(i, j, k).B = vec3<double>(-sin(parameters.angle), 0, cos(parameters.angle))
+                        *funcB(i*parameters.d + parameters.a, k*parameters.d + parameters.a);
                 }
 
-        FourierTransformation(gr, RtoC);
+        TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
     }
 };
-

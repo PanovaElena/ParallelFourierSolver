@@ -4,55 +4,56 @@
 #include <fstream>
 #include "file_writer.h"
 #include "simple_types_and_constants.h"
-#include <algorithm>
 #include <limits>
 
-void WriteFile(Grid3d& gr, int iter, int rank, FileWriter& fileWriter) {
+void WriteFile(Grid3d& gr, int iter, FileWriter& fileWriter) {
     FourierTransformation(gr, CtoR);
-    //MPIWorker::ShowMessage("writing parallel result to file, iter=" + std::to_string(iter));
-    fileWriter.WriteFile(gr, "iter_rank_" + std::to_string(rank) + ".csv");
+    fileWriter.WriteFile(gr, "iter_rank_" + std::to_string(MPIWrapper::MPIRank()) + ".csv");
 }
 
-void FieldSolverParallelInnerCircle(MPIWorker& worker, FieldSolverType fieldSolver, int numIter, double dt,
-    int iterWriteFile, FileWriter& fileWriter, int I) {
+void Dump(Grid3d& gr, int iter, FileWriter& fileWriter) {
+    FourierTransformation(gr, CtoR);
+    fileWriter.WriteFile(gr, "dump_iter_" + std::to_string(iter) + ".csv");
+}
+
+void FieldSolverParallelInnerCircle(MPIWorker& worker, FieldSolver fieldSolver, int numIter, double dt,
+    int iterBetweenDumps, FileWriter& fileWriter) {
     FourierTransformation(worker.getGrid(), RtoC); //это нужно
     for (int i = 0; i < numIter; i++) {
         fieldSolver(worker.getGrid(), dt);
-        if (iterWriteFile!=0 && (i + 1) % iterWriteFile == 0)
-            WriteFile(worker.getGrid(), i, MPIWrapper::MPIRank(), fileWriter);
+        // dump of every domain
+        if (iterBetweenDumps !=0 && (i + 1) % iterBetweenDumps == 0)
+            WriteFile(worker.getGrid(), i, fileWriter);
     }
     FourierTransformation(worker.getGrid(), CtoR);
     worker.ExchangeGuard();
 }
 
-vec3<double> round(vec3<double> a, int signAfterDot) {
-    double p = pow(10, signAfterDot);
-    return (vec3<double>((int)(a.x*p), (int)(a.y*p), (int)(a.z*p)) + 0.5) / p;
+double myRound(double x) {
+    if (x >= double(std::numeric_limits<int>::max()))
+        return std::numeric_limits<int>::max();
+    return (int)(x + 0.5);
 }
 
-int CalcMaxInnerIter(MPIWorker& worker, double dt) {
-    vec3<int> tmpVec = static_cast<vec3<int>>(round(0.75*worker.getGrid().gd()*worker.getGuardSize() / (constants::c*dt), 6));
-    if (tmpVec.x == 0 && worker.getSize().x == 1) tmpVec.x = std::numeric_limits<int>::max();
-    if (tmpVec.y == 0 && worker.getSize().y == 1) tmpVec.y = std::numeric_limits<int>::max();
-    if (tmpVec.z == 0 && worker.getSize().z == 1) tmpVec.z = std::numeric_limits<int>::max();
-    return std::min(tmpVec.x, std::min(tmpVec.y, tmpVec.z));
-}
-
-void FieldSolverParallel(MPIWorker& worker, FieldSolverType fieldSolver, int numIter, double dt,
-    int iterWriteFile, FileWriter& fileWriter) {
-    int maxInnerIter = CalcMaxInnerIter(worker, dt);
-    int numOuterIter = numIter / maxInnerIter;
-    int numRemaindIter = numIter % maxInnerIter;
+void printInfo(MPIWorker& worker, int numExchanges, int maxIterBetweenExchange, int numIterBeforeLastExchange) {
     if (MPIWrapper::MPIRank() == 0) {
-        worker.ShowMessage("numOuterIter " + std::to_string(numOuterIter) + " inner circles");
-        worker.ShowMessage("maxInnerIter " + std::to_string(maxInnerIter));
-        worker.ShowMessage("numRemaindIter " + std::to_string(numRemaindIter));
+        worker.ShowMessage("number of exchanges - " + std::to_string(numExchanges + 1));
+        worker.ShowMessage("max iter between exchange - " + std::to_string(maxIterBetweenExchange));
+        worker.ShowMessage("number of iter before last exchange - " + std::to_string(numIterBeforeLastExchange));
     }
+}
 
-    for (int i = 0; i < numOuterIter; i++) {
-        //worker.ShowMessage(std::to_string(i+1)+" inner circle");
-        FieldSolverParallelInnerCircle(worker, fieldSolver, maxInnerIter, dt, 0, fileWriter, i+1);
+void FieldSolverParallel(MPIWorker& worker, FieldSolver fieldSolver, int numIter, double dt,
+    int iterBetweenDumps, FileWriter& fileWriter) {
+    const double P = 0.8; // какую часть перекрытия волна должна пройти
+    int maxIterBetweenExchange = (int) myRound(P*worker.getGuardSize()*worker.getGrid().gdx() / (constants::c*dt));
+    int numExchanges = numIter / maxIterBetweenExchange;
+    int numIterBeforeLastExchange = numIter % maxIterBetweenExchange;
+    printInfo(worker, numExchanges, maxIterBetweenExchange, numIterBeforeLastExchange);
+    for (int i = 0; i < numExchanges; i++) {
+        FieldSolverParallelInnerCircle(worker, fieldSolver, maxIterBetweenExchange, dt, 0, fileWriter);
         worker.ApplyMask();
     }
-    FieldSolverParallelInnerCircle(worker, fieldSolver, numRemaindIter, dt, numRemaindIter, fileWriter, 0);
+    FieldSolverParallelInnerCircle(worker, fieldSolver, numIterBeforeLastExchange, dt,
+        numIterBeforeLastExchange, fileWriter);
 }

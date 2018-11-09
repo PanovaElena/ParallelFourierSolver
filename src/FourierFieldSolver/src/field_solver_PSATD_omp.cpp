@@ -1,10 +1,15 @@
 #include "field_solver.h"
 #include "grid3d.h"
 #include "physical_constants.h"
+#include <omp.h>
 #include "fourier_transformation.h"
 #include "my_complex.h"
+#include "iostream"
 
-void FieldSolverPSATD(Grid3d & gr, double dt) {
+
+void FieldSolverPSATD_OMP(Grid3d & gr, double dt) {
+
+    #pragma omp parallel for
     for (int i = 0; i < gr.gnxComplexCells(); i++)
         for (int j = 0; j < gr.gnyComplexCells(); j++)
             for (int k = 0; k < gr.gnzComplexCells(); k++) {

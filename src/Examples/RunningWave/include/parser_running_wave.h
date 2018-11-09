@@ -14,12 +14,15 @@ public:
             "--help                    get help\n" <<
             "--nT, --nIter             set number of periods and number of iterations in a period, default values are " << nTDef << " and " << nIterDef << ", \"nCons\" equates to 0\n" <<
             "--dt                      set time step (less important then \"--nT\" and \"--nIter\"), default value is " << p.dt << "\n" <<
-            "--lambda                  set length of wave (number of cells), default value is " << int(p.lambda / p.d + 0.5) << "\n" <<
+            "--lambdaN                 set length of wave (number of cells), default value is " << int(p.lambda / p.d + 0.5) << "\n" <<
+            "--lambda                  set length of wave (more important, then \"--lambdaN\"), default value is " << p.lambda << "\n" <<
+            "--angle                   set angle in degrees between axis OX and the dimension of wave, default value is " << p.angle << "\n" <<
+            "--dim                     set dimension of output data (1 or 2), default value is " << p.dimensionOfOutputData<< "\n" <<
             "--nx, --ny, --nz          set size of grid, default value is " << p.nx << ", " << p.ny << ", " << p.nz << "\n" <<
             "--guard                   set width of guard, default value is " << p.guard << "\n" <<
             "-d                        set grid spacing, default value is " << p.d << "\n" <<
             "--mask                    set mask (\"simple\" or \"smooth\"), default value is \"smooth\"\n" <<
-            "--solver                  set solver (\"PSTD\" or \"PSATD\"), default value is \"PSATD\"\n" <<
+            "--solver                  set solver (\"PSTD\", \"PSATD\", \"FDTD\" or \"PSATD_omp\"), default value is \"PSATD\"\n" <<
             "--nbd                     set number of iterations between dumps, default value is " << p.nIterBetweenDumps << "\n" <<
             "--nCons                   set number of consistent steps, default value is " << p.nConsSteps << "\n";
         if (task == Task::parallel) {
@@ -36,7 +39,10 @@ public:
         bool fnT = false, fnIter = false;
         int nIter = nIterDef, nT = nTDef;
         for (auto it = m.begin(); it != m.end(); it++) {
-            if (it->first == "--lambda") params.lambda = std::stoi(it->second)*params.d;
+            if (it->first == "--lambdaN") params.lambda = std::stoi(it->second)*params.d;
+            if (it->first == "--lambda") params.lambda = std::stod(it->second);
+            if (it->first == "--angle") params.angle = constants::pi*std::stod(it->second)/180;
+            if (it->first == "--dim") params.dimensionOfOutputData = std::stoi(it->second);
             if (it->first == "--nx") params.nx = std::stoi(it->second);
             if (it->first == "--ny") params.ny = std::stoi(it->second);
             if (it->first == "--nz") params.nz = std::stoi(it->second);
@@ -47,11 +53,9 @@ public:
                     params.mask = simpleMask;
                 else params.mask = maskSineSquare;
             }
-            if (it->first == "--solver") {
-                if (it->second == "PSTD")
-                    params.fieldSolver = FieldSolverPSTD;
-                else params.fieldSolver = FieldSolverPSATD;
-            }
+            if (it->first == "--solver")
+                if (fieldSolvers.find(it->second) != fieldSolvers.end())
+                    params.fieldSolver = fieldSolvers.find(it->second)->second;
             if (it->first == "--nbd") params.nIterBetweenDumps = std::stoi(it->second);
             if (it->first == "--dt") params.dt = std::stod(it->second);
             if (it->first == "--nCons") params.nConsSteps = std::stoi(it->second);

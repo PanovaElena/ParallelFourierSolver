@@ -72,11 +72,14 @@ public:
         *this = fileWriter;
         dir = _dir;
     }
-    void Initialize(std::string _dir, Field _field, Coordinate _coord, Section _section) {
+    void Initialize(std::string _dir, Field _field, Coordinate _coord, const Section& _section) {
         dir = _dir;
         field = _field;
         coord = _coord;
         section = _section;
+    }
+    void SetSection(const Section& s) {
+        section = s;
     }
 
     void WriteFile(Grid3d& gr, std::string name, std::string message="") {

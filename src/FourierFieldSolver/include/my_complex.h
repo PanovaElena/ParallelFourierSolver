@@ -12,6 +12,10 @@ public:
         data[0] = real;
         data[1] = imag;
     }
+    MyComplex(double a) {
+        data[0] = a;
+        data[1] = 0;
+    }
     static MyComplex GetTrig(double r, double fi) {
         MyComplex z;
         z.data[0] = r*cos(fi);

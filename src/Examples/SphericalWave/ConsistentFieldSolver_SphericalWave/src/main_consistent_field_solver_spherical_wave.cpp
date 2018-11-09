@@ -7,8 +7,8 @@
 
 
 void TestBody(SphericalWave& sphericalWave) {
-    FourierTransformation(sphericalWave.gr, RtoC);
-    for (int j = 1; j <= sphericalWave.parameters.getNSteps(); j++) {
+    TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
+    for (int j = 1; j <= sphericalWave.parameters.nConsSteps; j++) {
         /*FourierTransformation(sphericalWave.gr, CtoR);
         sphericalWave.fileWriter.WriteFile(sphericalWave.gr, "/consistent_results/cons_res_"+
         std::to_string(j-1)+".csv");*/
@@ -16,7 +16,7 @@ void TestBody(SphericalWave& sphericalWave) {
         sphericalWave.parameters.fieldSolver(sphericalWave.gr, sphericalWave.parameters.dt);
     }
 
-    FourierTransformation(sphericalWave.gr, CtoR);
+    TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, CtoR);
     sphericalWave.fileWriter.WriteFile(sphericalWave.gr, "/consistent_results/E/cons_res.csv", "writing...");
 }
 

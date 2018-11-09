@@ -7,15 +7,15 @@
 
 void TestBody(RunningWave& runningWave) {
 
-    FourierTransformation(runningWave.gr, RtoC);
-    for (int j = 1; j <= runningWave.parameters.getNSteps(); j++) {
+    TransformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, RtoC);
+    for (int j = 1; j <= runningWave.parameters.nConsSteps; j++) {
         /*FourierTransformation(runningWave.gr, CtoR);
         runningWave.parameters.fileWriter.WriteFile(runningWave.gr, "/consistent_results/cons_res_"+
             std::to_string(j-1)+".csv");*/
         runningWave.parameters.fieldSolver(runningWave.gr, runningWave.parameters.dt);
     }
 
-    FourierTransformation(runningWave.gr, CtoR);
+    TransformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
     runningWave.fileWriter.WriteFile(runningWave.gr, "/consistent_results/E/cons_res.csv", "writing...");
 }
 

@@ -7,9 +7,20 @@
 #include "file_writer.h"
 
 class TestSphericalWaveParallel : public TestParallel {
-public:
+	
+SphericalWave sphericalWave;
 
-    SphericalWave sphericalWave;
+public:
+    void SetParamsForTest(ParametersForSphericalWave p) {
+        sphericalWave.SetParamsForTest(p);
+        worker.SetOutput(sphericalWave.fileWriter, nameFileAfterExchange);
+    }
+
+    TestSphericalWaveParallel() : sphericalWave() {
+        sphericalWave.fileWriter.ChangeDir(sphericalWave.dir + "parallel_results/");
+        SetNameFiles();
+        worker.SetOutput(sphericalWave.fileWriter, nameFileAfterExchange);
+    }
 
     TestSphericalWaveParallel(MPIWrapper3d& _mpiWrapper) : sphericalWave() {
         sphericalWave.fileWriter.ChangeDir(sphericalWave.dir + "parallel_results/");

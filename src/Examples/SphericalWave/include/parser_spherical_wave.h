@@ -11,12 +11,18 @@ public:
     void help(Task task) override {
         ParametersForSphericalWave p;
         std::cout <<
-            "--help                    get help\n" <<
+             "--help                    get help\n" <<
             "--dt                      set time step, default value is " << p.dt << "\n" <<
+            "--omega                   set frequency of source, default value is " << p.omega << "\n" <<
+            "--omegaEnv                set frequency of envelop, default value is " << p.omegaEnv << "\n" <<
+            "--T                       set working time of source, default value is " << p.T << "\n" <<
+            "--TCoord                  set width of source, default value is " << p.Tx << "\n" <<
+            "--nIterS                  set working time of source using num of iterations, default value is " << p.T / p.dt << "\n" <<
+            "-d                        set step of grid, default value is " << p.d << "\n" <<
             "--nx, --ny, --nz          set size of grid, default value is " << p.nx << ", " << p.ny << ", " << p.nz << "\n" <<
             "--guard                   set width of guard, default value is " << p.guard << "\n" <<
             "--mask                    set mask (\"simple\" or \"smooth\"), default value is \"smooth\"\n" <<
-            "--solver                  set solver (\"PSTD\" or \"PSATD\"), default value is \"PSATD\"\n" <<
+            "--solver                  set solver (\"PSTD\", \"PSATD\", \"FDTD\" or \"PSATD_omp\"), default value is \"PSATD\"\n" <<
             "--nbd                     set number of iterations between dumps, default value is " << p.nIterBetweenDumps << "\n" <<
             "--nCons                   set number of consistent steps, default value is " << p.nConsSteps << "\n";
         if (task == Task::parallel) {
@@ -34,6 +40,16 @@ public:
             if (it->first == "--nx") params.nx = std::stoi(it->second);
             if (it->first == "--ny") params.ny = std::stoi(it->second);
             if (it->first == "--nz") params.nz = std::stoi(it->second);
+            if (it->first == "--dt") params.dt = std::stod(it->second);
+            if (it->first == "-d") params.d = std::stod(it->second);
+            if (it->first == "--omega") params.omega = std::stod(it->second);
+            if (it->first == "--omegaEnv") params.omegaEnv = std::stod(it->second);
+            if (it->first == "--T") params.T = std::stod(it->second);
+            if (it->first == "--nIterS") params.T = std::stoi(it->second)*params.dt;
+            if (it->first == "--TCoord") {
+                params.Tx = std::stod(it->second);
+                params.Ty = params.Tx;
+            }
             if (it->first == "--guard") params.guard = std::stoi(it->second);
             if (it->first == "--mask") {
                 if (it->second == "simple")
@@ -41,9 +57,8 @@ public:
                 else params.mask = maskSineSquare;
             }
             if (it->first == "--solver") {
-                if (it->second == "PSTD")
-                    params.fieldSolver = FieldSolverPSTD;
-                else params.fieldSolver = FieldSolverPSATD;
+                if (fieldSolvers.find(it->second)!= fieldSolvers.end())
+                    params.fieldSolver = fieldSolvers.find(it->second)->second;
             }
             if (it->first == "--nbd") params.nIterBetweenDumps = std::stoi(it->second);
             if (it->first == "--dt") params.dt = std::stod(it->second);
