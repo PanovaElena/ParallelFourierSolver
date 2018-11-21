@@ -9,15 +9,16 @@
 void TestBody(SphericalWave& sphericalWave) {
     TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
     for (int j = 1; j <= sphericalWave.parameters.nConsSteps; j++) {
-        /*FourierTransformation(sphericalWave.gr, CtoR);
-        sphericalWave.fileWriter.WriteFile(sphericalWave.gr, "/consistent_results/cons_res_"+
-        std::to_string(j-1)+".csv");*/
+        /*if (j == 161 || j==162 || j== sphericalWave.parameters.nConsSteps) {
+            sphericalWave.fileWriter.WriteFile(sphericalWave.gr, "/consistent_results/E/cons_res_"+
+            std::to_string(j-1)+"_spectrum.csv", Complex);
+        }*/
         sphericalWave.SetJ(j);
         sphericalWave.parameters.fieldSolver(sphericalWave.gr, sphericalWave.parameters.dt);
     }
 
     TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, CtoR);
-    sphericalWave.fileWriter.WriteFile(sphericalWave.gr, "/consistent_results/E/cons_res.csv", "writing...");
+    sphericalWave.fileWriter.WriteFile(sphericalWave.gr, "/consistent_results/E/cons_res.csv", Double, "writing...");
 }
 
 int main(int argc, char** argv) {

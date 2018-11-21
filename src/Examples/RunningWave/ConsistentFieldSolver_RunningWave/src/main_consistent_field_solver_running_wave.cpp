@@ -16,7 +16,7 @@ void TestBody(RunningWave& runningWave) {
     }
 
     TransformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
-    runningWave.fileWriter.WriteFile(runningWave.gr, "/consistent_results/E/cons_res.csv", "writing...");
+    runningWave.fileWriter.WriteFile(runningWave.gr, "/consistent_results/E/cons_res.csv", Double, "writing...");
 }
 
 int main(int argc, char** argv) {

@@ -37,10 +37,10 @@ public:
 
 
             for (int i = 0; i < gr.gnxRealCells(); i++) {
-                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField(B).*GetCoord(x))(), 1E-5);
-                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField(B).*GetCoord(y))(), 1E-5);
-                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField(E).*GetCoord(x))(), 1E-5);
-                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField(E).*GetCoord(z))(), 1E-5);
+                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField<double>(B).*GetCoord<double>(x)), 1E-5);
+                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField<double>(B).*GetCoord<double>(y)), 1E-5);
+                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField<double>(E).*GetCoord<double>(x)), 1E-5);
+                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField<double>(E).*GetCoord<double>(z)), 1E-5);
             }
         }
     }

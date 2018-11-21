@@ -22,7 +22,7 @@ struct ParametersForRunningWave : public ParametersForTest {
     double a = 0, b = nx*d;
 
     // маска
-    Mask mask = maskSineSquare;
+    Mask mask = simpleMask;
     int maskWidth = 8;
 
     // физические параметры

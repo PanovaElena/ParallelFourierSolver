@@ -34,6 +34,9 @@ public:
     double GetImag() {
         return data[1];
     }
+    double GetAbs() {
+        return sqrt(data[0] * data[0] + data[1] * data[1]);
+    }
     friend MyComplex operator*(const MyComplex& z, const double a) {
         return MyComplex(z.data[0] * a, z.data[1] * a);
     }

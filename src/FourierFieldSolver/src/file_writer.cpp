@@ -21,36 +21,48 @@ void SetSymb(Section::Plane plane, std::string& si, std::string& sj, std::string
     }
 }
 
-void FileWriter::Write(Grid3d & gr, std::string name, std::string si, std::string sj, std::string sk) {
+void FileWriter::Write(Grid3d & gr, std::string name, Type type, std::string si, std::string sj, std::string sk) {
     std::ofstream file(dir + name);
 
-    for (int k = section.startZ; k <= section.endZ; k++) {
-        for (int j = section.startY; j <= section.endY; j++) {
-            for (int i = section.startX; i <= section.endX; i++)
-                file << std::setprecision(15) << (gr(i, j, k).*GetField(field).*GetCoord(coord))() << si;
-            file << sj;
+    if (type == Double) {
+        for (int k = section.startZ; k <= section.endZ; k++) {
+            for (int j = section.startY; j <= section.endY; j++) {
+                for (int i = section.startX; i <= section.endX; i++)
+                    file << std::setprecision(15) << gr(i, j, k).*GetField<double>(field).*GetCoord<double>(coord) << si;
+                file << sj;
+            }
+            file << sk;
         }
-        file << sk;
+    }
+    else if (type == Complex) {
+        for (int k = section.startZ; k <= section.endZ; k++) {
+            for (int j = section.startY; j <= section.endY; j++) {
+                for (int i = section.startX; i <= section.endX; i++)
+                    file << std::setprecision(15) << (gr(i, j, k).*GetField<MyComplex>(field).*GetCoord<MyComplex>(coord)).GetAbs() << si;
+                file << sj;
+            }
+            file << sk;
+        }
     }
 
     file.close();
 }
 
-void FileWriter::WriteFile0d(Grid3d & gr, std::string name)
+void FileWriter::WriteFile0d(Grid3d & gr, std::string name, Type type)
 {
-    Write(gr, name, "\n", "", "");
+    Write(gr, name, type, "\n", "", "");
 }
 
-void FileWriter::WriteFile1d(Grid3d & gr, std::string name)
+void FileWriter::WriteFile1d(Grid3d & gr, std::string name, Type type)
 {
-    Write(gr, name, "\n", "", "");
+    Write(gr, name, type, "\n", "", "");
 }
 
-void FileWriter::WriteFile2d(Grid3d & gr, std::string name)
+void FileWriter::WriteFile2d(Grid3d & gr, std::string name, Type type)
 {
     std::string si, sj, sk;
     SetSymb(section.plane1, si, sj, sk);
-    Write(gr, name, si, sj, sk);
+    Write(gr, name, type, si, sj, sk);
 }
 
 void SetCoordUsingLocation(Section::LocationOfPlane loc, int& start, int& end, int n) {

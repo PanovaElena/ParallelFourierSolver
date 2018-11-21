@@ -31,18 +31,18 @@ public:
  
     void MyTestBody(Field field, Coordinate coord) {
 
-        MemberOfNode p = GetField(field);
-        MethodCoord m= GetCoord(coord);
+        MemberOfNode p = GetField<double>(field);
+        MemberOfVec m = GetCoord<double>(coord);
 
         Grid3d grid2 = grid;
-
+         
         FourierTransformation(grid, field, coord, RtoC);
         FourierTransformation(grid, field, coord, CtoR);
 
 		for (int i = 0; i < grid.gnxRealCells(); i++)
 			for (int j = 0; j < grid.gnyRealCells(); j++)
 				for (int k = 0; k < grid.gnzRealCells(); k++)
-					ASSERT_NEAR((grid(i, j, k).*p.*m)(), (grid2(i, j, k).*p.*m)(), 0.1);
+					ASSERT_NEAR(grid(i, j, k).*p.*m, grid2(i, j, k).*p.*m, 0.1);
 	}
 };
 

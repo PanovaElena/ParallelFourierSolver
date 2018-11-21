@@ -2,6 +2,7 @@
 #include "fourier_transformation.h"
 #include "file_writer.h"
 #include "operations_with_arrays.h"
+#include "class_member_ptr.h"
 
 void MPIWorker::CreateGrid(Grid3d & gr)
 {
@@ -59,80 +60,65 @@ Status MPIWorker::Recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Gr
     return Status::OK;
 }
 
-// неблокирующий send
-void MPIWorker::ExchangeSend(double** arrS, MPI_Request* request) {
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            for (int k = 0; k < 3; k++) {
-                if (i == 1 && j == 1 && k == 1) continue;
-                else {
-                    vec3<int> n1 = getN1Send(i, j, k);
-                    vec3<int> n2 = getN2Send(i, j, k);
-                    vec3<int> dim = getDim(i, j, k);
-                    vec3<int> dest = mod(rank + dim, size);
-                    if (dest != rank) {
-                        Send(n1, n2, arrS[getNum(i, j, k)], dest, mpiWrapper3d.getTag(dim), grid, request[getNum(i, j, k)]);
-                            /*MPIWorker::ShowMessage("rank=" + to_string(rank) + " send to " + to_string(dest) +
-                                " from " + to_string(n1) + " to " + to_string(n2) + " tag is " +
-                                std::to_string(mpiWrapper3d.getTag(dim)));*/
-                    }
-                }
-            }
+template <class T>
+vec3<T> getVec(Coordinate coord, T valCoord, vec3<T> val) {
+    return vec3<T>(coord == x ? valCoord : val.x, coord == y ? valCoord : val.y, coord == z ? valCoord : val.z);
 }
 
-// блокирующий recv
-void MPIWorker::ExchangeRecv() {
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            for (int k = 0; k < 3; k++) {
-                if (i == 1 && j == 1 && k == 1) continue;
-                else {
-                    vec3<int> n1 = getN1Recv(i, j, k);
-                    vec3<int> n2 = getN2Recv(i, j, k);
-                    vec3<int> dim = getDim(i, j, k);
-                    vec3<int> source = mod(rank + dim, size);
-                    if (source != rank) {
-                        Recv(n1, n2, source, mpiWrapper3d.getTag(-1 * dim), grid);
-                            /*MPIWorker::ShowMessage("rank=" + to_string(rank) + " recv from " + to_string(source) +
-                                " from " + to_string(n1) + " to " + to_string(n2) + " tag is " +
-                                std::to_string(mpiWrapper3d.getTag(-1 * dim)));*/
-                    }
-                }
-            }
-}
-
-// ждем отправки
-void MPIWorker::ExchangeWait(MPI_Request* request) {
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            for (int k = 0; k < 3; k++) {
-                if (i == 1 && j == 1 && k == 1) continue;
-                else if (request[getNum(i, j, k)] != 0)
-                    MPIWrapper::MPIWait(request[getNum(i, j, k)]);
-            }
-}
-
-void MPIWorker::ExchangeGuard()
+void MPIWorker::ExchangeTwoProcesses(Coordinate coord)
 {
-    const int N = 3 * 3 * 3;
-    double* arrS[N] = { 0 };
-    MPI_Request request[N] = { 0 };
+    double* arrS1 = 0, *arrS2 = 0;
+    MPI_Request request1, request2;
 
-    ExchangeSend(arrS, request);
-    ExchangeRecv();
-    ExchangeWait(request);
+    int sl1, sl2, sr1, sr2, rr1, rr2, rl1, rl2;
+    getBoardsForExchange(sl1, sl2, sr1, sr2, rl1, rl2, rr1, rr2, coord);
 
-    // можно удалить массивы, которые отправляли
+    vec3<int> prLeft=getVec<int>(coord, mod(rank.*GetCoord<int>(coord) - 1, size.*GetCoord<int>(coord)), rank);
+    vec3<int> prRight = getVec<int>(coord, mod(rank.*GetCoord<int>(coord) + 1, size.*GetCoord<int>(coord)), rank);
+
+    //MPIWorker::ShowMessage("send left from " + std::to_string(sl1) + " to " + std::to_string(sl2));
+    Send(getVec<int>(coord, sl1, 0), getVec<int>(coord, sl2, grid.gnRealCells()), arrS1, prLeft, 0, grid, request1);
+    //MPIWorker::ShowMessage("send right from " + std::to_string(sr1) + " to " + std::to_string(sr2));
+    Send(getVec<int>(coord, sr1, 0), getVec<int>(coord, sr2, grid.gnRealCells()), arrS2, prRight, 1, grid, request2);
+    //MPIWorker::ShowMessage("recv right from " + std::to_string(rr1) + " to " + std::to_string(rr2));
+    Recv(getVec<int>(coord, rr1, 0), getVec<int>(coord, rr2, grid.gnRealCells()), prRight, 0, grid);
+    //MPIWorker::ShowMessage("recv left from " + std::to_string(rl1) + " to " + std::to_string(rl2));
+    Recv(getVec<int>(coord, rl1, 0), getVec<int>(coord, rl2, grid.gnRealCells()), prLeft, 1, grid);
+      
+    MPIWrapper::MPIWait(request1);
+    MPIWrapper::MPIWait(request2);
+
     //MPIWorker::ShowMessage("delete arrays");
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            for (int k = 0; k < 3; k++)
-                if (arrS[getNum(i, j, k)]) delete[] arrS[getNum(i, j, k)];
-
+    if (arrS1) delete[] arrS1;
+    if (arrS2) delete[] arrS2;
     if (nameFileAfterExchange != "") {
         //MPIWorker::ShowMessage("writing to file after exchange");
         fileWriter.WriteFile(grid, nameFileAfterExchange);
     }
+}
+
+void MPIWorker::getBoardsForExchange(int & sl1, int & sl2, int & sr1, int & sr2,
+    int & rl1, int & rl2, int & rr1, int & rr2, Coordinate coord)
+{
+    sl1 = 0;
+    sl2 = 2 * getGuardSize().*GetCoord<int>(coord) - 1;
+    sr1 = getMainDomainSize().*GetCoord<int>(coord) + 1;
+    sr2 = getFullDomainSize().*GetCoord<int>(coord);
+    rr1 = getMainDomainSize().*GetCoord<int>(coord) + 1;
+    rr2 = getFullDomainSize().*GetCoord<int>(coord);
+    rl1 = 0;
+    rl2 = 2 * getGuardSize().*GetCoord<int>(coord) - 1;
+}
+
+
+void MPIWorker::ExchangeGuard()
+{
+    ExchangeTwoProcesses(x);
+    MPIWrapper::MPIBarrier();
+    ExchangeTwoProcesses(y);
+    MPIWrapper::MPIBarrier();
+    ExchangeTwoProcesses(z);
+    MPIWrapper::MPIBarrier();
 }
 
 
@@ -206,7 +192,7 @@ void MPIWorker::UnPackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& gr
     for (int i = n1.x; i <= n2.x; i++)
         for (int j = n1.y; j <= n2.y; j++)
             for (int k = n1.z; k <= n2.z; k++)
-                for (int coord = 0; coord < 3; coord++) { 
+                for (int coord = 0; coord < 3; coord++) {
                     grTo(i, j, k).E[coord] += arr[num++];
                     grTo(i, j, k).B[coord] += arr[num++];
                 }

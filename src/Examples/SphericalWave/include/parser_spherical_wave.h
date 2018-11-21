@@ -21,7 +21,7 @@ public:
             "-d                        set step of grid, default value is " << p.d << "\n" <<
             "--nx, --ny, --nz          set size of grid, default value is " << p.nx << ", " << p.ny << ", " << p.nz << "\n" <<
             "--guard                   set width of guard, default value is " << p.guard << "\n" <<
-            "--mask                    set mask (\"simple\" or \"smooth\"), default value is \"smooth\"\n" <<
+            //"--mask                    set mask (\"simple\" or \"smooth\"), default value is \"smooth\"\n" <<
             "--solver                  set solver (\"PSTD\", \"PSATD\", \"FDTD\" or \"PSATD_omp\"), default value is \"PSATD\"\n" <<
             "--nbd                     set number of iterations between dumps, default value is " << p.nIterBetweenDumps << "\n" <<
             "--nCons                   set number of consistent steps, default value is " << p.nConsSteps << "\n";
@@ -51,11 +51,11 @@ public:
                 params.Ty = params.Tx;
             }
             if (it->first == "--guard") params.guard = std::stoi(it->second);
-            if (it->first == "--mask") {
+            /*if (it->first == "--mask") {
                 if (it->second == "simple")
                     params.mask = simpleMask;
                 else params.mask = maskSineSquare;
-            }
+            }*/
             if (it->first == "--solver") {
                 if (fieldSolvers.find(it->second)!= fieldSolvers.end())
                     params.fieldSolver = fieldSolvers.find(it->second)->second;

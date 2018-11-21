@@ -111,9 +111,13 @@ private:
         return ((a + b) % b);
     }
 
+    int mod(int a, int b) {
+        return ((a + b) % b);
+    }
+
     Status Init(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _maskWidth);
 
-    //чтобы не было доменов нулевого размера
+    //костыли для поддержки двумерной версии
 	Status checkAndSetParams(Grid3d& gr, vec3<int> _guardSize) {
         if (checkAndSetGuardSizeAndDomainStart(gr) == Status::ERROR)
             return Status::ERROR;
@@ -185,65 +189,16 @@ private:
     void SendToOneProcess(vec3<int> dest);
     void RecvFromAllProcesses(Grid3d& gr);
 
-    void ExchangeSend(double** arrS, MPI_Request* request);
-    void ExchangeRecv();
-    void ExchangeWait(MPI_Request* request);
-
     //упаковывает вещественные поля части сетки
     int getPackSize(vec3<int> n1, vec3<int> n2);
     void PackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grFrom);
     void UnPackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo);
 
-    vec3<int> getZero() { return 0; }
-    vec3<int> getSumGuardAndMainDomainSizes() { return getGuardSize()+getMainDomainSize(); }
-    typedef vec3<int>(MPIWorker::*F)();
-    F arrF[4] = { &MPIWorker::getZero, &MPIWorker::getGuardSize,
-        &MPIWorker::getSumGuardAndMainDomainSizes, &MPIWorker::getFullDomainSize };
-
-    //возвращает смещение, необходимое для получения домена, которого касается область
-    vec3<int> getDim(int i, int j, int k) {
-        int x = i == 0 ? -1 : (i == 2 ? 1 : 0);
-        int y = j == 0 ? -1 : (j == 2 ? 1 : 0);
-        int z = k == 0 ? -1 : (k == 2 ? 1 : 0);
-        return vec3<int>(x, y, z);
-    }
-
     int getNum(int i, int j, int k) {
         return (i * 3 + j) * 3 + k;
     }
 
-    vec3<int> getN1Send(int i, int j, int k) {
-        vec3<int> dim = getDim(i, j, k);
-        vec3<int> n1((this->*arrF[i])().x, (this->*arrF[j])().y, (this->*arrF[k])().z);
-        if (dim.x == 1) n1.x += 1;
-        if (dim.y == 1) n1.y += 1;
-        if (dim.z == 1) n1.z += 1;
-        return n1;
-    }
-    vec3<int> getN2Send(int i, int j, int k) {
-        vec3<int> dim = getDim(i, j, k);
-        vec3<int> n2((this->*arrF[i + 1])().x, (this->*arrF[j + 1])().y, (this->*arrF[k + 1])().z);
-        if (dim.x == -1) n2.x += -1;
-        if (dim.y == -1) n2.y += -1;
-        if (dim.z == -1) n2.z += -1;
-        return n2;
-    }
-    vec3<int> getN1Recv(int i, int j, int k) {
-        vec3<int> dim = getDim(i, j, k);
-        vec3<int> n1((this->*arrF[i])().x, (this->*arrF[j])().y, (this->*arrF[k])().z);
-        n1 = n1 - dim*guardSize;
-        if (dim.x == 1) n1.x += 1;
-        if (dim.y == 1) n1.y += 1;
-        if (dim.z == 1) n1.z += 1;
-        return n1;
-    }
-    vec3<int> getN2Recv(int i, int j, int k) {
-        vec3<int> dim = getDim(i, j, k);
-        vec3<int> n2((this->*arrF[i + 1])().x, (this->*arrF[j + 1])().y, (this->*arrF[k + 1])().z);
-        n2 = n2 - dim*guardSize;
-        if (dim.x == -1) n2.x += -1;
-        if (dim.y == -1) n2.y += -1;
-        if (dim.z == -1) n2.z += -1;
-        return n2;
-    }
+    void ExchangeTwoProcesses(Coordinate coord);
+    virtual void getBoardsForExchange(int& sl1, int& sl2, int& sr1, int& sr2,
+        int& rl1, int& rl2, int& rr1, int& rr2, Coordinate coord);
 };

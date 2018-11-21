@@ -82,18 +82,18 @@ public:
         section = s;
     }
 
-    void WriteFile(Grid3d& gr, std::string name, std::string message="") {
+    void WriteFile(Grid3d& gr, std::string name, Type t = Type::Double, std::string message="") {
         if (message!="") std::cout << message << "\n";
         section.SetBorders(gr);
         switch (section.dim) {
         case d0:
-            WriteFile0d(gr, name);
+            WriteFile0d(gr, name, t);
             break;
         case d1: 
-            WriteFile1d(gr, name);
+            WriteFile1d(gr, name, t);
             break;
         case d2: 
-            WriteFile2d(gr, name);
+            WriteFile2d(gr, name, t);
             break;
         default: 
             std::cout << "ERROR!!!!! Cannot write to file array with dimension 3 or more\n";
@@ -111,8 +111,8 @@ public:
     }
 
 protected:
-    void WriteFile0d(Grid3d& gr, std::string name);
-    void WriteFile1d(Grid3d& gr, std::string name);
-    void WriteFile2d(Grid3d& gr, std::string name);
-    void Write(Grid3d & gr, std::string name, std::string si, std::string sj, std::string sk);
+    void WriteFile0d(Grid3d& gr, std::string name, Type type);
+    void WriteFile1d(Grid3d& gr, std::string name, Type type);
+    void WriteFile2d(Grid3d& gr, std::string name, Type type);
+    void Write(Grid3d & gr, std::string name, Type type, std::string si, std::string sj, std::string sk);
 };

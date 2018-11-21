@@ -39,14 +39,23 @@ vec3<MyComplex> Node::* OperationWithArrays::DetPComplex(Field field) {
 void OperationWithArrays::CopyLastNodesFromFirst(Grid3d & gr)
 {
     for (int i = 0; i < gr.gnxRealNodes(); i++)
-        for (int k = 0; k < gr.gnzRealNodes(); k++)
-		    gr(i, gr.gnyRealCells(), k) = gr(i, 0, k);
+        for (int k = 0; k < gr.gnzRealNodes(); k++) {
+            gr(i, gr.gnyRealCells(), k).E = gr(i, 0, k).E;
+            gr(i, gr.gnyRealCells(), k).B = gr(i, 0, k).B;
+            gr(i, gr.gnyRealCells(), k).J = gr(i, 0, k).J;
+        }
     for (int i = 0; i < gr.gnxRealNodes(); i++)
-        for (int j = 0; j < gr.gnyRealNodes(); j++)
-            gr(i, j, gr.gnzRealCells()) = gr(i, j, 0); 
+        for (int j = 0; j < gr.gnyRealNodes(); j++) {
+            gr(i, j, gr.gnzRealCells()).E = gr(i, j, 0).E;
+            gr(i, j, gr.gnzRealCells()).B = gr(i, j, 0).B;
+            gr(i, j, gr.gnzRealCells()).J = gr(i, j, 0).J;
+        }
     for (int j = 0; j < gr.gnyRealNodes(); j++)
-        for (int k = 0; k < gr.gnzRealNodes(); k++)
-            gr(gr.gnxRealCells(), j, k) = gr(0, j, k);
+        for (int k = 0; k < gr.gnzRealNodes(); k++) {
+            gr(gr.gnxRealCells(), j, k).E = gr(0, j, k).E;
+            gr(gr.gnxRealCells(), j, k).B = gr(0, j, k).B;
+            gr(gr.gnxRealCells(), j, k).J = gr(0, j, k).J;
+        }
 }
 
 void OperationWithArrays::WriteDouble(Grid3d & gr, Field _field, Coordinate _coord, Direction direction, Array3d<double>& arr)
