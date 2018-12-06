@@ -67,6 +67,8 @@ vec3<T> getVec(Coordinate coord, T valCoord, vec3<T> val) {
 
 void MPIWorker::ExchangeTwoProcesses(Coordinate coord)
 {
+    if (getGuardSize().*GetCoord<int>(coord) == 0) return;
+
     double* arrS1 = 0, *arrS2 = 0;
     MPI_Request request1, request2;
 
