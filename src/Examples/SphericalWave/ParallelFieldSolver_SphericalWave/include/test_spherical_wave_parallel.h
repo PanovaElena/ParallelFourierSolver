@@ -39,8 +39,11 @@ public:
 
     void DoParallelPart() {
         //MPIWorker::ShowMessage("start init worker");
-        if (worker.Initialize(sphericalWave.gr, sphericalWave.parameters.guard, 
-            sphericalWave.parameters.mask, sphericalWave.parameters.maskWidth, worker.getMPIWrapper())==Status::ERROR)
+        vec3<int> g(worker.getMPIWrapper().MPISize().x == 1 ? 0 : sphericalWave.parameters.guard,
+            worker.getMPIWrapper().MPISize().y == 1 ? 0 : sphericalWave.parameters.guard,
+            worker.getMPIWrapper().MPISize().z == 1 ? 0 : sphericalWave.parameters.guard);
+        if (worker.Initialize(sphericalWave.gr, g,
+            sphericalWave.parameters.mask, sphericalWave.parameters.maskWidth, worker.getMPIWrapper()) == Status::ERROR)
             return;
 
         MPIWorker::ShowMessage("start par: domain from " +to_string(worker.getMainDomainStart())+" to "+

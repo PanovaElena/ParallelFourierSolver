@@ -37,8 +37,11 @@ public:
     }
 
     void DoParallelPart() {
-        if (worker.Initialize(runningWave.gr, runningWave.parameters.guard,
-            runningWave.parameters.mask, runningWave.parameters.maskWidth, worker.getMPIWrapper())==Status::ERROR)
+        vec3<int> g(worker.getMPIWrapper().MPISize().x == 1 ? 0 : runningWave.parameters.guard,
+            worker.getMPIWrapper().MPISize().y == 1 ? 0 : runningWave.parameters.guard,
+            worker.getMPIWrapper().MPISize().z == 1 ? 0 : runningWave.parameters.guard);
+        if (worker.Initialize(runningWave.gr, g,
+            runningWave.parameters.mask, runningWave.parameters.maskWidth, worker.getMPIWrapper()) == Status::ERROR)
             return;
 
         MPIWorker::ShowMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +
