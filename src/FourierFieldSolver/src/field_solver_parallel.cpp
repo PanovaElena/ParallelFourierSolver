@@ -45,7 +45,7 @@ void printInfo(MPIWorker& worker, int numExchanges, int maxIterBetweenExchange, 
 }
 
 int getMaxIterBetweenExchange(MPIWorker& worker, double dt) {
-    const double P = 0.8; // какую часть перекрытия волна должна пройти
+    const double P = worker.getPartGuard(); // какую часть перекрытия волна должна пройти
     double gsx = worker.getGuardSize().get_x() == 0 ? std::numeric_limits<double>::max() : worker.getGuardSize().get_x()*worker.getGrid().gdx(),
         gsy = worker.getGuardSize().get_y() == 0 ? std::numeric_limits<double>::max() : worker.getGuardSize().get_y()*worker.getGrid().gdy(),
         gsz = worker.getGuardSize().get_z() == 0 ? std::numeric_limits<double>::max() : worker.getGuardSize().get_z()*worker.getGrid().gdz();

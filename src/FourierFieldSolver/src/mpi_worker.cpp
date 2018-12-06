@@ -123,10 +123,10 @@ void MPIWorker::ExchangeGuard()
 
 
 void MPIWorker::ApplyMask() {
-    for (int i=0; i<=grid.gnxRealCells(); i++)
+    for (int i = 0; i <= grid.gnxRealCells(); i++)
         for (int j = 0; j <= grid.gnyRealCells(); j++)
             for (int k = 0; k <= grid.gnzRealCells(); k++) {
-                grid(i, j, k).E *= mask(vec3<int>(i, j,k), getMainDomainSize(), getGuardSize(), maskWidth);
+                grid(i, j, k).E *= mask(vec3<int>(i, j, k), getMainDomainSize(), getGuardSize(), maskWidth);
                 grid(i, j, k).B *= mask(vec3<int>(i, j, k), getMainDomainSize(), getGuardSize(), maskWidth);
                 grid(i, j, k).J *= mask(vec3<int>(i, j, k), getMainDomainSize(), getGuardSize(), maskWidth);
             }

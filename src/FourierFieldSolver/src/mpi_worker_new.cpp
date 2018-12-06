@@ -1,0 +1,40 @@
+#include "mpi_worker_new.h"
+#include "fourier_transformation.h"
+#include "class_member_ptr.h"
+
+void MPIWorkerNew::ApplyMask()
+{
+    for (int i = 0; i <= grid.gnxRealCells(); i++)
+        for (int j = 0; j <= grid.gnyRealCells(); j++)
+            for (int k = 0; k <= grid.gnzRealCells(); k++) {
+                grid(i, j, k).E *= mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2, maskWidth);
+                grid(i, j, k).B *= mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2, maskWidth);
+                grid(i, j, k).J *= mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2, maskWidth);
+            }
+}
+
+
+void MPIWorkerNew::UnPackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo)
+{
+    int num = 0;
+    for (int i = n1.x; i <= n2.x; i++)
+        for (int j = n1.y; j <= n2.y; j++)
+            for (int k = n1.z; k <= n2.z; k++)
+                for (int coord = 0; coord < 3; coord++) {
+                    grTo(i, j, k).E[coord] = arr[num++];
+                    grTo(i, j, k).B[coord] = arr[num++];
+                }
+}
+
+void MPIWorkerNew::getBoardsForExchange(int& sl1, int& sl2, int& sr1, int& sr2,
+    int& rl1, int& rl2, int& rr1, int& rr2, Coordinate coord)
+{
+    sl1 = getGuardSize().*GetCoord<int>(coord);
+    sl2 = 2 * getGuardSize().*GetCoord<int>(coord) - 1;
+    sr1 = getMainDomainSize().*GetCoord<int>(coord) + 1;
+    sr2 = getFullDomainSize().*GetCoord<int>(coord) - getGuardSize().*GetCoord<int>(coord);
+    rr1 = getFullDomainSize().*GetCoord<int>(coord) - getGuardSize().*GetCoord<int>(coord) + 1;
+    rr2 = getFullDomainSize().*GetCoord<int>(coord);
+    rl1 = 0;
+    rl2 = getGuardSize().*GetCoord<int>(coord) - 1;
+}

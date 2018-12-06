@@ -1,12 +1,13 @@
 #pragma once
 #include "mpi_worker.h"
+#include "mpi_worker_new.h"
 #include <string>
 #include "file_writer.h"
 
 class TestParallel {
 public:
 
-    MPIWorker worker;
+    MPIWorkerNew worker;
 
     std::string nameFileFirstSteps;
     std::string nameFileSecondSteps;

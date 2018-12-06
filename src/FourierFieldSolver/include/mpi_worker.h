@@ -91,7 +91,9 @@ public:
         return grid;
     }
 
-    void ApplyMask();
+    virtual double getPartGuard() { return 0.8; }
+
+    virtual void ApplyMask();
 
     void ExchangeGuard();
 
@@ -106,7 +108,7 @@ public:
         nameFileAfterExchange = _nameFileAfterExchange;
     }
 
-private:
+protected:
     vec3<int> mod(vec3<int> a, vec3<int> b) {
         return ((a + b) % b);
     }
@@ -192,7 +194,7 @@ private:
     //упаковывает вещественные поля части сетки
     int getPackSize(vec3<int> n1, vec3<int> n2);
     void PackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grFrom);
-    void UnPackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo);
+    virtual void UnPackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo);
 
     int getNum(int i, int j, int k) {
         return (i * 3 + j) * 3 + k;
