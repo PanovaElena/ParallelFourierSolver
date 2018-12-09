@@ -7,7 +7,7 @@
 class TestParallel {
 public:
 
-    MPIWorker worker;
+    MPIWorkerNew worker;
 
     std::string nameFileFirstSteps;
     std::string nameFileSecondSteps;

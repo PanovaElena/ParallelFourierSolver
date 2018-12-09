@@ -31,10 +31,10 @@ void MPIWorkerNew::getBoardsForExchange(int& sl1, int& sl2, int& sr1, int& sr2,
 {
     sl1 = getGuardSize().*GetCoord<int>(coord);
     sl2 = 2 * getGuardSize().*GetCoord<int>(coord) - 1;
-    sr1 = getMainDomainSize().*GetCoord<int>(coord) + 1;
-    sr2 = getFullDomainSize().*GetCoord<int>(coord) - getGuardSize().*GetCoord<int>(coord);
-    rr1 = getFullDomainSize().*GetCoord<int>(coord) - getGuardSize().*GetCoord<int>(coord) + 1;
-    rr2 = getFullDomainSize().*GetCoord<int>(coord);
+    sr1 = getMainDomainSize().*GetCoord<int>(coord);
+    sr2 = getFullDomainSize().*GetCoord<int>(coord) - getGuardSize().*GetCoord<int>(coord) - 1;
+    rr1 = getFullDomainSize().*GetCoord<int>(coord) - getGuardSize().*GetCoord<int>(coord);
+    rr2 = getFullDomainSize().*GetCoord<int>(coord) - 1;
     rl1 = 0;
     rl2 = getGuardSize().*GetCoord<int>(coord) - 1;
 }
