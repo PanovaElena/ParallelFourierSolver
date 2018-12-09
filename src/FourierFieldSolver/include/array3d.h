@@ -50,6 +50,7 @@ public:
     int size() const { return nx*ny*nz; };
 
     void Clear();
+    void SetToZeros();
 };
 
 template<class T>
@@ -73,6 +74,8 @@ inline void Array3d<T>::Initialize(int _nx, int _ny, int _nz)
     nx = _nx; ny = _ny; nz = _nz;
 
     AllocMem();
+
+    SetToZeros();
 }
 
 template<class T>
@@ -143,4 +146,11 @@ inline void Array3d<T>::Clear()
     if (tmp2) delete[] tmp2;
     if (tmp1) delete[] tmp1;
     SetPointersInNull();
+}
+
+template<class T>
+inline void Array3d<T>::SetToZeros()
+{
+    for (int i = 0; i < nx*ny*nz; i++)
+        tmp1[i] = 0;
 }

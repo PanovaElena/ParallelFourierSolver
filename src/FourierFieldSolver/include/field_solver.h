@@ -35,8 +35,15 @@ public:
         func(gr, dt);
     }
 
-    friend void TransformGridIfNecessary(FieldSolver fs, Grid3d& gr, Direction dir);
-    friend void TransformGridIfNecessary(FieldSolver fs, Grid3d& gr, Field f, Coordinate c, Direction dir);
+    friend void TransformGridIfNecessary(FieldSolver fs, Grid3d& gr, Direction dir) {
+        if (fs.str == "FDTD") return;
+        FourierTransformation(gr, dir);
+    }
+
+    friend void TransformGridIfNecessary(FieldSolver fs, Grid3d& gr, Field f, Coordinate c, Direction dir) {
+        if (fs.str == "FDTD") return;
+        FourierTransformation(gr, f, c, dir);
+    }
 };
 
 const FieldSolver PSTD(FieldSolverPSTD, "PSTD");
@@ -50,14 +57,8 @@ const std::map<std::string, FieldSolver> fieldSolvers =
 void FieldSolverParallel(MPIWorker& worker, FieldSolver fieldSolver, int numIter, double dt, 
     int iterWriteFile, FileWriter& fileWriter);
 
-inline void TransformGridIfNecessary(FieldSolver fs, Grid3d& gr, Direction dir) {
-    if (fs.str == "FDTD") return;
-    FourierTransformation(gr, dir);
-}
-
-inline void TransformGridIfNecessary(FieldSolver fs, Grid3d& gr, Field f, Coordinate c, Direction dir) {
-    if (fs.str == "FDTD") return;
-    FourierTransformation(gr, f, c, dir);
+inline int mod(int a, int b) {
+    return (a + b) % b;
 }
 
 

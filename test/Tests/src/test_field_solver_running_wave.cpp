@@ -26,25 +26,6 @@ public:
         fileWriter.WriteFile(gr, name);
     }
 
-    void MyTestBodyCheckOnNull() {
-
-        for (int j = 0; j <= parameters.nConsSteps+ parameters.nParSteps; j++) {
-            parameters.fieldSolver(gr, parameters.dt);
-
-            if (j%parameters.nIterBetweenDumps == 0) {
-                FourierTransformation(gr, CtoR);
-            }
-
-
-            for (int i = 0; i < gr.gnxRealCells(); i++) {
-                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField<double>(B).*GetCoord<double>(x)), 1E-5);
-                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField<double>(B).*GetCoord<double>(y)), 1E-5);
-                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField<double>(E).*GetCoord<double>(x)), 1E-5);
-                ASSERT_NEAR(0, (gr(i, 0, 0).*GetField<double>(E).*GetCoord<double>(z)), 1E-5);
-            }
-        }
-    }
-
     void MyTestBodyWriteFile() {
 
         WriteFile(fileWriterE, 0);
@@ -69,11 +50,6 @@ public:
 
     ~TestRunningWave() {}
 };
-
-
-TEST_F(TestRunningWave, other_components_is_null_Ey_Bz) {
-    MyTestBodyCheckOnNull();
-}
 
 TEST_F(TestRunningWave, res_is_sinus_Ey_Bz) {
     MyTestBodyWriteFile();

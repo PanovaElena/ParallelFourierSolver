@@ -2,36 +2,37 @@
 #include "vec.h"
 #include "grid3d.h"
 #include "simple_types_and_constants.h"
+#include "array3d.h"
 
-typedef vec3<double> Node::* MemberOfNode;
-
+typedef FieldForGrid<double> Grid3d::* MemberOfNode;
 typedef double vec3<double>::* MemberOfVec;
-
+typedef Array3d<double> FieldForGrid<double>::* MemberOfField;
 template<class T>
-inline vec3<T> Node::* GetField(Field f) {
+
+inline FieldForGrid<T> Grid3d::* GetField(Field f) {
     switch (f) {
     case E:
-        return &Node::E;
+        return &Grid3d::E;
     case B:
-        return &Node::B;
+        return &Grid3d::B;
     case J:
-        return &Node::J;
+        return &Grid3d::J;
     default:
-        return &Node::E;
+        return &Grid3d::E;
     }
 }
 
 template<>
-inline vec3<MyComplex> Node::* GetField(Field f) {
+inline FieldForGrid<MyComplex> Grid3d::* GetField(Field f) {
     switch (f) {
     case E:
-        return &Node::EF;
+        return &Grid3d::EF;
     case B:
-        return &Node::BF;
+        return &Grid3d::BF;
     case J:
-        return &Node::JF;
+        return &Grid3d::JF;
     default:
-        return &Node::EF;
+        return &Grid3d::EF;
     }
 }
 
@@ -47,4 +48,9 @@ inline T vec3<T>::* GetCoord(Coordinate coord) {
     default:
         return &vec3<T>::x;
     }
+}
+
+template<class T>
+inline Array3d<T> FieldForGrid<T>::* GetFieldCoord(Coordinate coord) {
+    return GetCoord<Array3d<T>>(coord);
 }

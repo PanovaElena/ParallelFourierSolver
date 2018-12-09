@@ -28,7 +28,7 @@ void FileWriter::Write(Grid3d & gr, std::string name, Type type, std::string si,
         for (int k = section.startZ; k <= section.endZ; k++) {
             for (int j = section.startY; j <= section.endY; j++) {
                 for (int i = section.startX; i <= section.endX; i++)
-                    file << std::setprecision(15) << gr(i, j, k).*GetField<double>(field).*GetCoord<double>(coord) << si;
+                    file << std::setprecision(15) << (gr.*GetField<double>(field).*GetFieldCoord<double>(coord))(i, j, k) << si;
                 file << sj;
             }
             file << sk;
@@ -38,7 +38,7 @@ void FileWriter::Write(Grid3d & gr, std::string name, Type type, std::string si,
         for (int k = section.startZ; k <= section.endZ; k++) {
             for (int j = section.startY; j <= section.endY; j++) {
                 for (int i = section.startX; i <= section.endX; i++)
-                    file << std::setprecision(15) << (gr(i, j, k).*GetField<MyComplex>(field).*GetCoord<MyComplex>(coord)).GetAbs() << si;
+                    file << std::setprecision(15) << (gr.*GetField<MyComplex>(field).*GetFieldCoord<MyComplex>(coord))(i, j, k).GetAbs() << si;
                 file << sj;
             }
             file << sk;
@@ -84,9 +84,9 @@ void SetCoordUsingLocation(Section::LocationOfPlane loc, int& start, int& end, i
 void Section::SetBorders(Grid3d& gr)
 {
     startX = startY = startZ = 0;
-    endX = gr.gnxRealCells();
-    endY = gr.gnyRealCells();
-    endZ = gr.gnzRealCells();
+    endX = gr.gnxRealCells() - 1;
+    endY = gr.gnyRealCells() - 1;
+    endZ = gr.gnzRealCells() - 1;
     if (plane1 == Plane::XOY || plane2 == Plane::XOY || plane3 == Plane::XOY) {
         LocationOfPlane loc = plane1 == Plane::XOY ? loc1 : plane2 == Plane::XOY ? loc2 : plane3 == Plane::XOY ? loc3 : LocationOfPlane::noneLocation;
         SetCoordUsingLocation(loc, startZ, endZ, gr.gnzRealCells());

@@ -1,6 +1,6 @@
 #include "grid3d.h"
 
-Grid3d::Grid3d():nodes(){}
+Grid3d::Grid3d() :E(), B(), J(), EF(), BF(), JF() {}
 
 Grid3d::Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz)
 {
@@ -10,7 +10,12 @@ Grid3d::Grid3d(const Grid3d& gr)
 {
     Initialize(gr.n, gr.a, gr.b);
 
-    nodes = gr.nodes;
+    E = gr.E;
+    B = gr.B;
+    J = gr.J;
+    EF = gr.EF;
+    BF = gr.BF;
+    JF = gr.JF;
 }
 Grid3d::Grid3d(vec3<int> n, vec3<double> a, vec3<double> b)
 {
@@ -18,7 +23,12 @@ Grid3d::Grid3d(vec3<int> n, vec3<double> a, vec3<double> b)
 }
 void Grid3d::clearGrid()
 {
-    nodes.Clear();
+    E.Clear();
+    B.Clear();
+    J.Clear();
+    EF.Clear();
+    BF.Clear();
+    JF.Clear();
 }
 
 Grid3d::~Grid3d()
@@ -35,7 +45,14 @@ void Grid3d::Initialize(vec3<int> _n, vec3<double> _a, vec3<double> _b)
 
     d = (b - a) / n;
 
-    nodes.Initialize(n.x + 1, n.y + 1, n.z + 1);
+    for (int i = 0; i < 3; i++) {
+        E.Initialize(n.x, n.y, n.z);
+        B.Initialize(n.x, n.y, n.z);
+        J.Initialize(n.x, n.y, n.z);
+        EF.Initialize(n.x, n.y, n.z / 2 + 1);
+        BF.Initialize(n.x, n.y, n.z / 2 + 1);
+        JF.Initialize(n.x, n.y, n.z / 2 + 1);
+    }
 }
 
 int Grid3d::operator==(const Grid3d& gr) {
@@ -46,13 +63,18 @@ int Grid3d::operator==(const Grid3d& gr) {
     if (b.y != gr.b.y) return 0;
     if (b.z != gr.b.z) return 0;
 
-    return nodes == gr.nodes;
+    return (E == gr.E && B == gr.B && J == gr.J);
 }
 
 Grid3d& Grid3d::operator=(const Grid3d & gr)
 {
     Initialize(gr.n, gr.a, gr.b);
-    nodes = gr.nodes;
+    E = gr.E;
+    B = gr.B;
+    J = gr.J;
+    EF = gr.EF;
+    BF = gr.BF;
+    JF = gr.JF;
     return *this;
 }
 
@@ -96,15 +118,15 @@ vec3<int> Grid3d::gnComplexCells() const
 
 int Grid3d::gnxRealNodes() const
 {
-    return n.x + 1;
+    return n.x;
 }
 int Grid3d::gnyRealNodes() const
 {
-    return n.y + 1;
+    return n.y;
 }
 int Grid3d::gnzRealNodes() const
 {
-    return n.z + 1;
+    return n.z ;
 }
 
 vec3<int> Grid3d::gnRealNodes() const

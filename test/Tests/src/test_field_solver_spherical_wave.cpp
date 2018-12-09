@@ -27,10 +27,11 @@ public:
         fileWriterJ(consDir + dirJ, J, z, section) {}
 
     void MyTestBody() {
-        FourierTransformation(gr, RtoC);
 
         WriteFile(fileWriterE, 0);
         WriteFile(fileWriterB, 0);
+
+        FourierTransformation(gr, RtoC);
 
         for (int iter = 1; iter <= parameters.getNSteps(); iter++) {
             SetJ(iter);
@@ -43,6 +44,8 @@ public:
                 WriteFile(fileWriterE, iter);
                 WriteFile(fileWriterB, iter);
                 WriteFile(fileWriterJ, iter);
+
+                FourierTransformation(gr, RtoC);
             }
 
         }

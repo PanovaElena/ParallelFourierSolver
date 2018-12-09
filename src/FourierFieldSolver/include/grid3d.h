@@ -3,30 +3,48 @@
 #include "my_complex.h"
 #include "iostream"
 #include "array3d.h"
+#include "simple_types_and_constants.h"
 
-struct Node
-{
-    vec3<double> B;
-    vec3<double> E;
-    vec3<double> J;
+template <class T>
+struct FieldForGrid: public vec3<Array3d<T>> {
 
-    vec3<MyComplex> BF;
-    vec3<MyComplex> EF;
-    vec3<MyComplex> JF;
-
-    Node() :B(0,0,0), E(0, 0, 0), J(0,0,0) {}
-    Node(const Node& n) :B(n.B), E(n.E) {}
-    //только вещественные поля
-    friend int operator==(const Node& n1, const Node& n2) {
-        return (n1.B == n2.B && n1.E == n2.E);
+    vec3<T> operator()(int i, int j, int k)
+    {
+        return vec3<T>(x(i, j, k), y(i, j, k), z(i, j, k));
     }
-    friend int operator!=(const Node& n1, const Node& n2) {
-        return !(n1==n2);
+    vec3<T> operator()(vec3<int> v)
+    {
+        return (*this)(v.x, v.y, v.z);
+    }
+    void Write(int i, int j, int k, vec3<T> val) {
+        x(i, j, k) = val.x;
+        y(i, j, k) = val.y;
+        z(i, j, k) = val.z;
+    }
+    void Clear() {
+        x.Clear();
+        y.Clear();
+        z.Clear();
+    }
+    void Initialize(int nx, int ny, int nz) {
+        x.Initialize(nx, ny, nz);
+        y.Initialize(nx, ny, nz);
+        z.Initialize(nx, ny, nz);
+    }
+    friend bool operator==(const FieldForGrid& f1, const FieldForGrid& f2) {
+        return (f1.x == f2.x && f1.y == f2.y && f1.z == f2.z);
+    }
+    friend bool operator!=(const FieldForGrid& f1, const FieldForGrid& f2) {
+        return !(f1 == f2);
     }
 };
 
 class Grid3d
 {
+    struct LabelFourierTransform {
+        Direction data[3][3];
+    };
+
 private:
     vec3<int> n;
 
@@ -35,9 +53,18 @@ private:
 
     vec3<double> d; // dx = x / nx, dy = y / ny, dz = z / nz
 
-    Array3d<Node> nodes;
-
     void clearGrid();
+
+    LabelFourierTransform labelFourierTransform;
+
+public:
+    FieldForGrid<double> E;
+    FieldForGrid<double> B;
+    FieldForGrid<double> J;
+    FieldForGrid<MyComplex> EF;
+    FieldForGrid<MyComplex> BF;
+    FieldForGrid<MyComplex> JF;
+
 public:
 	Grid3d();
 	Grid3d(const Grid3d& gr);
@@ -61,9 +88,9 @@ public:
 	int gnzComplexCells() const;//get nz/2+1
     vec3<int> gnComplexCells() const;
 
-	int gnxRealNodes() const;//get nx+1
-	int gnyRealNodes() const;//get ny+1
-	int gnzRealNodes() const;//get nz+1
+	int gnxRealNodes() const;//get nx
+	int gnyRealNodes() const;//get ny
+	int gnzRealNodes() const;//get nz
     vec3<int> gnRealNodes() const;
 
 	double gdx() const; //get dx
@@ -81,21 +108,12 @@ public:
 	double gbz() const; //get bz
     vec3<double> gb() const;
 
-	Node& operator()(int i, int j, int k) { 
-		if (i > n.get_x() || j > n.get_y() || k>n.get_z()) 
-		{
-			throw "wrong index";
-		}
-		return nodes(i,j,k); 
-	}
+    Direction getLastFourierTransform (Field field, Coordinate coord){
+        return labelFourierTransform.data[field][coord];
+    }
 
-	Node& operator()(vec3<int> ind) {
-		if (ind.x > n.get_x() || ind.y > n.get_y() || ind.z>n.get_z())
-		{
-			throw "wrong index";
-		}
-		return nodes(ind.x,ind.y,ind.z);
-	}
-
+    void setLastFourierTransform(Field field, Coordinate coord, Direction dir) {
+        labelFourierTransform.data[field][coord]=dir;
+    }
 
 };

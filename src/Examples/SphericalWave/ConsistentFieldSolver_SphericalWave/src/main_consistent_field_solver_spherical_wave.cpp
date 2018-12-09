@@ -22,13 +22,13 @@ void TestBody(SphericalWave& sphericalWave) {
 }
 
 int main(int argc, char** argv) {
-    SphericalWave runningWave;
+    SphericalWave sphericalWave;
     ParserSphericalWave parser;
     ParametersForSphericalWave params;
     int status = parser.parseArgsForConsistent(argc, argv, params);
     if (status != 0) return 0;
     params.nParSteps = 0;
     params.print();
-    runningWave.SetParamsForTest(params);
-    TestBody(runningWave);
+    sphericalWave.SetParamsForTest(params);
+    TestBody(sphericalWave);
 }

@@ -117,12 +117,12 @@ public:
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++)
                 for (int k = 0; k < gr.gnzRealNodes(); k++) {
-                    gr(i, j, k).E = vec3<double>(0, 1, 0)
-                        *funcE(i*parameters.d + parameters.a, k*parameters.d + parameters.a);
-                    gr(i, j, k).B = vec3<double>(-sin(parameters.angle), 0, cos(parameters.angle))
-                        *funcB(i*parameters.d + parameters.a, k*parameters.d + parameters.a);
+                    gr.E.Write(i, j, k, vec3<double>(0, 1, 0)
+                        *funcE(i*parameters.d + parameters.a, k*parameters.d + parameters.a));
+                    gr.B.Write(i, j, k, vec3<double>(-sin(parameters.angle), 0, cos(parameters.angle))
+                        *funcB(i*parameters.d + parameters.a, k*parameters.d + parameters.a));
                 }
 
-        TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
+        //TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
     }
 };

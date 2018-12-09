@@ -4,7 +4,7 @@
 
 TEST(TestMPIWorker, mpi_worker_dont_fail) {
     Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
-    ASSERT_NO_THROW(MPIWorker mpiWorker(gr, 1, simpleMask, 0, 2, 0));
+    ASSERT_NO_THROW(MPIWorker mpiWorker(gr, vec3<int>(1), simpleMask, 0, 2, 0));
 }
 
 TEST(TestMPIWorker, mpi_worker_sizes_are_correct) {
@@ -66,32 +66,32 @@ TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_1_main_domain) {
 
 TEST(TestMPIWorker, mpi_worker_copy_gr_correctly_for_process_0) {
     Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
-    for (int i = 0; i <= 8; i++)
-        for (int j = 0; j <= gr.gnyRealCells(); j++)
-            for (int k = 0; k <= gr.gnzRealCells(); k++)
-                gr(i, j, k).E[0] = i % 8;
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < gr.gnyRealCells(); j++)
+            for (int k = 0; k < gr.gnzRealCells(); k++)
+                gr.E[0](i, j, k) = i % 8;
     vec3<int> guard = vec3<int>(1, 0, 0);
     MPIWorker mpiWorker(gr, guard, simpleMask, 0, 2, 0);
 
-    for (int i = 0; i <= mpiWorker.getMainDomainSize().x; i++)
-        for (int j = 0; j <= mpiWorker.getMainDomainSize().y; j++)
-            for (int k = 0; k <= mpiWorker.getMainDomainSize().z; k++)
-                ASSERT_DOUBLE_EQ(i % 8, (mpiWorker.getGrid())(i + guard.x, j + guard.y, k + guard.z).E.get_x());
+    for (int i = 0; i < mpiWorker.getMainDomainSize().x; i++)
+        for (int j = 0; j < mpiWorker.getMainDomainSize().y; j++)
+            for (int k = 0; k < mpiWorker.getMainDomainSize().z; k++)
+                ASSERT_DOUBLE_EQ(i % 8, (mpiWorker.getGrid()).E.x(i + guard.x, j + guard.y, k + guard.z));
 }
 
 TEST(TestMPIWorker, mpi_worker_copy_gr_correctly_for_process_1) {
     Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
-    for (int i = 0; i <= 8; i++)
-        for (int j = 0; j <= gr.gnyRealCells(); j++)
-            for (int k = 0; k <= gr.gnzRealCells(); k++)
-                gr(i, j, k).E[0] = i % 8;
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < gr.gnyRealCells(); j++)
+            for (int k = 0; k < gr.gnzRealCells(); k++)
+                gr.E[0](i, j, k) = i % 8;
     vec3<int> guard = vec3<int>(1, 0, 0);
     MPIWorker mpiWorker(gr, guard, simpleMask, 0, 2, 1);
 
-    for (int i = 0; i <= mpiWorker.getMainDomainSize().x; i++)
-        for (int j = 0; j <= mpiWorker.getMainDomainSize().y; j++)
-            for (int k = 0; k <= mpiWorker.getMainDomainSize().z; k++)
-                ASSERT_DOUBLE_EQ((i+4) % 8, (mpiWorker.getGrid())(i + guard.x, j + guard.y, k + guard.z).E.get_x());
+    for (int i = 0; i < mpiWorker.getMainDomainSize().x; i++)
+        for (int j = 0; j < mpiWorker.getMainDomainSize().y; j++)
+            for (int k = 0; k < mpiWorker.getMainDomainSize().z; k++)
+                ASSERT_DOUBLE_EQ((i+4) % 8, (mpiWorker.getGrid()).E.x(i + guard.x, j + guard.y, k + guard.z));
 }
 
 

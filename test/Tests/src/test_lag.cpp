@@ -19,7 +19,7 @@ public:
 		for (int i = 0; i < n; i++)
 			for (int j = 0; j < n; j++)
 				for (int k = 0; k < n; k++)
-					gr(i, j, k).E[0] = f(i, j, k);
+                    gr.E.x(i, j, k) = f(i, j, k);
 	}
 
 	double f(int i, int j, int k) {
@@ -32,11 +32,9 @@ public:
 			for (int j = 0; j < n; j++)
 				for (int k = 0; k < n / 2 + 1; k++)
 				{
-					double omegaX = OmegaX(i, gr);
-					double omegaY = OmegaY(j, gr);
-					double omegaZ = OmegaZ(k, gr);
+                    vec3<MyComplex> K = GetK(vec3<int>(i, j, k), gr);
 
-					gr(i, j, k).EF[0] *= MyComplex::GetTrig(1, -c * (omegaX + omegaY + omegaZ));
+                    gr.EF.x(i, j, k) *= MyComplex::GetTrig(1, -c * (K.x + K.y + K.z));
 				}
 		FourierTransformation(gr, CtoR);
 	}
@@ -50,19 +48,6 @@ TEST_F(test_lag, lag_is_correct) {
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < n; j++)
 			for (int k = 0; k < n; k++) {
-				ASSERT_NEAR(f(i - step, j - step, k - step), gr(i, j, k).E.get_x(), 1E-7);
+				ASSERT_NEAR(f(i - step, j - step, k - step), gr.E.x(i, j, k), 1E-7);
 			}
-}
-
-TEST_F(test_lag, last_nodes_are_correct) {
-
-	MyTestBodyLag();
-
-	for (int i = 0; i <= n; i++)
-		for (int j = 0; j <= n; j++)
-			for (int k = 0; k <= n; k++)
-                if (i%n == 0 && j % n == 0 || i%n == 0 && k % n == 0 || j%n == 0 && k % n == 0)
-                {
-                    ASSERT_DOUBLE_EQ(gr(i%n, j%n, k%n).E.get_x(), gr(i, j, k).E.get_x());
-                }
 }

@@ -27,7 +27,7 @@ public:
     }
     int getTag(vec3<int> dim) {
         int N = 3;
-        dim = dim + N;
+        dim = dim + vec3<int>(N);
         return (dim.x*N + dim.y)*N + dim.z;
     }
     vec3<int> getVecRank(int rank) {

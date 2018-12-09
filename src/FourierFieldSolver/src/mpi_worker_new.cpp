@@ -4,12 +4,12 @@
 
 void MPIWorkerNew::ApplyMask()
 {
-    for (int i = 0; i <= grid.gnxRealCells(); i++)
-        for (int j = 0; j <= grid.gnyRealCells(); j++)
-            for (int k = 0; k <= grid.gnzRealCells(); k++) {
-                grid(i, j, k).E *= mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2, maskWidth);
-                grid(i, j, k).B *= mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2, maskWidth);
-                grid(i, j, k).J *= mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2, maskWidth);
+    for (int i = 0; i < grid.gnxRealCells(); i++)
+        for (int j = 0; j < grid.gnyRealCells(); j++)
+            for (int k = 0; k < grid.gnzRealCells(); k++) {
+                grid.E.Write(i, j, k, grid.E(i, j, k) * mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2, maskWidth));
+                grid.B.Write(i, j, k, grid.B(i, j, k) * mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2, maskWidth));
+                grid.J.Write(i, j, k, grid.J(i, j, k) * mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2, maskWidth));
             }
 }
 
@@ -21,8 +21,8 @@ void MPIWorkerNew::UnPackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d&
         for (int j = n1.y; j <= n2.y; j++)
             for (int k = n1.z; k <= n2.z; k++)
                 for (int coord = 0; coord < 3; coord++) {
-                    grTo(i, j, k).E[coord] = arr[num++];
-                    grTo(i, j, k).B[coord] = arr[num++];
+                    grTo.E[coord](i, j, k) = arr[num++];
+                    grTo.B[coord](i, j, k) = arr[num++];
                 }
 }
 

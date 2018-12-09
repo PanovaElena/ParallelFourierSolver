@@ -1,24 +1,12 @@
+#include <iostream>
 #include "fftw3.h"
 #include "grid3d.h"
-#include <vector>
-#include "operations_with_arrays.h"
 #include "my_complex.h"
 #include "fourier_transformation.h"
-#include "physical_constants.h"
 #include "array3d.h"
-using namespace std;
+#include "class_member_ptr.h"
 
-double OmegaX(int i, const Grid3d& gr) {
-	return (2 * constants::pi*((i <= gr.gnxRealCells() / 2) ? i : i - gr.gnxRealCells())) / (gr.gbx() - gr.gax());
-}
-double OmegaY(int j, const Grid3d& gr) {
-	return (2 * constants::pi*((j <= gr.gnyRealCells() / 2) ? j : j - gr.gnyRealCells())) / (gr.gby() - gr.gay());
-}
-double OmegaZ(int k, const Grid3d& gr) {
-	return (2 * constants::pi*((k <= gr.gnzRealCells() / 2) ? k : k - gr.gnzRealCells())) / (gr.gbz() - gr.gaz());
-}
-
-void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, int Nz, int dir) {
+void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, int Nz, Direction dir) {
     fftw_plan plan = 0;
     switch (dir) {
     case RtoC:
@@ -35,33 +23,28 @@ void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, in
     fftw_destroy_plan(plan);
 }
 
-void FourierTransformation(Grid3d & gr, Field _field, Coordinate _coord, int dir)
+void FourierTransformation(Grid3d & gr, Field _field, Coordinate _coord, Direction dir)
 {
-	Array3d<double> arrD(gr.gnxRealCells(), gr.gnyRealCells(), gr.gnzRealCells());
-	Array3d<MyComplex> arrC(gr.gnxComplexCells(), gr.gnyComplexCells(), gr.gnzComplexCells());
+    //if (gr.getLastFourierTransform(_field, _coord) == dir) {
+    //    //std::cout << "Try to transform to the same direction: " << dir << std::endl;
+    //    return;
+    //}
 
-    switch (dir) {
-    case RtoC:
-        OperationWithArrays::WriteDouble(gr, _field, _coord, FromGridToArray, arrD);
-        break;
-    case  CtoR:
-        OperationWithArrays::WriteComplex(gr, _field, _coord, FromGridToArray, arrC);
-        break;
-    }
-	UseFFTW(arrD, arrC, gr.gnxRealCells(), gr.gnyRealCells(), gr.gnzRealCells(), dir);
+    Array3d<double>& arrD = (gr.*GetField<double>(_field)).*GetFieldCoord<double>(_coord);
+    Array3d<MyComplex>& arrC = (gr.*GetField<MyComplex>(_field)).*GetFieldCoord<MyComplex>(_coord);
 
-    switch (dir) {
-    case RtoC:
-        OperationWithArrays::WriteComplex(gr, _field, _coord, FromArrayToGrid, arrC);
-        break;
-    case  CtoR:
-        OperationWithArrays::WriteDouble(gr, _field, _coord, FromArrayToGrid, arrD);
-        break;
-    }
+    UseFFTW(arrD, arrC, gr.gnxRealCells(), gr.gnyRealCells(), gr.gnzRealCells(), dir);
+
+    gr.setLastFourierTransform(_field, _coord, dir);
 }
 
-void FourierTransformation(Grid3d & gr, int dir)
+void FourierTransformation(Grid3d & gr, Direction dir)
 {
+    if (gr.getLastFourierTransform(E, x) == dir) {
+        std::cout << "Try to transform to the same direction: " << dir << std::endl;
+        return;
+    }
+
     FourierTransformation(gr, E, x, dir);
     FourierTransformation(gr, E, y, dir);
     FourierTransformation(gr, E, z, dir);

@@ -10,11 +10,7 @@
 void WriteFile(Grid3d& gr, int iter, FileWriter& fileWriter) {
     FourierTransformation(gr, CtoR);
     fileWriter.WriteFile(gr, "iter_rank_" + std::to_string(MPIWrapper::MPIRank()) + ".csv");
-}
-
-void Dump(Grid3d& gr, int iter, FileWriter& fileWriter) {
-    FourierTransformation(gr, CtoR);
-    fileWriter.WriteFile(gr, "dump_iter_" + std::to_string(iter) + ".csv");
+    FourierTransformation(gr, RtoC);
 }
 
 void FieldSolverParallelInnerCircle(MPIWorker& worker, FieldSolver fieldSolver, int numIter, double dt,

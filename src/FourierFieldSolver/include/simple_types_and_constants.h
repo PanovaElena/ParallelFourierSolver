@@ -24,9 +24,10 @@ enum Coordinate {
     z
 };
 
-typedef int Direction;
-
-static const Direction FromGridToArray = -1;
-static const Direction FromArrayToGrid = 1;
+enum Direction {
+    None,
+    RtoC,
+    CtoR
+};
 
     

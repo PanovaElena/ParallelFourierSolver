@@ -134,26 +134,26 @@ public:
     }
 
     void SetJ(int iter) {
+        if (iter != 0) TransformGridIfNecessary(parameters.fieldSolver, gr, CtoR);
         double J0;
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++) {
                 J0 = GetJ(i, j, iter);
-                gr(i, j, gr.gnzRealCells() / 2).J = vec3<double>(0, 0, J0);
+                gr.J.Write(i, j, gr.gnzRealCells() / 2, vec3<double>(0, 0, J0));
             }
-        TransformGridIfNecessary(parameters.fieldSolver, gr, J, x, RtoC);
-        TransformGridIfNecessary(parameters.fieldSolver, gr, J, y, RtoC);
-        TransformGridIfNecessary(parameters.fieldSolver, gr, J, z, RtoC);
+        if (iter != 0) TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
     }
 
     virtual void SetEB() {
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++)
                 for (int k = 0; k < gr.gnzRealNodes(); k++) {
-                    gr(i, j, k).E = vec3<double>(0, 0, 0);
-                    gr(i, j, k).B = vec3<double>(0, 0, 0);
+                    gr.E.Write(i, j, k, vec3<double>(0, 0, 0));
+                    gr.B.Write(i, j, k, vec3<double>(0, 0, 0));
                 }
 
-        TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
+        //TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
+        SetJ(0);
     }
 
 };

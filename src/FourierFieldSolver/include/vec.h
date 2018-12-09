@@ -12,7 +12,7 @@ inline double absSquare(MyComplex a) {
     return a.GetReal()*a.GetReal()+ a.GetImag()*a.GetImag();
 }
 
-template <class Type>
+template <class Type=double>
 struct vec3
 {
     Type x;
@@ -21,17 +21,18 @@ struct vec3
 
     vec3() {};
 
-    vec3(Type a, Type b, Type c) {
-        x = a;
-        y = b;
-        z = c;
+    vec3(Type a, Type b, Type c) : x(a), y(b), z(c) {
     };
 
-    vec3(Type a) {
-        x = a;
-        y = a;
-        z = a;
+    explicit vec3(Type a) : x(a), y(a), z(a) {
     };
+
+    vec3& operator=(const vec3 & v) {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+        return *this;
+    }
 
     Type& operator[](int i) {
         switch (i) {
@@ -46,10 +47,7 @@ struct vec3
     Type get_y() const { return y; }
     Type get_z() const { return z; }
 
-    vec3(const vec3<Type> &c) {
-        x = c.x;
-        y = c.y;
-        z = c.z;
+    vec3(const vec3<Type> &c) : x(c.x), y(c.y), z(c.z) {
     };
 
     template<class T>
@@ -57,25 +55,8 @@ struct vec3
         return vec3<T>(x, y, z);
     }
 
-
     vec3 operator+(const vec3 &v)  const {
         return vec3(x + v.get_x(), y + v.get_y(), z + v.get_z());
-    };
-    vec3 operator-(const vec3 &v)  const {
-        return vec3(x - v.get_x(), y - v.get_y(), z - v.get_z());
-    };
-
-    //by components
-    vec3 operator*(const vec3 &v)  const {
-        return vec3(x * v.get_x(), y * v.get_y(), z * v.get_z());
-    };
-    //by components
-    vec3 operator/(const vec3 &v)  const {
-        return vec3(x / v.get_x(), y / v.get_y(), z / v.get_z());
-    };
-    //by components
-    vec3 operator%(const vec3 &v)  const {
-        return vec3(x % v.get_x(), y % v.get_y(), z % v.get_z());
     };
     vec3& operator+=(const vec3 &v) {
         x += v.get_x();
@@ -83,16 +64,13 @@ struct vec3
         z += v.get_z();
         return *this;
     };
+    vec3 operator-(const vec3 &v)  const {
+        return vec3(x - v.get_x(), y - v.get_y(), z - v.get_z());
+    };
     vec3& operator-=(const vec3 &v) {
         x -= v.get_x();
         y -= v.get_y();
         z -= v.get_z();
-        return *this;
-    };
-    vec3& operator*=(const Type &v) {
-        x *= v;
-        y *= v;
-        z *= v;
         return *this;
     };
 
@@ -101,6 +79,27 @@ struct vec3
     };
     friend vec3 operator* (Type b, vec3 v) {
         return v*b;
+    };
+    //by components
+    vec3 operator*(const vec3 &v)  const {
+        return vec3(x * v.get_x(), y * v.get_y(), z * v.get_z());
+    };
+    vec3& operator*=(const Type &v) {
+        x *= v;
+        y *= v;
+        z *= v;
+        return *this;
+    };
+    vec3 operator/ (Type b) const {
+        return vec3(x/b, y/b, z/b);
+    };
+    //by components
+    vec3 operator/(const vec3 &v)  const {
+        return vec3(x / v.get_x(), y / v.get_y(), z / v.get_z());
+    };
+    //by components
+    vec3 operator%(const vec3 &v)  const {
+        return vec3(x % v.get_x(), y % v.get_y(), z % v.get_z());
     };
 
     friend bool operator==(const vec3& a, const vec3& b)  
