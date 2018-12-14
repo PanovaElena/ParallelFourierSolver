@@ -3,7 +3,7 @@
 #include "grid3d.h"
 #include <string>
 #include "file_writer.h"
-#include "masks.h"
+#include "mask.h"
 #include "status.h"
 
 class MPIWorker {

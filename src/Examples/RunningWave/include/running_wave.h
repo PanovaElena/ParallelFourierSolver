@@ -7,7 +7,8 @@
 #include "field_solver.h"
 #include "class_member_ptr.h"
 #include "file_writer.h"
-#include "masks.h"
+#include "mask.h"
+#include "filter.h"
 #include "parameters_for_test.h"
 
 struct ParametersForRunningWave : public ParametersForTest {
@@ -22,8 +23,11 @@ struct ParametersForRunningWave : public ParametersForTest {
     double a = 0, b = nx*d;
 
     // маска
-    Mask mask = simpleMask;
+    Mask mask = MaskSimple;
     int maskWidth = 8;
+
+    // фильтр
+    Filter filter;
 
     // физические параметры
     double lambda = 8 * d;
@@ -58,6 +62,8 @@ struct ParametersForRunningWave : public ParametersForTest {
             "nz = " << nz << "\n" <<
             "d = " << d << "\n" <<
             "guard = " << guard << "\n" <<
+            "mask = " << mask.to_string() << "\n" <<
+            "filter = " << filter.to_string() << "\n" <<
             "num of steps = " << getNSteps() << "\n" <<
             "num of consistent steps = " << nConsSteps << "\n" <<
             "num of parallel steps = " << nParSteps << "\n" <<
