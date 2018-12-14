@@ -15,10 +15,10 @@ class MPIWorker;
 
 typedef void (*FieldSolverType)(Grid3d&, double);
 
-void FieldSolverFDTD(Grid3d& gr, double dt);
-void FieldSolverPSTD(Grid3d& gr, double dt);
-void FieldSolverPSATD(Grid3d& gr, double dt);
-void FieldSolverPSATD_OMP(Grid3d& gr, double dt);
+void fieldSolverFDTD(Grid3d& gr, double dt);
+void fieldSolverPSTD(Grid3d& gr, double dt);
+void fieldSolverPSATD(Grid3d& gr, double dt);
+void fieldSolverPSATD_omp(Grid3d& gr, double dt);
 
 class FieldSolver {
     FieldSolverType func;
@@ -46,12 +46,12 @@ public:
     }
 };
 
-const FieldSolver PSTD(FieldSolverPSTD, "PSTD");
-const FieldSolver PSATD(FieldSolverPSATD, "PSATD");
-const FieldSolver FDTD(FieldSolverFDTD, "FDTD");
-const FieldSolver PSATD_OMP(FieldSolverPSATD_OMP, "PSATD_omp");
+const FieldSolver PSTD(fieldSolverPSTD, "PSTD");
+const FieldSolver PSATD(fieldSolverPSATD, "PSATD");
+const FieldSolver FDTD(fieldSolverFDTD, "FDTD");
+const FieldSolver PSATD_OMP(fieldSolverPSATD_omp, "PSATD_omp");
 
-const std::map<std::string, FieldSolver> fieldSolvers =
+const std::map<std::string, FieldSolver> FieldSolverMap =
     { { "PSTD",PSTD },{ "PSATD",PSATD },{ "FDTD",FDTD },{ "PSATD_omp",PSATD_OMP } };
 
 void FieldSolverParallel(MPIWorker& worker, FieldSolver fieldSolver, int numIter, double dt, 

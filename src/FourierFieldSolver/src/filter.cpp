@@ -1,6 +1,6 @@
 #include "filter.h"
 
-void LowFrequencyFilter(Grid3d& gr, int maskWidth, int numZeroFreq) {
+void lowFrequencyFilter(Grid3d& gr, int maskWidth, int numZeroFreq) {
 
     double a1 = gr.gnComplexCells().x / 2 - maskWidth - numZeroFreq;
     double b1 = gr.gnComplexCells().x / 2 - numZeroFreq;

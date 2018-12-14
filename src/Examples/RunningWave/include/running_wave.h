@@ -23,7 +23,7 @@ struct ParametersForRunningWave : public ParametersForTest {
     double a = 0, b = nx*d;
 
     // маска
-    Mask mask = MaskSimple;
+    Mask mask = SimpleMask;
     int maskWidth = 8;
 
     // фильтр

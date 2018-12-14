@@ -7,7 +7,7 @@
 typedef double(*MaskFunc) (vec3<int> ind, vec3<int> mainSize, vec3<int> guardSize, int maskWidth);
 
 double simpleMask(vec3<int> ind, vec3<int> mainSize, vec3<int> guardSize, int maskWidth);
-//double SmoothMask(int i, int mainSize, int guardSize, int maskWidth);
+//double smoothMask(int i, int mainSize, int guardSize, int maskWidth);
 
 class Mask {
     MaskFunc func;
@@ -26,8 +26,8 @@ public:
     }
 };
 
-const Mask MaskSimple(simpleMask, "simple");
-//const Mask MaskSmooth(SmoothMask, "smooth");
+const Mask SimpleMask(simpleMask, "simple");
+//const Mask SmoothMask(smoothMask, "smooth");
 
-const std::map<std::string, Mask> maskMap =
-{ { "simple", MaskSimple }/*,{ "smooth", MaskSmooth }*/ };
+const std::map<std::string, Mask> MaskMap =
+{ { "simple", SimpleMask }/*,{ "smooth", SmoothMask }*/ };

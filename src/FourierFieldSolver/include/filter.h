@@ -6,7 +6,7 @@
 
 typedef void(*FilterFunc) (Grid3d& gr, int maskWidth, int numZeroFreq);
 
-void LowFrequencyFilter(Grid3d& gr, int maskWidth, int numZeroFreq);
+void lowFrequencyFilter(Grid3d& gr, int maskWidth, int numZeroFreq);
 
 class Filter {
 public:
@@ -16,7 +16,7 @@ public:
     };
     State state = off;
     void operator() (Grid3d& gr, int maskWidth, int numZeroFreq) {
-        if (state == on) LowFrequencyFilter(gr, maskWidth, numZeroFreq);
+        if (state == on) lowFrequencyFilter(gr, maskWidth, numZeroFreq);
     }
     std::string to_string() {
         switch (state) {

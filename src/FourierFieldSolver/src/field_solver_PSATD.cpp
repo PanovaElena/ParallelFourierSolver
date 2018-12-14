@@ -29,7 +29,7 @@ inline void FieldSolverPSATD_MainLoopBody(Grid3d & gr, double dt, int i, int j, 
         complex_i*((1 - C) / (normK*constants::c))*vec3<MyComplex>::VectorProduct(K, J));
 }
 
-void FieldSolverPSATD(Grid3d & gr, double dt) {
+void fieldSolverPSATD(Grid3d & gr, double dt) {
 
     for (int i = 0; i < gr.gnxComplexCells(); i++)
         for (int j = 0; j < gr.gnyComplexCells(); j++)
@@ -37,7 +37,7 @@ void FieldSolverPSATD(Grid3d & gr, double dt) {
                 FieldSolverPSATD_MainLoopBody(gr, dt, i, j, k);
 }
 
-void FieldSolverPSATD_OMP(Grid3d & gr, double dt) {
+void fieldSolverPSATD_omp(Grid3d & gr, double dt) {
 
 #pragma omp parallel for
     for (int i = 0; i < gr.gnxComplexCells(); i++)

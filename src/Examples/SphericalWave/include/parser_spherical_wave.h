@@ -58,8 +58,8 @@ public:
             params.Ty = params.Tx;
         }
         if (m.find("-solver") != m.end())
-            if (fieldSolvers.find(m.find("-solver")->second) != fieldSolvers.end())
-                params.fieldSolver = fieldSolvers.find(m.find("-solver")->second)->second;
+            if (FieldSolverMap.find(m.find("-solver")->second) != FieldSolverMap.end())
+                params.fieldSolver = FieldSolverMap.find(m.find("-solver")->second)->second;
         if (m.find("-nbd") != m.end()) params.nIterBetweenDumps = std::stoi(m.find("-nbd")->second);
         if (m.find("-nCons") != m.end()) params.nConsSteps = std::stoi(m.find("-nCons")->second);
 
@@ -67,8 +67,8 @@ public:
             if (m.find("-guard") != m.end()) params.guard = std::stoi(m.find("-guard")->second);
             if (m.find("-nPar") != m.end()) params.nParSteps = std::stoi(m.find("-nPar")->second);
             if (m.find("-mask") != m.end())
-                if (maskMap.find(m.find("-mask")->second) != maskMap.end())
-                    params.mask = maskMap.find(m.find("-mask")->second)->second;
+                if (MaskMap.find(m.find("-mask")->second) != MaskMap.end())
+                    params.mask = MaskMap.find(m.find("-mask")->second)->second;
             if (m.find("-filter") != m.end()) {
                 if (m.find("-filter")->second == "on")
                     params.filter.state = Filter::State::on;

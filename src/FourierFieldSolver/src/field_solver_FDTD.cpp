@@ -44,7 +44,7 @@ void RefreshB_FDTD(Grid3d& gr, double dt) {
                 gr.B.Write(i, j, k, res);
             }
 }
-void FieldSolverFDTD(Grid3d& gr, double dt) {
+void fieldSolverFDTD(Grid3d& gr, double dt) {
     RefreshE_FDTD(gr, dt);
     RefreshB_FDTD(gr, dt);
 }
