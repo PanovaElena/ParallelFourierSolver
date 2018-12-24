@@ -5,12 +5,12 @@ class MPIWorkerNew : public MPIWorker {
 public:
 
     MPIWorkerNew() {}
-    MPIWorkerNew(Grid3d& gr, vec3<int> guardWidth, Mask mask, int maskWidth, MPIWrapper3d& _mpiWrapper3d) {
-        Initialize(gr, guardWidth, mask, maskWidth, _mpiWrapper3d);
+    MPIWorkerNew(Grid3d& gr, vec3<int> guardWidth, Mask mask, MPIWrapper3d& _mpiWrapper3d) {
+        Initialize(gr, guardWidth, mask, _mpiWrapper3d);
     }
 
-    MPIWorkerNew(Grid3d& gr, vec3<int> guardWidth, Mask mask, int maskWidth, int _size, int _rank) {
-        Initialize(gr, guardWidth, mask, maskWidth, _size, _rank);
+    MPIWorkerNew(Grid3d& gr, vec3<int> guardWidth, Mask mask, int _size, int _rank) {
+        Initialize(gr, guardWidth, mask, _size, _rank);
     }
 
     void ApplyMask() override;

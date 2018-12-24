@@ -3,6 +3,7 @@
 #include "my_complex.h"
 #include <iostream>
 #include <string>
+#include "simple_types_and_constants.h"
 
 
 inline double absSquare(double a) {
@@ -132,7 +133,7 @@ struct vec3
     };
 
     friend std::ostream& operator<<(std::ostream& ost, vec3& vec) {
-        ost << std::to_string(vec);
+        ost << "(" << vec.x << "," << vec.y << "," << vec.z << ")";;
         return ost;
     }
 
@@ -141,4 +142,21 @@ struct vec3
             std::to_string(vec.z) + ")";
         return str;
     }
+
+
+    template<class Type>
+    static vec3<Type> getVecIfCoord(Coordinate coord, vec3<Type> valCoord, vec3<Type> valOther) {
+        return vec3<Type>(coord == Coordinate::x ? valCoord.x : valOther.x,
+            coord == Coordinate::y ? valCoord.y : valOther.y,
+            coord == Coordinate::z ? valCoord.z : valOther.z);
+    }
+
+    template<class Type>
+    static vec3<Type> getVecIfLess(vec3<Type> vecVal, vec3<Type> vecCond) {
+        return vec3<Type>(vecVal.x < vecCond.x ? vecVal.x : 0,
+            vecVal.y < vecCond.y ? vecVal.y : 0,
+            vecVal.z < vecCond.z ? vecVal.z : 0);
+    }
+
+
 };

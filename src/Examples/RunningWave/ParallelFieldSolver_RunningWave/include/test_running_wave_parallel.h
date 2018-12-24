@@ -37,11 +37,11 @@ public:
     }
 
     void DoParallelPart() {
-        vec3<int> g(worker.getMPIWrapper().MPISize().x == 1 ? 0 : runningWave.parameters.guard,
-            worker.getMPIWrapper().MPISize().y == 1 ? 0 : runningWave.parameters.guard,
-            worker.getMPIWrapper().MPISize().z == 1 ? 0 : runningWave.parameters.guard);
+        vec3<int> g(worker.getMPIWrapper().MPISize().x == 1 ? 0 : runningWave.parameters.guard.x,
+            worker.getMPIWrapper().MPISize().y == 1 ? 0 : runningWave.parameters.guard.y,
+            worker.getMPIWrapper().MPISize().z == 1 ? 0 : runningWave.parameters.guard.z);
         if (worker.Initialize(runningWave.gr, g,
-            runningWave.parameters.mask, runningWave.parameters.maskWidth, worker.getMPIWrapper()) == Status::ERROR)
+            runningWave.parameters.mask, worker.getMPIWrapper()) == Status::ERROR)
             return;
 
         MPIWorker::ShowMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +
@@ -59,6 +59,13 @@ public:
 
         //MPIWorker::ShowMessage("assemble");
         worker.AssembleResultsToZeroProcess(runningWave.gr);
+
+        if (runningWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
+            TransformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, RtoC);
+            runningWave.parameters.filter(runningWave.gr);
+            TransformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
+        }
+
         //MPIWorker::ShowMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)
             runningWave.fileWriter.WriteFile(runningWave.gr, nameFileSecondSteps);

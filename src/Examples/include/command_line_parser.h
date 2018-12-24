@@ -18,7 +18,7 @@ protected:
     MPIWrapper3d mpiWrapper = MPIWrapper3d();
 
 public:
-    virtual void help(Task task) = 0;
+    virtual void help(ParametersForTest& p, Task task) = 0;
     virtual Status saveArgs(ParametersForTest& p, Task task) = 0;
 
     Status parseArgsForConsistent(int& argc, char**& argv, ParametersForTest& p) {
@@ -26,17 +26,16 @@ public:
     }
 
     Status parseArgsForParallel(int& argc, char**& argv, ParametersForTest& p, MPIWrapper3d& mw) {
-        int pw = (int)(pow(MPIWrapper::MPISize(), 1.0 / 3) + 0.5);
-        mpiWrapper.SetSize(pw, pw, pw);
+        mpiWrapper.SetSize(MPIWrapper::MPISize(), 1, 1);
         Status s = checkArgs(argc, argv, p, Task::parallel);
         mw = mpiWrapper;
         return s;
     }
 
-private:
-    Status parseArgs(int& argc, char**& argv, Task task) {
-        if (argc > 1 && std::string(argv[1]) == "--help") {
-            help(task);
+protected:
+    Status parseArgs(int& argc, char**& argv, ParametersForTest& p, Task task) {
+        if (argc > 1 && std::string(argv[1]) == "-help") {
+            help(p, task);
             return Status::STOP;
         }
         else {
@@ -47,7 +46,7 @@ private:
     }
 
     Status checkArgs(int& argc, char**& argv, ParametersForTest& p, Task task) {
-        Status res = parseArgs(argc, argv, task);
+        Status res = parseArgs(argc, argv, p, task);
         if (res != 0) return res;
         return saveArgs(p, task);
     }

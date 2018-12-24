@@ -13,65 +13,38 @@
 #include "field_solver.h"
 #include "parameters_for_test.h"
 
-struct ParametersForSphericalWave : public ParametersForTest {
-    //метод
-    FieldSolver fieldSolver = PSATD;
-
-    // сетка
-    int nx = 128, ny = nx, nz = 1;
-    int guard = 32;
-
-    double d = constants::c;    // шаг сетки
-    double a = 0, b = nx*d;    // координаты сетки
-
-    // маска
-    Mask mask = SimpleMask;
-    int maskWidth = 8;
-
-    // фильтр
-    Filter filter;
+struct ParametersForSphericalWave : public ParametersForMyTest {
 
     // физические параметры
-    double T = 16;   //период источника
-    double omega = 2*constants::pi/T;    // частота источника
-    double omegaEnv = omega;    //частота огибающей
-    double Tx = constants::c*8;    // период по координате 
-    double Ty = Tx;
+    double T;   //период источника
+    double omega;    // частота источника
+    double omegaEnv;    //частота огибающей
+    double Tx;    // период по координате 
+    double Ty;
 
-    // параметры счета
-    int nConsSteps = 300;
-    int nParSteps = 100;
-
-    int nIterBetweenDumps = 100;
-
-    double dt;
-
-    ParametersForSphericalWave() : dt(0.1) {
+    ParametersForSphericalWave() {
+        n.x = 128; n.y = n.x; n.z = 1;
+        guard = vec3<int>(32);
+        d = constants::c;
+        a = 0; b = n.x*d;
+        dt = 0.1;
+        nConsSteps = 300;
+        nParSteps = 100;
         nIterBetweenDumps = nParSteps;
-    }
-
-    int getNSteps() {
-        return nConsSteps + nParSteps;
+        T = 16;
+        omega = 2 * constants::pi / T;
+        omegaEnv = omega;
+        Tx = constants::c * 8; 
+        Ty = Tx;
     }
 
     void print() {
+        ParametersForMyTest::print();
         std::cout <<
-            "field solver: " << fieldSolver.to_string() << "\n" <<
-            "dt = " << dt << "\n" <<
             "omega = " << omega << "\n" <<
             "omegaEnv = " << omegaEnv << "\n" <<
             "T = " << T << "\n" <<
             "TCoord = " << Tx << "\n" <<
-            "nx = " << nx << "\n" <<
-            "ny = " << ny << "\n" <<
-            "nz = " << nz << "\n" <<
-            "d = " << d << "\n" <<
-            "guard = " << guard << "\n" <<
-            "mask = " << mask.to_string() << "\n" <<
-            "filter = " << filter.to_string() << "\n" <<
-            "num of steps = " << getNSteps() << "\n" <<
-            "num of consistent steps = " << nConsSteps << "\n" <<
-            "num of parallel steps = " << nParSteps << "\n" <<
             std::endl;
     }
 };
@@ -99,10 +72,10 @@ public:
     }
 
     void Initialize() {
-        gr = Grid3d(parameters.nx, parameters.ny, parameters.nz, 
-            parameters.a, parameters.a+parameters.nx*parameters.d,
-            parameters.a, parameters.a + parameters.ny*parameters.d, 
-            parameters.a, parameters.a + parameters.nz*parameters.d);
+        gr = Grid3d(parameters.n.x, parameters.n.y, parameters.n.z, 
+            parameters.a, parameters.a+parameters.n.x*parameters.d,
+            parameters.a, parameters.a + parameters.n.y*parameters.d, 
+            parameters.a, parameters.a + parameters.n.z*parameters.d);
         SetEB();
     }
 
@@ -127,11 +100,16 @@ public:
     }
 
     double GetJ(int i, int j, int iter) {
-        int nIterJ = int(parameters.T / parameters.dt)+1;
+        int nIterJ = int(parameters.T / parameters.dt);
         if (iter > nIterJ) return 0;
-        double x = GetX(i), y = GetY(j), t = iter*parameters.dt;
-        if (abs(i - parameters.nx / 2) > parameters.Tx / parameters.d / 4 ||
-            abs(j - parameters.ny / 2) > parameters.Ty / parameters.d / 4)
+
+        double t0 = 0.5*parameters.dt;
+        if (parameters.fieldSolver.to_string() == "PSATD")
+            t0 = 0;
+
+        double x = GetX(i), y = GetY(j), t = iter*parameters.dt + t0;
+        if (abs(i - parameters.n.x / 2) > parameters.Tx / parameters.d / 4 ||
+            abs(j - parameters.n.y / 2) > parameters.Ty / parameters.d / 4)
             return 0;
         return pow(cos(2 * constants::pi*x / parameters.Tx), 2) *
             pow(cos(2 * constants::pi*y / parameters.Ty), 2) *

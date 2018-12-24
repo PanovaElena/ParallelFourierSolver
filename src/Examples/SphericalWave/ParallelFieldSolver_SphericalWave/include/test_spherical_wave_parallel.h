@@ -39,11 +39,11 @@ public:
 
     void DoParallelPart() {
         //MPIWorker::ShowMessage("start init worker");
-        vec3<int> g(worker.getMPIWrapper().MPISize().x == 1 ? 0 : sphericalWave.parameters.guard,
-            worker.getMPIWrapper().MPISize().y == 1 ? 0 : sphericalWave.parameters.guard,
-            worker.getMPIWrapper().MPISize().z == 1 ? 0 : sphericalWave.parameters.guard);
+        vec3<int> g(worker.getMPIWrapper().MPISize().x == 1 ? 0 : sphericalWave.parameters.guard.x,
+            worker.getMPIWrapper().MPISize().y == 1 ? 0 : sphericalWave.parameters.guard.y,
+            worker.getMPIWrapper().MPISize().z == 1 ? 0 : sphericalWave.parameters.guard.z);
         if (worker.Initialize(sphericalWave.gr, g,
-            sphericalWave.parameters.mask, sphericalWave.parameters.maskWidth, worker.getMPIWrapper()) == Status::ERROR)
+            sphericalWave.parameters.mask, worker.getMPIWrapper()) == Status::ERROR)
             return;
 
         MPIWorker::ShowMessage("start par: domain from " +to_string(worker.getMainDomainStart())+" to "+
@@ -61,6 +61,13 @@ public:
 
         //MPIWorker::ShowMessage("assemble");
         worker.AssembleResultsToZeroProcess(sphericalWave.gr);
+
+        if (sphericalWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
+            //TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
+            //sphericalWave.parameters.filter(sphericalWave.gr);
+            //TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, CtoR);
+        }
+
         //MPIWorker::ShowMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)
             sphericalWave.fileWriter.WriteFile(sphericalWave.gr, nameFileSecondSteps);    

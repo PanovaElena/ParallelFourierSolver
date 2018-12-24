@@ -20,7 +20,7 @@ protected:
     vec3<int> rightGuardStart;
 
     Mask mask;
-    int maskWidth;
+    vec3<int> maskWidth;
 
     Grid3d grid;
 
@@ -29,17 +29,17 @@ protected:
 
 public:
     MPIWorker() {}
-    MPIWorker(Grid3d& gr, vec3<int> guardWidth, Mask mask, int maskWidth, MPIWrapper3d& _mpiWrapper3d) {
-        Initialize(gr, guardWidth, mask, maskWidth, _mpiWrapper3d);
+    MPIWorker(Grid3d& gr, vec3<int> guardWidth, Mask mask, MPIWrapper3d& _mpiWrapper3d) {
+        Initialize(gr, guardWidth, mask, _mpiWrapper3d);
     }
 
     //для последовательного запуска
-    MPIWorker(Grid3d& gr, vec3<int> guardWidth, Mask mask, int maskWidth, int _size, int _rank) {
-        Initialize(gr, guardWidth, mask, maskWidth, _size, _rank);
+    MPIWorker(Grid3d& gr, vec3<int> guardWidth, Mask mask, int _size, int _rank) {
+        Initialize(gr, guardWidth, mask, _size, _rank);
     }
 
-    Status Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, int maskWidth, int _size, int _rank);
-	Status Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, int maskWidth, MPIWrapper3d& _mpiWrapper3d);
+    Status Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, int _size, int _rank);
+	Status Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, MPIWrapper3d& _mpiWrapper3d);
 
     void setMPIWrapper3d(MPIWrapper3d& _mpiWrapper) {
         mpiWrapper3d = _mpiWrapper;
@@ -117,7 +117,7 @@ protected:
         return ((a + b) % b);
     }
 
-    Status Init(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _maskWidth);
+    Status Init(Grid3d & gr, vec3<int> guardWidth, Mask _mask);
 
     //обработка всевозможных ошибок ввода
     Status checkAndSetParams(Grid3d& gr, vec3<int> _guardSize);
