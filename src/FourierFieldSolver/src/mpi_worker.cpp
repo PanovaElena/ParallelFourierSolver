@@ -33,9 +33,9 @@ Status MPIWorker::checkAndSetGuardSizeAndDomainStart(Grid3d & gr)
 Status MPIWorker::setGuardSize(vec3<int> _guardSize)
 {
     guardSize = _guardSize;
-    if (domainSize.x <= _guardSize.x) guardSize.x = domainSize.x - 1;
-    if (domainSize.y <= _guardSize.y) guardSize.y = domainSize.y - 1;
-    if (domainSize.z <= _guardSize.z) guardSize.z = domainSize.z - 1;
+    if (domainSize.x <= _guardSize.x) return Status::ERROR;
+    if (domainSize.y <= _guardSize.y) return Status::ERROR;
+    if (domainSize.z <= _guardSize.z) return Status::ERROR;
     if (domainSize.x == 0 || domainSize.y == 0 || domainSize.z == 0)
         return Status::ERROR;
     return Status::OK;
@@ -55,6 +55,12 @@ void MPIWorker::setLeftGuardStart(vec3<int> guardWidth, Grid3d & gr)
 void MPIWorker::setRightGuardStart(vec3<int> guardWidth, Grid3d & gr)
 {
     rightGuardStart = getMainDomainEnd();
+    if (rank.x == size.x - 1)
+        rightGuardStart.x = 0;
+    if (rank.y == size.y - 1)
+        rightGuardStart.y = 0;
+    if (rank.z == size.z - 1)
+        rightGuardStart.z = 0;
 }
 
 void MPIWorker::CreateGrid(Grid3d & gr)
@@ -128,25 +134,27 @@ void MPIWorker::ExchangeTwoProcesses(Coordinate coord)
     vec3<int> prLeft= vec3<int>::getVecIfCoord(coord, vec3<int>(mod(rank.*GetCoord<int>(coord) - 1, size.*GetCoord<int>(coord))), rank);
     vec3<int> prRight = vec3<int>::getVecIfCoord(coord, vec3<int>(mod(rank.*GetCoord<int>(coord) + 1, size.*GetCoord<int>(coord))), rank);
 
-    //MPIWorker::ShowMessage("send left from " + to_string(getVec(coord, sl1, vec3<int>(0))) + " to " 
-        //+ to_string(getVec(coord, sl2, grid.gnRealCells() - vec3<int>(1))));
-    Send(vec3<int>::getVecIfCoord(coord, vec3<int>(sl1), vec3<int>(0)), 
-        vec3<int>::getVecIfCoord(coord, vec3<int>(sl2), grid.gnRealCells()-vec3<int>(1)), arrS1, prLeft, 0, grid, request1);
+    vec3<int> down_left, top_right;
+
+    down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(sl1), vec3<int>(0));
+    top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(sl2), grid.gnRealCells());
+    //MPIWorker::ShowMessage("send left from " + to_string(down_left) + " to " + to_string(top_right));
+    Send(down_left, top_right, arrS1, prLeft, 0, grid, request1);
     
-    //MPIWorker::ShowMessage("send right from " + to_string(getVec(coord, sr1, vec3<int>(0))) + " to "
-       // + to_string(getVec(coord, sr2, grid.gnRealCells() - vec3<int>(1))));
-    Send(vec3<int>::getVecIfCoord(coord, vec3<int>(sr1), vec3<int>(0)), 
-        vec3<int>::getVecIfCoord(coord, vec3<int>(sr2), grid.gnRealCells() - vec3<int>(1)), arrS2, prRight, 1, grid, request2);
+    down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(sr1), vec3<int>(0));
+    top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(sr2), grid.gnRealCells());
+    //MPIWorker::ShowMessage("send right from " + to_string(down_left) + " to " + to_string(top_right));
+    Send(down_left, top_right, arrS2, prRight, 1, grid, request2);
     
-    //MPIWorker::ShowMessage("recv right from " + to_string(getVec(coord, rr1, vec3<int>(0))) + " to "
-        //+ to_string(getVec(coord, rr2, grid.gnRealCells() - vec3<int>(1))));
-    Recv(vec3<int>::getVecIfCoord(coord, vec3<int>(rr1), vec3<int>(0)), 
-        vec3<int>::getVecIfCoord(coord, vec3<int>(rr2), grid.gnRealCells() - vec3<int>(1)), prRight, 0, grid);
+    down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(rr1), vec3<int>(0));
+    top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(rr2), grid.gnRealCells());
+    //MPIWorker::ShowMessage("recv right from " + to_string(down_left) + " to " + to_string(top_right));
+    Recv(down_left, top_right, prRight, 0, grid);
     
-    //MPIWorker::ShowMessage("recv left from " + to_string(getVec(coord, rl1, vec3<int>(0))) + " to "
-        //+ to_string(getVec(coord, rl2, grid.gnRealCells() - vec3<int>(1))));
-    Recv(vec3<int>::getVecIfCoord(coord, vec3<int>(rl1), vec3<int>(0)), 
-        vec3<int>::getVecIfCoord(coord, vec3<int>(rl2), grid.gnRealCells() - vec3<int>(1)), prLeft, 1, grid);
+    down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(rl1), vec3<int>(0));
+    top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(rl2), grid.gnRealCells());
+    //MPIWorker::ShowMessage("recv left from " + to_string(down_left) + " to " + to_string(top_right));
+    Recv(down_left, top_right, prLeft, 1, grid);
       
     MPIWrapper::MPIWait(request1);
     MPIWrapper::MPIWait(request2);
@@ -154,25 +162,7 @@ void MPIWorker::ExchangeTwoProcesses(Coordinate coord)
     //MPIWorker::ShowMessage("delete arrays");
     if (arrS1) delete[] arrS1;
     if (arrS2) delete[] arrS2;
-    if (nameFileAfterExchange != "") {
-        //MPIWorker::ShowMessage("writing to file after exchange");
-        fileWriter.WriteFile(grid, nameFileAfterExchange);
-    }
 }
-
-void MPIWorker::getBoardsForExchange(int & sl1, int & sl2, int & sr1, int & sr2,
-    int & rl1, int & rl2, int & rr1, int & rr2, Coordinate coord)
-{
-    sl1 = 0;
-    sl2 = 2 * getGuardSize().*GetCoord<int>(coord) - 1;
-    sr1 = getMainDomainSize().*GetCoord<int>(coord);
-    sr2 = getFullDomainSize().*GetCoord<int>(coord) - 1;
-    rr1 = getMainDomainSize().*GetCoord<int>(coord);
-    rr2 = getFullDomainSize().*GetCoord<int>(coord) - 1;
-    rl1 = 0;
-    rl2 = 2 * getGuardSize().*GetCoord<int>(coord) - 1;
-}
-
 
 void MPIWorker::ExchangeGuard()
 {
@@ -184,22 +174,11 @@ void MPIWorker::ExchangeGuard()
     MPIWrapper::MPIBarrier();
 }
 
-
-void MPIWorker::ApplyMask() {
-    for (int i = 0; i < grid.gnxRealCells(); i++)
-        for (int j = 0; j < grid.gnyRealCells(); j++)
-            for (int k = 0; k < grid.gnzRealCells(); k++) {
-                grid.E.Write(i, j, k, grid.E(i, j, k) * mask(vec3<int>(i, j, k), getMainDomainSize(), getGuardSize()));
-                grid.B.Write(i, j, k, grid.B(i, j, k) * mask(vec3<int>(i, j, k), getMainDomainSize(), getGuardSize()));
-                grid.J.Write(i, j, k, grid.J(i, j, k) * mask(vec3<int>(i, j, k), getMainDomainSize(), getGuardSize()));
-            }
-}
-
 void MPIWorker::SendToOneProcess(vec3<int> dest)
 {
     double* arrS=0;
     MPI_Request request;
-    Send(getGuardSize(), getGuardSize() + getMainDomainSize() - vec3<int>(1), arrS, dest, 2, grid, request);
+    Send(getGuardSize(), getGuardSize() + getMainDomainSize(), arrS, dest, 2, grid, request);
     MPIWrapper::MPIWait(request);
     if (arrS) delete[] arrS;
 }
@@ -221,8 +200,7 @@ void MPIWorker::RecvFromAllProcesses(Grid3d& gr)
             for (int k = 0; k < size.z; k++) {
                 if (i == 0 && j == 0 && k == 0) continue;
                 vec3<int> r(i, j, k);
-                Recv(r*getMainDomainSize(),
-                    (r + vec3<int>(1))*getMainDomainSize() - vec3<int>(1), r, 2, gr);
+                Recv(r*getMainDomainSize(), (r + vec3<int>(1))*getMainDomainSize(), r, 2, gr);
             }
 }
 
@@ -236,30 +214,17 @@ void MPIWorker::AssembleResultsToZeroProcess(Grid3d& gr)
 
 int MPIWorker::getPackSize(vec3<int> n1, vec3<int> n2)
 {
-    return n*d*(n2.x - n1.x + 1)*(n2.y - n1.y + 1)*(n2.z - n1.z + 1);
+    return n*d*(n2.x - n1.x)*(n2.y - n1.y)*(n2.z - n1.z);
 }
 
 void MPIWorker::PackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grFrom)
 {
     int num = 0;
-    for (int i = n1.x; i <= n2.x; i++)
-        for (int j = n1.y; j <= n2.y; j++)
-            for (int k = n1.z; k <= n2.z; k++)
+    for (int i = n1.x; i < n2.x; i++)
+        for (int j = n1.y; j < n2.y; j++)
+            for (int k = n1.z; k < n2.z; k++)
                 for (int coord = 0; coord < 3; coord++) {
                     arr[num++] = grFrom.E[coord](i, j, k);
                     arr[num++] = grFrom.B[coord](i, j, k);
                 }
-}
-
-void MPIWorker::UnPackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo)
-{
-    int num = 0;
-    for (int i = n1.x; i <= n2.x; i++)
-        for (int j = n1.y; j <= n2.y; j++)
-            for (int k = n1.z; k <= n2.z; k++)
-                for (int coord = 0; coord < 3; coord++) {
-                    grTo.E[coord](i, j, k) += arr[num++];
-                    grTo.B[coord](i, j, k) += arr[num++];
-                }
-
 }

@@ -23,6 +23,7 @@ void SetSymb(Section::Plane plane, std::string& si, std::string& sj, std::string
 
 void FileWriter::Write(Grid3d & gr, std::string name, Type type, std::string si, std::string sj, std::string sk) {
     std::ofstream file(dir + name);
+    //std::cout << dir + name << std::endl;
 
     if (type == Double) {
         for (int k = section.startZ; k <= section.endZ; k++) {

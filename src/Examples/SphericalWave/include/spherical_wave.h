@@ -1,5 +1,4 @@
 #pragma once
-#include "physical_constants.h"
 #include <cmath>
 #include <iostream>
 #include <fstream>
@@ -25,26 +24,27 @@ struct ParametersForSphericalWave : public ParametersForMyTest {
     ParametersForSphericalWave() {
         n.x = 128; n.y = n.x; n.z = 1;
         guard = vec3<int>(32);
-        d = constants::c;
-        a = 0; b = n.x*d;
+        d = vec3<double>(constants::c);
+        a = vec3<double>(0); b = a + n*d;
         dt = 0.1;
-        nConsSteps = 300;
+        nSeqSteps = 300;
         nParSteps = 100;
-        nIterBetweenDumps = nParSteps;
+        nDomainSteps = (int) (0.4*guard.x*d.x / constants::c / dt);
         T = 16;
         omega = 2 * constants::pi / T;
         omegaEnv = omega;
         Tx = constants::c * 8; 
         Ty = Tx;
+        fileWriter.Initialize("./", E, z, Section(Section::XOY, Section::center));
     }
 
     void print() {
         ParametersForMyTest::print();
         std::cout <<
             "omega = " << omega << "\n" <<
-            "omegaEnv = " << omegaEnv << "\n" <<
-            "T = " << T << "\n" <<
-            "TCoord = " << Tx << "\n" <<
+            "omega of envelope = " << omegaEnv << "\n" <<
+            "time of sourse = " << T << "\n" <<
+            "width of sourse = " << Tx << "\n" <<
             std::endl;
     }
 };
@@ -52,17 +52,11 @@ struct ParametersForSphericalWave : public ParametersForMyTest {
 class SphericalWave {
 public:
 
-    // вывод
-    std::string dir = std::string(ROOT_DIR) + "/files/spherical_wave/";
-    Section section;
-    FileWriter fileWriter;
-
     ParametersForSphericalWave parameters;
    
     Grid3d gr;
 
-    SphericalWave() : parameters(), section(Section::XOY, Section::center) {
-        fileWriter.Initialize(dir, E, z, section);
+    SphericalWave() : parameters() {
         Initialize();
     }
 
@@ -72,10 +66,7 @@ public:
     }
 
     void Initialize() {
-        gr = Grid3d(parameters.n.x, parameters.n.y, parameters.n.z, 
-            parameters.a, parameters.a+parameters.n.x*parameters.d,
-            parameters.a, parameters.a + parameters.n.y*parameters.d, 
-            parameters.a, parameters.a + parameters.n.z*parameters.d);
+        gr = Grid3d(parameters.n, parameters.a, parameters.a+parameters.n.x*parameters.d);
         SetEB();
     }
 
@@ -108,8 +99,8 @@ public:
             t0 = 0;
 
         double x = GetX(i), y = GetY(j), t = iter*parameters.dt + t0;
-        if (abs(i - parameters.n.x / 2) > parameters.Tx / parameters.d / 4 ||
-            abs(j - parameters.n.y / 2) > parameters.Ty / parameters.d / 4)
+        if (abs(i - parameters.n.x / 2) > parameters.Tx / parameters.d.x / 4 ||
+            abs(j - parameters.n.y / 2) > parameters.Ty / parameters.d.y / 4)
             return 0;
         return pow(cos(2 * constants::pi*x / parameters.Tx), 2) *
             pow(cos(2 * constants::pi*y / parameters.Ty), 2) *
@@ -118,14 +109,12 @@ public:
     }
 
     void SetJ(int iter) {
-        if (iter != 0) TransformGridIfNecessary(parameters.fieldSolver, gr, CtoR);
         double J0;
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++) {
                 J0 = GetJ(i, j, iter);
                 gr.J.Write(i, j, gr.gnzRealCells() / 2, vec3<double>(0, 0, J0));
             }
-        if (iter != 0) TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
     }
 
     virtual void SetEB() {
@@ -136,7 +125,6 @@ public:
                     gr.B.Write(i, j, k, vec3<double>(0, 0, 0));
                 }
 
-        //TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
         SetJ(0);
     }
 

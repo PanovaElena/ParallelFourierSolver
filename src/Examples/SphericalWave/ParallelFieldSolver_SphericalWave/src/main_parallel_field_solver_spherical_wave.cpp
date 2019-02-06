@@ -8,16 +8,19 @@
 
 int main(int argc, char** argv) {
     MPIWrapper::MPIInitialize(argc, argv);
-    MPIWrapper3d mpiWrapper;
     ParametersForSphericalWave params;
     ParserSphericalWave parser;
-    int status = parser.parseArgsForParallel(argc, argv, params, mpiWrapper);
-    if (status == Status::OK) {
+    MPIWorker* mpiWorker = 0;
+    int status = parser.parseArgsForParallel(argc, argv, params);
+    Status status1 = parser.createMPIWorker(mpiWorker);
+    if (status == Status::OK && status1 == Status::OK) {
         if (MPIWrapper::MPIRank() == 0) params.print();
-        TestSphericalWaveParallel test(mpiWrapper);
+        TestSphericalWaveParallel test(*mpiWorker);
         test.SetParamsForTest(params);
         test.TestBody();
     }
-    else if (status == Status::ERROR) std::cout << "There are some problems in args" << std::endl;
+    else if (status == Status::ERROR || status1 == Status::ERROR)
+        std::cout << "There are some problems in args" << std::endl;
+    delete mpiWorker;
     MPIWrapper::MPIFinalize();
 }

@@ -151,12 +151,12 @@ struct vec3
             coord == Coordinate::z ? valCoord.z : valOther.z);
     }
 
-    template<class Type>
-    static vec3<Type> getVecIfLess(vec3<Type> vecVal, vec3<Type> vecCond) {
-        return vec3<Type>(vecVal.x < vecCond.x ? vecVal.x : 0,
-            vecVal.y < vecCond.y ? vecVal.y : 0,
-            vecVal.z < vecCond.z ? vecVal.z : 0);
-    }
+    //template<class Type>
+    //static vec3<Type> getVecIfLess(vec3<Type> vecVal, vec3<Type> vecCond) {
+    //    return vec3<Type>(vecVal.x < vecCond.x ? vecVal.x : 0,
+    //        vecVal.y < vecCond.y ? vecVal.y : 0,
+    //        vecVal.z < vecCond.z ? vecVal.z : 0);
+    //}
 
 
 };

@@ -16,7 +16,7 @@ inline void FieldSolverPSATD_MainLoopBody(Grid3d & gr, double dt, int i, int j, 
     vec3<MyComplex> Jl = K*vec3<MyComplex>::ScalarProduct(K, J);
     vec3<MyComplex> El = K*vec3<MyComplex>::ScalarProduct(K, E);
 
-    if (K == vec3<MyComplex>(0))
+    if (normK == 0)
     {
         gr.EF.Write(i, j, k, (-1)*J);
         gr.BF.Write(i, j, k, vec3<MyComplex>(0));

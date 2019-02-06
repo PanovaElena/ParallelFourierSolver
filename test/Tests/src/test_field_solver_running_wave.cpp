@@ -8,16 +8,18 @@
 class TestRunningWave :public testing::Test, public RunningWave  {
 public:
 
-    std::string consDir = dir + "consistent_results/";
+    std::string seqDir = std::string(ROOT_DIR) + "/files/running_wave/test/";
     std::string dirE = "E/";
     std::string dirB = "B/";
 
     FileWriter fileWriterE;
     FileWriter fileWriterB;
 
+    int nIterBetweenDumps = parameters.getNSteps() / 10;
+
     TestRunningWave() :
-        fileWriterE(consDir + dirE, E, y, section),
-        fileWriterB(consDir + dirB, B, z, section) {}
+        fileWriterE(seqDir + dirE, E, y, parameters.fileWriter.getSection()),
+        fileWriterB(seqDir + dirB, B, z, parameters.fileWriter.getSection()) {}
 
     void WriteFile(FileWriter& fileWriter, int iter, std::string name="") {
         if (name == "")
@@ -31,14 +33,18 @@ public:
         WriteFile(fileWriterE, 0);
         WriteFile(fileWriterB, 0);
 
+        TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
+
         for (int j = 1; j <= parameters.getNSteps(); j++) {
             parameters.fieldSolver(gr, parameters.dt);
 
-            if (j%parameters.nIterBetweenDumps == 0) {
-                FourierTransformation(gr, CtoR);
+            if (j%nIterBetweenDumps == 0) {
+                TransformGridIfNecessary(parameters.fieldSolver, gr, CtoR);
 
                 WriteFile(fileWriterE, j);
                 WriteFile(fileWriterB, j);
+
+                TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
             }
         }
         
@@ -51,6 +57,6 @@ public:
     ~TestRunningWave() {}
 };
 
-TEST_F(TestRunningWave, res_is_sinus_Ey_Bz) {
+TEST_F(TestRunningWave, writing_Ey_Bz) {
     MyTestBodyWriteFile();
 }

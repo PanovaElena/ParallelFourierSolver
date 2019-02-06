@@ -13,7 +13,6 @@ public:
         ParametersForRunningWave& p=static_cast<ParametersForRunningWave&>(p1);
 
         std::cout <<
-            "-lambdaN                    set length of wave (number of cells), default value is " << int(p.lambda / p.d + 0.5) << "\n" <<
             "-lambda                     set length of wave (more important, then \"-lambdaN\"), default value is " << p.lambda << "\n" <<
             "-angle                      set angle in degrees between axis OX and dimension of wave, default value is " << p.angle << "\n" <<
             "-dim                        set dimension of output data (1 or 2), default value is " << p.dimensionOfOutputData << "\n" <<
@@ -26,7 +25,6 @@ public:
 
         ParametersForRunningWave& params = static_cast<ParametersForRunningWave&>(p);
 
-        if (m.find("-lambdaN") != m.end()) params.lambda = std::stoi(m.find("-lambdaN")->second)*params.d;
         if (m.find("-lambda") != m.end()) params.lambda = std::stod(m.find("-lambda")->second);
         if (m.find("-angle") != m.end()) params.angle = constants::pi*std::stod(m.find("-angle")->second) / 180;
         if (m.find("-dim") != m.end()) params.dimensionOfOutputData = std::stoi(m.find("-dim")->second);

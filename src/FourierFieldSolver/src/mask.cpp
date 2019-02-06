@@ -9,14 +9,14 @@ double simpleMask(vec3<int> ind, vec3<int> mainSize, vec3<int> guardWidth, vec3<
 }
 
 double f(int i, int mainSize, int guardSize, int maskWidth) {
-    if (i < guardSize - maskWidth / 2 || i > guardSize + mainSize + maskWidth / 2 + 1)
+    if (i < guardSize - maskWidth / 2 || i > guardSize + mainSize + maskWidth / 2)
         return 0;
     if (i <= guardSize + maskWidth / 2 && i >= guardSize - maskWidth / 2) {
         i -= guardSize - maskWidth / 2;
         return sin(i*constants::pi / (2 * maskWidth))*sin(i*constants::pi / (2 * maskWidth));
     }
-    if (i <= guardSize + mainSize + maskWidth / 2 + 1 && i >= guardSize + mainSize - maskWidth / 2 + 1) {
-        i -= guardSize + mainSize - maskWidth / 2 + 1;
+    if (i <= guardSize + mainSize + maskWidth / 2 && i >= guardSize + mainSize - maskWidth / 2) {
+        i -= guardSize + mainSize - maskWidth / 2;
         return cos(i*constants::pi / (2 * maskWidth))*cos(i*constants::pi / (2 * maskWidth));
     }
     return 1;

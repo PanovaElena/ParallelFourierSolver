@@ -1,5 +1,8 @@
 #pragma once
 #include "mpi_wrapper_3d.h"
+#include "mpi_worker.h"
+#include "mpi_worker_copy.h"
+#include "mpi_worker_sum.h"
 #include <cmath>
 #include <map>
 #include <string>
@@ -8,27 +11,26 @@
 #include "status.h"
 
 enum Task {
-    consistent,
+    sequential,
     parallel
 };
 
 class CommandLineParser {
 protected:
+
     std::map<std::string, std::string> m;
-    MPIWrapper3d mpiWrapper = MPIWrapper3d();
 
 public:
+
     virtual void help(ParametersForTest& p, Task task) = 0;
     virtual Status saveArgs(ParametersForTest& p, Task task) = 0;
 
-    Status parseArgsForConsistent(int& argc, char**& argv, ParametersForTest& p) {
-        return checkArgs(argc, argv, p, Task::consistent);
+    Status parseArgsForSequential(int& argc, char**& argv, ParametersForTest& p) {
+        return checkArgs(argc, argv, p, Task::sequential);
     }
 
-    Status parseArgsForParallel(int& argc, char**& argv, ParametersForTest& p, MPIWrapper3d& mw) {
-        mpiWrapper.SetSize(MPIWrapper::MPISize(), 1, 1);
+    Status parseArgsForParallel(int& argc, char**& argv, ParametersForTest& p) {
         Status s = checkArgs(argc, argv, p, Task::parallel);
-        mw = mpiWrapper;
         return s;
     }
 

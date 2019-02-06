@@ -54,8 +54,8 @@ const FieldSolver PSATD_OMP(fieldSolverPSATD_omp, "PSATD_omp");
 const std::map<std::string, FieldSolver> FieldSolverMap =
     { { "PSTD",PSTD },{ "PSATD",PSATD },{ "FDTD",FDTD },{ "PSATD_omp",PSATD_OMP } };
 
-void FieldSolverParallel(MPIWorker& worker, FieldSolver fieldSolver, int numIter, double dt, 
-    int iterWriteFile, FileWriter& fileWriter);
+void FieldSolverParallel(MPIWorker& worker, FieldSolver fieldSolver, int numIter, int maxNumIterBetweenExchanges,
+    double dt, FileWriter& fileWriter);
 
 inline int mod(int a, int b) {
     return (a + b) % b;

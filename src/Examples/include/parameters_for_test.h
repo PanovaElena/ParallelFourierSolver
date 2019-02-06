@@ -3,13 +3,17 @@
 #include "filter.h"
 #include "mask.h"
 #include "vec.h"
+#include "file_writer.h"
 #include <iostream>
+#include <string>
+#include <cmath>
 
 struct ParametersForTest {
 
 };
 
 struct ParametersForMyTest : public ParametersForTest {
+
     //метод
     FieldSolver fieldSolver;
 
@@ -17,8 +21,8 @@ struct ParametersForMyTest : public ParametersForTest {
     vec3<int> n;
     vec3<int> guard;
 
-    double d;    // шаг сетки
-    double a, b;    // координаты сетки
+    vec3<double> d;    // шаг сетки
+    vec3<double> a, b;    // координаты сетки
 
     // маска
     Mask mask;
@@ -27,10 +31,12 @@ struct ParametersForMyTest : public ParametersForTest {
     Filter filter;
 
     // параметры счета
-    int nConsSteps;
+    int nSeqSteps;
     int nParSteps;
+    int nDomainSteps;
 
-    int nIterBetweenDumps;
+    // вывод
+    FileWriter fileWriter;
 
     double dt;
 
@@ -40,7 +46,7 @@ struct ParametersForMyTest : public ParametersForTest {
     }
 
     int getNSteps() {
-        return nConsSteps + nParSteps;
+        return nSeqSteps + nParSteps;
     }
 
     void print() {
@@ -56,7 +62,8 @@ struct ParametersForMyTest : public ParametersForTest {
             "filter width = " << filter.getWidth() << "\n" <<
             "num zero freq for filter = " << filter.getNumZeroFreq() << "\n" <<
             "num of steps = " << getNSteps() << "\n" <<
-            "num of consistent steps = " << nConsSteps << "\n" <<
-            "num of parallel steps = " << nParSteps << "\n";
+            "num of consistent steps = " << nSeqSteps << "\n" <<
+            "num of parallel steps = " << nParSteps << "\n"<<
+            "num of steps between exchanges = " << nDomainSteps << "\n";
     }
 };

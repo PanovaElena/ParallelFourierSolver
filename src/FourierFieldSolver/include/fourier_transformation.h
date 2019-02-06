@@ -5,8 +5,8 @@
 #include "grid3d.h"
 #include "simple_types_and_constants.h"
 
-void FourierTransformation(Grid3d& gr, Field _field, Coordinate _coord, Direction dir);
 void FourierTransformation(Grid3d& gr, Direction dir);
+void FourierTransformation(Grid3d& gr, Field _field, Coordinate _coord, Direction dir);
 
 inline vec3<MyComplex> GetK(vec3<int>& ind, Grid3d& gr) {
     MyComplex v1 = (2 * constants::pi*((ind.x <= gr.gnxRealCells() / 2) ? ind.x : ind.x - gr.gnxRealCells())) / (gr.gbx() - gr.gax());

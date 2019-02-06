@@ -10,24 +10,25 @@ void filter1d(Grid3d& gr, int maskWidth_2, int numZeroFreq_2, Coordinate coord) 
     int a2 = gr.gnComplexCells().*GetCoord<int>(coord) / 2 + maskWidth_2 + numZeroFreq_2;
     int b2 = gr.gnComplexCells().*GetCoord<int>(coord) / 2 + numZeroFreq_2;
 
-    vec3<int> ind1a = vec3<int>::getVecIfCoord(coord, vec3<int>(a1), vec3<int>(0));
-    vec3<int> ind1b = vec3<int>::getVecIfCoord(coord, vec3<int>(b1), gr.gnComplexCells());
-    vec3<int> ind2a = vec3<int>::getVecIfCoord(coord, vec3<int>(a2), gr.gnComplexCells());
-    vec3<int> ind2b = vec3<int>::getVecIfCoord(coord, vec3<int>(b2), vec3<int>(0));
+    vec3<int> ind1 = vec3<int>::getVecIfCoord(coord, vec3<int>(a1), vec3<int>(0));
+    vec3<int> ind2 = vec3<int>::getVecIfCoord(coord, vec3<int>(b1), gr.gnComplexCells());
 
-    for (int i = ind1a.x; i < ind1b.x; i++)
-        for (int j = ind1a.y; j < ind1b.y; j++)
-            for (int k = ind1a.z; k < ind1b.z; k++) {
+    for (int i = ind1.x; i < ind2.x; i++)
+        for (int j = ind1.y; j < ind2.y; j++)
+            for (int k = ind1.z; k < ind2.z; k++) {
                 gr.EF.Write(i, j, k, gr.EF(i, j, k) * MyComplex(cos((constants::pi*(i - a1)) / (b1 - a1) * 0.5)*
                     cos((constants::pi*(i - a1)) / (b1 - a1) * 0.5)));
                 gr.BF.Write(i, j, k, gr.BF(i, j, k) * MyComplex(cos((constants::pi*(i - a1)) / (b1 - a1) * 0.5)*
                     cos((constants::pi*(i - a1)) / (b1 - a1) * 0.5)));
             }
 
+    ind1 = vec3<int>::getVecIfCoord(coord, vec3<int>(b2), vec3<int>(0));
+    ind2 = vec3<int>::getVecIfCoord(coord, vec3<int>(a2), gr.gnComplexCells());
+
     if (coord != z) {
-        for (int i = ind2b.x; i < ind2a.x; i++)
-            for (int j = ind2b.y; j < ind2a.y; j++)
-                for (int k = ind2b.z; k < ind2a.z; k++) {
+        for (int i = ind1.x; i < ind2.x; i++)
+            for (int j = ind1.y; j < ind2.y; j++)
+                for (int k = ind1.z; k < ind2.z; k++) {
                     gr.EF.Write(i, j, k, gr.EF(i, j, k) * MyComplex(cos((constants::pi*(a2 - i)) / (a2 - b2) * 0.5)
                         * cos((constants::pi*(a2 - i)) / (a2 - b2) * 0.5)));
                     gr.BF.Write(i, j, k, gr.BF(i, j, k) * MyComplex(cos((constants::pi*(a2 - i)) / (a2 - b2) * 0.5)
@@ -35,9 +36,12 @@ void filter1d(Grid3d& gr, int maskWidth_2, int numZeroFreq_2, Coordinate coord) 
                 }
     }
 
-    for (int i = ind1b.x; i < ind2b.x; i++)
-        for (int j = ind1b.y; j < ind2b.y; j++)
-            for (int k = ind1b.z; k < fmin(ind2b.z, gr.gnzComplexCells()); k++) {
+    ind1 = vec3<int>::getVecIfCoord(coord, vec3<int>(b1), vec3<int>(0));
+    ind2 = vec3<int>::getVecIfCoord(coord, vec3<int>(b2), gr.gnComplexCells());
+
+    for (int i = ind1.x; i < ind2.x; i++)
+        for (int j = ind1.y; j < ind2.y; j++)
+            for (int k = ind1.z; k < fmin(ind2.z, gr.gnzComplexCells()); k++) {
                 gr.EF.Write(i, j, k, vec3<MyComplex>(0));
                 gr.BF.Write(i, j, k, vec3<MyComplex>(0));
             }

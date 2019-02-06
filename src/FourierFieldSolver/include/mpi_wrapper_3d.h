@@ -6,6 +6,13 @@
 class MPIWrapper3d {
     int sizeX = 1, sizeY = 1, sizeZ = 1;
 public:
+    MPIWrapper3d() {}
+    MPIWrapper3d(vec3<int> np) {
+        sizeX = np.x;
+        sizeY = np.y;
+        sizeZ = np.z;
+    }
+
     Status CheckAndSetSize(int _sizeX, int _sizeY, int _sizeZ) {
         if (_sizeX*_sizeY*_sizeZ != MPIWrapper::MPISize())
             return Status::ERROR;

@@ -2,7 +2,6 @@
 #include "mpi_wrapper_3d.h"
 #include "grid3d.h"
 #include <string>
-#include "file_writer.h"
 #include "mask.h"
 #include "status.h"
 
@@ -25,7 +24,6 @@ protected:
     Grid3d grid;
 
     std::string nameFileAfterExchange;
-    FileWriter fileWriter;
 
 public:
     MPIWorker() {}
@@ -44,6 +42,7 @@ public:
     void setMPIWrapper3d(MPIWrapper3d& _mpiWrapper) {
         mpiWrapper3d = _mpiWrapper;
     }
+    
     MPIWrapper3d& getMPIWrapper() {
         return mpiWrapper3d;
     }
@@ -91,9 +90,7 @@ public:
         return grid;
     }
 
-    virtual double getPartGuard() { return 0.8; }
-
-    virtual void ApplyMask();
+    virtual void ApplyMask() = 0;
 
     void ExchangeGuard();
 
@@ -102,11 +99,6 @@ public:
     }
 
     void AssembleResultsToZeroProcess(Grid3d& gr);
-
-    void SetOutput(FileWriter& _fileWriter, std::string _nameFileAfterExchange) {
-        fileWriter = _fileWriter;
-        nameFileAfterExchange = _nameFileAfterExchange;
-    }
 
 protected:
     vec3<int> mod(vec3<int> a, vec3<int> b) {
@@ -137,7 +129,7 @@ protected:
     //упаковывает вещественные поля части сетки
     int getPackSize(vec3<int> n1, vec3<int> n2);
     void PackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grFrom);
-    virtual void UnPackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo);
+    virtual void UnPackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo) = 0;
 
     int getNum(int i, int j, int k) {
         return (i * 3 + j) * 3 + k;
@@ -145,5 +137,5 @@ protected:
 
     void ExchangeTwoProcesses(Coordinate coord);
     virtual void getBoardsForExchange(int& sl1, int& sl2, int& sr1, int& sr2,
-        int& rl1, int& rl2, int& rr1, int& rr2, Coordinate coord);
+        int& rl1, int& rl2, int& rr1, int& rr2, Coordinate coord) = 0;
 };

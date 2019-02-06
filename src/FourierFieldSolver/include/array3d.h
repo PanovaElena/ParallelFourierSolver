@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include "vec.h"
 
 template <class T>
 class Array3d {
@@ -47,7 +47,8 @@ public:
     int gnx() const { return nx; };
     int gny() const { return ny; };
     int gnz() const { return nz; };
-    int size() const { return nx*ny*nz; };
+    int size1d() const { return nx*ny*nz; };
+    vec3<int> size3d() const { return vec3<int>(nx, ny, nz); }
 
     void Clear();
     void SetToZeros();

@@ -41,10 +41,6 @@ struct FieldForGrid: public vec3<Array3d<T>> {
 
 class Grid3d
 {
-    struct LabelFourierTransform {
-        Direction data[3][3];
-    };
-
 private:
     vec3<int> n;
 
@@ -55,7 +51,7 @@ private:
 
     void clearGrid();
 
-    LabelFourierTransform labelFourierTransform;
+    Type state = Double; // fourier grid or real
 
 public:
     FieldForGrid<double> E;
@@ -66,54 +62,72 @@ public:
     FieldForGrid<MyComplex> JF;
 
 public:
-	Grid3d();
-	Grid3d(const Grid3d& gr);
+    Grid3d();
+    Grid3d(const Grid3d& gr);
     Grid3d(vec3<int> n, vec3<double> a, vec3<double> b);
-	Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
-	~Grid3d();
-	//сравнение только по вещественным полям
-	int operator==(const Grid3d& grid2);
+    Grid3d(int _nx, int _ny, int _nz, double _ax, double _bx, double _ay, double _by, double _az, double _bz);
+    ~Grid3d();
+    //сравнение только по вещественным полям
+    int operator==(const Grid3d& grid2);
 
-	Grid3d& operator=(const Grid3d& grid2);
+    Grid3d& operator=(const Grid3d& grid2);
 
-	void Initialize(vec3<int> n, vec3<double> _a, vec3<double> b);
+    void Initialize(vec3<int> n, vec3<double> _a, vec3<double> b);
 
-	int gnxRealCells() const;//get nx 
-	int gnyRealCells() const;//get ny
-	int gnzRealCells() const;//get nz
+    int gnxRealCells() const;//get nx 
+    int gnyRealCells() const;//get ny
+    int gnzRealCells() const;//get nz
     vec3<int> gnRealCells() const;
 
-	int gnxComplexCells() const;//get nx 
-	int gnyComplexCells() const;//get ny
-	int gnzComplexCells() const;//get nz/2+1
+    int gnxComplexCells() const;//get nx 
+    int gnyComplexCells() const;//get ny
+    int gnzComplexCells() const;//get nz/2+1
     vec3<int> gnComplexCells() const;
 
-	int gnxRealNodes() const;//get nx
-	int gnyRealNodes() const;//get ny
-	int gnzRealNodes() const;//get nz
+    int gnxRealNodes() const;//get nx
+    int gnyRealNodes() const;//get ny
+    int gnzRealNodes() const;//get nz
     vec3<int> gnRealNodes() const;
 
-	double gdx() const; //get dx
-	double gdy() const;//get dy
-	double gdz() const;//get dz
+    double gdx() const; //get dx
+    double gdy() const;//get dy
+    double gdz() const;//get dz
     vec3<double> gd() const;
 
-	double gax() const; //get ax
-	double gay() const;//get ay
-	double gaz() const;//get az
+    double gax() const; //get ax
+    double gay() const;//get ay
+    double gaz() const;//get az
     vec3<double> ga() const;
 
-	double gbx() const; //get bx
-	double gby() const; //get by
-	double gbz() const; //get bz
+    double gbx() const; //get bx
+    double gby() const; //get by
+    double gbz() const; //get bz
     vec3<double> gb() const;
 
-    Direction getLastFourierTransform (Field field, Coordinate coord){
-        return labelFourierTransform.data[field][coord];
+    Type getState() {
+        return state;
+    }
+    Direction getLastFourierTransform() {
+        switch (state) {
+        case Complex:
+            return RtoC;
+        default:
+            return CtoR;
+        }
     }
 
-    void setLastFourierTransform(Field field, Coordinate coord, Direction dir) {
-        labelFourierTransform.data[field][coord]=dir;
+    void setLastFourierTransform(Direction dir) {
+        switch (dir) {
+        case RtoC:
+            state = Complex;
+            break;
+        default:
+            state = Double;
+            break;
+        }
+    }
+    void setState(Type _state) {
+        state = _state;
     }
 
 };

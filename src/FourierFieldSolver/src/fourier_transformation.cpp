@@ -25,22 +25,15 @@ void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, in
 
 void FourierTransformation(Grid3d & gr, Field _field, Coordinate _coord, Direction dir)
 {
-    //if (gr.getLastFourierTransform(_field, _coord) == dir) {
-    //    //std::cout << "Try to transform to the same direction: " << dir << std::endl;
-    //    return;
-    //}
-
     Array3d<double>& arrD = (gr.*GetField<double>(_field)).*GetFieldCoord<double>(_coord);
     Array3d<MyComplex>& arrC = (gr.*GetField<MyComplex>(_field)).*GetFieldCoord<MyComplex>(_coord);
 
     UseFFTW(arrD, arrC, gr.gnxRealCells(), gr.gnyRealCells(), gr.gnzRealCells(), dir);
-
-    gr.setLastFourierTransform(_field, _coord, dir);
 }
 
 void FourierTransformation(Grid3d & gr, Direction dir)
 {
-    if (gr.getLastFourierTransform(E, x) == dir) {
+    if (gr.getLastFourierTransform() == dir) {
         std::cout << "Try to transform to the same direction: " << dir << std::endl;
         return;
     }
@@ -54,4 +47,6 @@ void FourierTransformation(Grid3d & gr, Direction dir)
     FourierTransformation(gr, J, x, dir);
     FourierTransformation(gr, J, y, dir);
     FourierTransformation(gr, J, z, dir);
+
+    gr.setLastFourierTransform(dir);
 }
