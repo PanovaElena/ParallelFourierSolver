@@ -1,1 +1,0 @@
-create_executable(sphericalWave_parallel SPHERICAL_WAVE_INCLUDE)

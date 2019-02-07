@@ -1,2 +1,2 @@
-add_subdirectory(FourierFieldSolver)
-add_subdirectory(Examples)
+add_subdirectory( fourier_field_solvers )
+add_subdirectory( examples )

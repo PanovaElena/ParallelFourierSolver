@@ -12,7 +12,7 @@
 class TestSphericalWave :public testing::Test, public SphericalWave {
 public:
 
-    std::string consDir = dir + "consistent_results/";
+    std::string seqDir = std::string(ROOT_DIR) + "/files/spherical_wave/test/";
     std::string dirE = "E/";
     std::string dirB = "B/";
     std::string dirJ = "J/";
@@ -21,28 +21,36 @@ public:
     FileWriter fileWriterB;
     FileWriter fileWriterJ;
 
+    int nIterBetweenDumps = parameters.getNSteps() / 10;
+
     TestSphericalWave() : 
-        fileWriterE(consDir + dirE, E, z, section),
-        fileWriterB(consDir + dirB, B, z, section),
-        fileWriterJ(consDir + dirJ, J, z, section) {}
+        fileWriterE(seqDir + dirE, E, z, parameters.fileWriter.getSection()),
+        fileWriterB(seqDir + dirB, B, z, parameters.fileWriter.getSection()),
+        fileWriterJ(seqDir + dirJ, J, z, parameters.fileWriter.getSection()) {}
 
     void MyTestBody() {
-        FourierTransformation(gr, RtoC);
 
         WriteFile(fileWriterE, 0);
         WriteFile(fileWriterB, 0);
 
+        TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
+
         for (int iter = 1; iter <= parameters.getNSteps(); iter++) {
+
+            TransformGridIfNecessary(parameters.fieldSolver, gr, CtoR);
             SetJ(iter);
+            TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
 
             parameters.fieldSolver(gr, parameters.dt);
 
-            if (iter%parameters.nIterBetweenDumps == 0) {
-                FourierTransformation(gr, CtoR);
+            if (iter%nIterBetweenDumps == 0) {
+                TransformGridIfNecessary(parameters.fieldSolver, gr, CtoR);
 
                 WriteFile(fileWriterE, iter);
                 WriteFile(fileWriterB, iter);
                 WriteFile(fileWriterJ, iter);
+
+                TransformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
             }
 
         }
@@ -67,7 +75,7 @@ public:
 
 };
 
-TEST_F(TestSphericalWave, test_SphericalWave_write_file) {
+TEST_F(TestSphericalWave, writing) {
     MyTestBody();
     PlotJ();
 }

@@ -1,1 +1,1 @@
-create_library(gtest)
+create_library( gtest )

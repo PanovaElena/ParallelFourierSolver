@@ -22,28 +22,28 @@ TEST(TestVector, scalar_product1)
 	vec3<double> a = vec3<double>(1, 2, 3);
 	a = a * 3;
 	vec3<double> b = vec3<double>(3, 6, 9);
-	EXPECT_TRUE(a.x() == b.x() && a.y() == b.y() && a.z() == b .z());
+	EXPECT_TRUE(a.get_x() == b.get_x() && a.get_y() == b.get_y() && a.get_z() == b .get_z());
 }
 TEST(TestVector, scalar_product2)
 {
 	vec3<double> a = vec3<double>(0, 0, 0);
 	a = a * 3;
 	vec3<double> b = vec3<double>(0, 0, 0);
-	EXPECT_TRUE(a.x() == b.x() && a.y() == b.y() && a.z() == b.z());
+	EXPECT_TRUE(a.get_x() == b.get_x() && a.get_y() == b.get_y() && a.get_z() == b.get_z());
 }
 TEST(TestVector, scalar_product3)
 {
 	vec3<double> a = vec3<double>(1, 1, 1);
 	a = a * 0;
 	vec3<double> b = vec3<double>(0, 0, 0);
-	EXPECT_TRUE(a.x() == b.x() && a.y() == b.y() && a.z() == b.z());
+	EXPECT_TRUE(a.get_x() == b.get_x() && a.get_y() == b.get_y() && a.get_z() == b.get_z());
 }
 TEST(TestVector, scalar_product4)
 {
 	vec3<double> a = vec3<double>(1, 1, 1);
 	a = a  +  a;
 	vec3<double> b = vec3<double>(2, 2, 2);
-	EXPECT_TRUE(a.x() == b.x() && a.y() == b.y() && a.z() == b.z());
+	EXPECT_TRUE(a.get_x() == b.get_x() && a.get_y() == b.get_y() && a.get_z() == b.get_z());
 }
 
 TEST(TestVector, scalar_product_double) {
@@ -107,7 +107,8 @@ TEST(TestVector, normalize_double) {
 
 TEST(TestVector, normalize_complex) {
     vec3<MyComplex> a(MyComplex(1, 0), MyComplex(1, 1), MyComplex(0, 1));
-    ASSERT_EQ(a*0.5, a.Normalize());
+    vec3<MyComplex> res(MyComplex(0.5, 0), MyComplex(0.5, 0.5), MyComplex(0, 0.5));
+    ASSERT_EQ(res, a.Normalize());
 }
 
 TEST(TestVector, normalize_complex_2) {
@@ -117,12 +118,12 @@ TEST(TestVector, normalize_complex_2) {
 
     ASSERT_DOUBLE_EQ(b.getNorm(), sqrt(166));
 
-    ASSERT_DOUBLE_EQ(a.x().GetReal(), b.x().GetReal()*(1.0 / sqrt(166)));
-    ASSERT_DOUBLE_EQ(a.x().GetImag(), b.x().GetImag()*(1.0 / sqrt(166)));
-    ASSERT_DOUBLE_EQ(a.y().GetReal(), b.y().GetReal()*(1.0 / sqrt(166)));
-    ASSERT_DOUBLE_EQ(a.y().GetImag(), b.y().GetImag()*(1.0 / sqrt(166)));
-    ASSERT_DOUBLE_EQ(a.z().GetReal(), b.z().GetReal()*(1.0 / sqrt(166)));
-    ASSERT_DOUBLE_EQ(a.z().GetImag(), b.z().GetImag()*(1.0 / sqrt(166)));
+    ASSERT_DOUBLE_EQ(a.get_x().GetReal(), b.get_x().GetReal()*(1.0 / sqrt(166)));
+    ASSERT_DOUBLE_EQ(a.get_x().GetImag(), b.get_x().GetImag()*(1.0 / sqrt(166)));
+    ASSERT_DOUBLE_EQ(a.get_y().GetReal(), b.get_y().GetReal()*(1.0 / sqrt(166)));
+    ASSERT_DOUBLE_EQ(a.get_y().GetImag(), b.get_y().GetImag()*(1.0 / sqrt(166)));
+    ASSERT_DOUBLE_EQ(a.get_z().GetReal(), b.get_z().GetReal()*(1.0 / sqrt(166)));
+    ASSERT_DOUBLE_EQ(a.get_z().GetImag(), b.get_z().GetImag()*(1.0 / sqrt(166)));
 }
 
 

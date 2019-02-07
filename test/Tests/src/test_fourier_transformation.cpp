@@ -21,9 +21,9 @@ public:
                     double y = A * sin(2 * constants::pi*i / nz);
                     double z = A * sin(2 * constants::pi*j / ny);
 
-                    grid(i, j, k).E[0] = grid(i, j, k).B[0] = x;
-                    grid(i, j, k).E[1] = grid(i, j, k).B[1] = y;
-                    grid(i, j, k).E[2] = grid(i, j, k).B[2] = z;
+                    grid.E[0](i, j, k) = grid.B[0](i, j, k) = x;
+                    grid.E[1](i, j, k) = grid.B[1](i, j, k) = y;
+                    grid.E[2](i, j, k) = grid.B[2](i, j, k) = z;
                 }
     }
 
@@ -31,18 +31,18 @@ public:
  
     void MyTestBody(Field field, Coordinate coord) {
 
-        MemberOfNode p = GetField(field);
-        MethodCoord m= GetCoord(coord);
+        MemberOfNode p = GetField<double>(field);
+        MemberOfField m = GetFieldCoord<double>(coord);
 
         Grid3d grid2 = grid;
-
+         
         FourierTransformation(grid, field, coord, RtoC);
         FourierTransformation(grid, field, coord, CtoR);
 
 		for (int i = 0; i < grid.gnxRealCells(); i++)
 			for (int j = 0; j < grid.gnyRealCells(); j++)
 				for (int k = 0; k < grid.gnzRealCells(); k++)
-					ASSERT_NEAR((grid(i, j, k).*p.*m)(), (grid2(i, j, k).*p.*m)(), 0.1);
+					ASSERT_NEAR((grid.*p.*m)(i, j, k), (grid2.*p.*m)(i, j, k), 0.1);
 	}
 };
 
@@ -84,7 +84,7 @@ TEST_F(TestFourierTransform, fourier_transform_writes_data_correctly_to_grid) {
 	for (int i = 0; i < arr1.gnx(); i++)
 		for (int j = 0; j < arr1.gny(); j++)
 			for (int k = 0; k < arr1.gnz(); k++)
-				arr1(i,j,k).SetReal(grid(i, j, k).E.x());
+				arr1(i,j,k).SetReal(grid.E.x(i, j, k));
 
 	fftw_plan plan = fftw_plan_dft_3d(grid.gnxRealCells(), grid.gnyRealCells(), grid.gnzRealCells(), (fftw_complex*)&(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_FORWARD, FFTW_ESTIMATE);
 	fftw_execute(plan);
@@ -94,7 +94,7 @@ TEST_F(TestFourierTransform, fourier_transform_writes_data_correctly_to_grid) {
 	for (int i = 0; i < grid.gnxComplexCells(); i++)
 		for (int j = 0; j < grid.gnyComplexCells(); j++)
 			for (int k = 0; k < grid.gnzComplexCells(); k++) {
-				ASSERT_EQ(grid(i, j, k).EF[0], arr2(i, j, k));
+				ASSERT_EQ(grid.EF[0](i, j, k), arr2(i, j, k));
 			}
 
 }
