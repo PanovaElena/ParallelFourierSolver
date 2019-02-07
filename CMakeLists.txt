@@ -84,9 +84,9 @@ ExternalProject_Add( project_fftw
         "-DBUILD_SHARED_LIBS=OFF"
         "-DENABLE_AVX2=ON"
         "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}/fftw" 
-		"-DENABLE_OPENMP=ON"
-		"-DBUILD_TESTS=OFF"
-		)
+        "-DENABLE_OPENMP=ON"
+        "-DBUILD_TESTS=OFF"
+        )
 
 install( DIRECTORY "${INSTALL_DIR}" DESTINATION . )
 
