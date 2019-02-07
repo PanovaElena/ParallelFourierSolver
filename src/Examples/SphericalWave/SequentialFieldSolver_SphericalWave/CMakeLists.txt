@@ -1,1 +1,0 @@
-create_executable(sphericalWave_sequential SPHERICAL_WAVE_INCLUDE)

@@ -11,8 +11,8 @@ DIR_PICTURES = "./pictures/"
 DIR_SCRIPT = "./"+os.path.dirname(sys.argv[0]) 
 FOLDER="/release/"
 
-NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/Examples/RunningWave/SequentialFieldSolver_RunningWave/"+FOLDER+"/runningWave_sequential"+"\""
-NAME_PAR_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/Examples/RunningWave/ParallelFieldSolver_RunningWave/"+FOLDER+"/runningWave_parallel"+"\""
+NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/running_wave/running_wave_sequential/"+FOLDER+"/running_wave_sequential"+"\""
+NAME_PAR_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/running_wave/running_wave_parallel/"+FOLDER+"/running_wave_parallel"+"\""
 
 DIR_PICTURES = "./pictures/"
 DIR_RESULTS = "./results/"

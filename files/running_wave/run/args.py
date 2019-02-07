@@ -42,7 +42,7 @@ dimension_of_output_data = 1   # 1 (OX) or 2 (XOZ)
 
 # number of iterations for sequention launch
 
-n_iter = 25
+n_iter = 30
 
 
 # parameters for parallel launch

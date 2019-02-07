@@ -1,2 +1,2 @@
-add_subdirectory(gtest)
-add_subdirectory(Tests)
+add_subdirectory( gtest )
+add_subdirectory( tests )

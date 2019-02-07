@@ -10,8 +10,8 @@ import args
 DIR_SCRIPT = "./"+os.path.dirname(sys.argv[0])
 FOLDER="/Release/"
 
-NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/Examples/SphericalWave/SequentialFieldSolver_SphericalWave/"+FOLDER+"/sphericalWave_sequential"+"\""
-NAME_PAR_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/Examples/SphericalWave/ParallelFieldSolver_SphericalWave/"+FOLDER+"/sphericalWave_parallel"+"\""
+NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/spherical_wave/spherical_wave_sequential/"+FOLDER+"/spherical_wave_sequential"+"\""
+NAME_PAR_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/spherical_wave/spherical_wave_parallel/"+FOLDER+"/spherical_wave_parallel"+"\""
 
 DIR_PICTURES = "./pictures/"
 DIR_RESULTS = "./results/"

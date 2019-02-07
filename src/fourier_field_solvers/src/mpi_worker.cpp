@@ -138,22 +138,22 @@ void MPIWorker::ExchangeTwoProcesses(Coordinate coord)
 
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(sl1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(sl2), grid.gnRealCells());
-    //MPIWorker::ShowMessage("send left from " + to_string(down_left) + " to " + to_string(top_right));
+    MPIWorker::ShowMessage("send left from " + to_string(down_left) + " to " + to_string(top_right));
     Send(down_left, top_right, arrS1, prLeft, 0, grid, request1);
     
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(sr1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(sr2), grid.gnRealCells());
-    //MPIWorker::ShowMessage("send right from " + to_string(down_left) + " to " + to_string(top_right));
+    MPIWorker::ShowMessage("send right from " + to_string(down_left) + " to " + to_string(top_right));
     Send(down_left, top_right, arrS2, prRight, 1, grid, request2);
     
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(rr1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(rr2), grid.gnRealCells());
-    //MPIWorker::ShowMessage("recv right from " + to_string(down_left) + " to " + to_string(top_right));
+    MPIWorker::ShowMessage("recv right from " + to_string(down_left) + " to " + to_string(top_right));
     Recv(down_left, top_right, prRight, 0, grid);
     
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(rl1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(rl2), grid.gnRealCells());
-    //MPIWorker::ShowMessage("recv left from " + to_string(down_left) + " to " + to_string(top_right));
+    MPIWorker::ShowMessage("recv left from " + to_string(down_left) + " to " + to_string(top_right));
     Recv(down_left, top_right, prLeft, 1, grid);
       
     MPIWrapper::MPIWait(request1);

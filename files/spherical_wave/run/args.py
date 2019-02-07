@@ -29,7 +29,7 @@ dt = 0.1  # less than courant condition for PSTD
 
 # field solver: PSTD, PSATD, PSATD_omp or FDTD (for sequential launch only)
 
-solver = "PSTD"
+solver = "PSATD"
 
 # parameters of wave
 
@@ -44,12 +44,12 @@ dimension_of_output_data = 1   # 1 (OX) or 2 (XOZ)
 
 # number of iterations for sequention launch
 
-n_iter = 350
+n_iter = 400
 
 
 # parameters for parallel launch
 
-scheme = "copy"    # scheme of exchange: sum or copy
+scheme = "sum"    # scheme of exchange: sum or copy
 
 # num of processes
 
@@ -75,7 +75,7 @@ number_of_iterations_in_domain = int(0.3*gx*dx/LIGHT_SPEED/dt)
 
 # parameters of mask
 
-mask = "simple"   # simple or smooth
+mask = "smooth"   # simple or smooth
 
 mwx = gx/4        # number of cells for mask (for smooth only)
 mwy = gy/4
