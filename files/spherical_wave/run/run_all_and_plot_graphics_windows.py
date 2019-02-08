@@ -19,10 +19,17 @@ DIR_RESULTS = "./results/"
 NAME_FILE_SEQ = DIR_RESULTS+"/sequential_result.csv"
 NAME_FILE_PAR = DIR_RESULTS+"/parallel_result.csv"
 
-if (os.path.exists(DIR_PICTURES)): shutil.rmtree(DIR_PICTURES)
-os.mkdir(DIR_PICTURES)
-if (os.path.exists(DIR_RESULTS)): shutil.rmtree(DIR_RESULTS)
-os.mkdir(DIR_RESULTS)
+if (os.path.exists(DIR_PICTURES)): 
+	for (dirpath, dirnames, filenames) in os.walk(DIR_PICTURES):
+		for file in filenames:
+			os.remove(DIR_PICTURES+file)
+else: os.mkdir(DIR_PICTURES)
+
+if (os.path.exists(DIR_RESULTS)): 
+	for (dirpath, dirnames, filenames) in os.walk(DIR_RESULTS):
+		for file in filenames:
+			os.remove(DIR_RESULTS+file)
+else: os.mkdir(DIR_RESULTS)
 		
 funcRead = gr.readFile2d
 funcPlot = gr.plot2d
