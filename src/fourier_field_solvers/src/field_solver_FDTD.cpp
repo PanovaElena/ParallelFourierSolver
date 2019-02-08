@@ -51,6 +51,6 @@ void RefreshB_FDTD(Grid3d& gr, double dt) {
             }
 }
 void fieldSolverFDTD(Grid3d& gr, double dt) {
-    RefreshE_FDTD(gr, dt);
     RefreshB_FDTD(gr, dt);
+    RefreshE_FDTD(gr, dt);
 }

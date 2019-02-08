@@ -61,7 +61,7 @@ public:
 
     void SetParamsForTest(ParametersForRunningWave p) {
         parameters = p;
-        if (parameters.dimensionOfOutputData == 2) 
+        if (parameters.dimensionOfOutputData == 2)
             parameters.fileWriter.SetSection(Section(Section::XOZ, Section::center));
         Initialize();
     }
@@ -71,36 +71,43 @@ public:
         SetEB();
     }
 
-    double f(double x, double t) {
-        return sin(2 * constants::pi / parameters.lambda*(x - constants::c*t));
+    double f(double x, double z, double t) {
+        double x2 = x*cos(parameters.angle) + z*sin(parameters.angle);
+        return sin(2 * constants::pi / parameters.lambda*(x2 - constants::c*t));
     }
 
-    virtual double funcB(double x, double z, double t0) {
-        double x2 = x*cos(parameters.angle) + z*sin(parameters.angle);
-        return f(x2, t0);
+    double GetX(double i) {
+        return i*parameters.d.x + parameters.a.x;
     }
 
-    virtual double funcE(double x, double z) {
-        double x2 = x*cos(parameters.angle) + z*sin(parameters.angle);
-        return f(x2, 0);
+    double GetY(double j) {
+        return j*parameters.d.y + parameters.a.y;
+    }
+
+    double GetZ(double k) {
+        return k*parameters.d.z + parameters.a.z;
     }
 
     virtual void SetEB() {
 
-        double t0 = 0.5*parameters.dt;
-        if (parameters.fieldSolver.to_string() == "PSATD")
-            t0 = 0;
-        double d0 = 0;
-        if (parameters.fieldSolver.to_string() == "FDTD")
-            d0 = 0.5;
+        vec3<vec3<double>> dcE = parameters.fieldSolver.getCoordOffset(E),
+            dcB = parameters.fieldSolver.getCoordOffset(B);
+        double dtE = parameters.fieldSolver.getTimeOffset(E),
+            dtB = parameters.fieldSolver.getTimeOffset(B);
 
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++)
                 for (int k = 0; k < gr.gnzRealNodes(); k++) {
-                    gr.E.Write(i, j, k, vec3<double>(0, 1, 0)
-                        *funcE(i*parameters.d.x + parameters.a.x, k*parameters.d.z + parameters.a.z));
-                    gr.B.Write(i, j, k, vec3<double>(-sin(parameters.angle), 0, cos(parameters.angle))
-                        *funcB((i + d0)*parameters.d.x + parameters.a.x, (k + d0)*parameters.d.z + parameters.a.z, t0));
+
+                    double xEy = GetX(i + dcE.y.x), zEy = GetZ(k + dcE.y.z),
+                        tE = dtE*parameters.dt;
+                    double xBx = GetX(i + dcB.x.x), zBx = GetZ(k + dcB.x.z),
+                        xBz = GetX(i + dcB.z.x), zBz = GetZ(k + dcB.z.z),
+                        tB = dtB*parameters.dt;
+
+                    gr.E.Write(i, j, k, vec3<double>(0, f(xEy, zEy, tE), 0));
+                    gr.B.Write(i, j, k, vec3<double>(-sin(parameters.angle)*f(xBx, zBx, tB), 0,
+                        cos(parameters.angle)*f(xBz, zBz, tB)));
                 }
 
     }

@@ -23,16 +23,48 @@ void fieldSolverPSATD_omp(Grid3d& gr, double dt);
 class FieldSolver {
     FieldSolverType func;
     std::string str;
+    // смещения для начальных условий
+    double displ_t_E, displ_t_B, displ_t_J;
+    vec3<vec3<double>> displ_c_E, displ_c_B, displ_c_J;
 public:
-    FieldSolver(FieldSolverType f, std::string s) {
+    FieldSolver(FieldSolverType f, std::string s, double _displ_t_E, double _displ_t_B, double _displ_t_J,
+        vec3<vec3<double>> _displ_c_E, vec3<vec3<double>> _displ_c_B, vec3<vec3<double>> _displ_c_J) {
         func = f;
         str = s;
+        displ_t_E = _displ_t_E;
+        displ_t_B = _displ_t_B;
+        displ_t_J = _displ_t_J;
+        displ_c_E = _displ_c_E;
+        displ_c_B = _displ_c_B;
+        displ_c_J = _displ_c_J;
     }
     std::string to_string() {
         return str;
     }
     void operator() (Grid3d& gr, double dt) {
         func(gr, dt);
+    }
+
+    vec3<vec3<double>> getCoordOffset(Field field) {
+        switch (field) {
+        case E:
+            return displ_c_E;
+        case B:
+            return displ_c_B;
+        default:
+            return displ_c_J;
+        }
+    }
+
+    double getTimeOffset(Field field) {
+        switch (field) {
+        case E:
+            return displ_t_E;
+        case B:
+            return displ_t_B;
+        default:
+            return displ_t_J;
+        }
     }
 
     friend void TransformGridIfNecessary(FieldSolver fs, Grid3d& gr, Direction dir) {
@@ -46,10 +78,22 @@ public:
     }
 };
 
-const FieldSolver PSTD(fieldSolverPSTD, "PSTD");
-const FieldSolver PSATD(fieldSolverPSATD, "PSATD");
-const FieldSolver FDTD(fieldSolverFDTD, "FDTD");
-const FieldSolver PSATD_OMP(fieldSolverPSATD_omp, "PSATD_omp");
+const FieldSolver PSTD(fieldSolverPSTD, "PSTD", 0, 0.5, 0.5,
+    vec3<vec3<double>>(vec3<double>(0)),
+    vec3<vec3<double>>(vec3<double>(0)),
+    vec3<vec3<double>>(vec3<double>(0)));
+const FieldSolver PSATD(fieldSolverPSATD, "PSATD", 0, 0, 0.5,
+    vec3<vec3<double>>(vec3<double>(0)),
+    vec3<vec3<double>>(vec3<double>(0)),
+    vec3<vec3<double>>(vec3<double>(0)));
+const FieldSolver FDTD(fieldSolverFDTD, "FDTD", 0, -0.5, 0.5,
+    vec3<vec3<double>>(vec3<double>(0.5, 0, 0), vec3<double>(0, 0.5, 0), vec3<double>(0, 0, 0.5)),
+    vec3<vec3<double>>(vec3<double>(0, 0.5, 0.5), vec3<double>(0.5, 0, 0.5), vec3<double>(0.5, 0.5, 0)),
+    vec3<vec3<double>>(vec3<double>(0.5, 0, 0), vec3<double>(0, 0.5, 0), vec3<double>(0, 0, 0.5)));
+const FieldSolver PSATD_OMP(fieldSolverPSATD_omp, "PSATD_omp", 0, 0, 0.5,
+    vec3<vec3<double>>(vec3<double>(0)),
+    vec3<vec3<double>>(vec3<double>(0)),
+    vec3<vec3<double>>(vec3<double>(0)));
 
 const std::map<std::string, FieldSolver> FieldSolverMap =
     { { "PSTD",PSTD },{ "PSATD",PSATD },{ "FDTD",FDTD },{ "PSATD_omp",PSATD_OMP } };

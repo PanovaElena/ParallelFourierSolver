@@ -74,38 +74,36 @@ public:
         return x >= 0 ? 1 : -1;
     }
 
-    double GetX(int i) {
-        return (i - gr.gnxRealCells() / 2)*gr.gdx();
+    double GetX(double i) {
+        return (i - parameters.n.x / 2)*parameters.d.x + parameters.a.x;
     }
 
-    double GetY(int j) {
-        return (j - gr.gnyRealCells() / 2)*gr.gdy();
+    double GetY(double j) {
+        return (j - parameters.n.y / 2)*parameters.d.y + parameters.a.y;
     }
 
-    double GetZ(int k) {
-        return (k - gr.gnzRealCells() / 2)*gr.gdz();
+    double GetZ(double k) {
+        return (k - parameters.n.z / 2)*parameters.d.z + parameters.a.z;
     }
 
-    double f(double r, double t) {
-        return sin(2 * constants::pi / parameters.Tx*t);
-    }
-
-    double GetJ(int i, int j, int iter) {
-        int nIterJ = int(parameters.T / parameters.dt);
-        if (iter > nIterJ) return 0;
-
-        double t0 = 0.5*parameters.dt;
-        if (parameters.fieldSolver.to_string() == "PSATD")
-            t0 = 0;
-
-        double x = GetX(i), y = GetY(j), t = iter*parameters.dt + t0;
-        if (abs(i - parameters.n.x / 2) > parameters.Tx / parameters.d.x / 4 ||
-            abs(j - parameters.n.y / 2) > parameters.Ty / parameters.d.y / 4)
+    double funcJ(double x, double y, double t) {
+        if (abs(x) > 0.25*parameters.Tx || abs(y) > 0.25*parameters.Ty)
             return 0;
         return pow(cos(2 * constants::pi*x / parameters.Tx), 2) *
             pow(cos(2 * constants::pi*y / parameters.Ty), 2) *
             sin(parameters.omega*t)*
             pow(sin(parameters.omegaEnv*t), 2);
+    }
+
+    double GetJ(int i, int j, int iter) {
+
+        int nIterJ = int(parameters.T / parameters.dt);
+        if (iter > nIterJ) return 0;
+
+        vec3<vec3<double>> dcJ = parameters.fieldSolver.getCoordOffset(J);
+        double dtJ = parameters.fieldSolver.getTimeOffset(J);
+
+        return funcJ(GetX(i + dcJ.z.x), GetY(j + dcJ.z.y), (iter + dtJ)*parameters.dt);
     }
 
     void SetJ(int iter) {
@@ -118,6 +116,7 @@ public:
     }
 
     virtual void SetEB() {
+
         for (int i = 0; i < gr.gnxRealNodes(); i++)
             for (int j = 0; j < gr.gnyRealNodes(); j++)
                 for (int k = 0; k < gr.gnzRealNodes(); k++) {
