@@ -4,6 +4,7 @@
 #include "spherical_wave.h"
 #include "fourier_transformation.h"
 #include "field_solver.h"
+#include "fftw3.h"
 
 
 void TestBody(SphericalWave& sphericalWave) {
@@ -20,6 +21,7 @@ void TestBody(SphericalWave& sphericalWave) {
 }
 
 int main(int argc, char** argv) {
+    fftw_init_threads();
     SphericalWave sphericalWave;
     ParserSphericalWave parser;
     ParametersForSphericalWave params;

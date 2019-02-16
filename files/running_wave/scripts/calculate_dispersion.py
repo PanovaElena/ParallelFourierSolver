@@ -5,7 +5,8 @@ import math
 import matplotlib.pyplot as plt
 from pylab import *
 import matplotlib as mpl
-import plot_graph as pg
+import graphics as pg
+import os
 
 #NUM_OF_PROCESSES = int(sys.argv[1])
 #FIELD_SOLVER = sys.argv[2];
@@ -13,7 +14,8 @@ import plot_graph as pg
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-DIR_OUT = "./dispersion_results/"
+DIR_OUT = "./dispersion/"
+if (not os.path.exists(DIR_OUT)): os.mkdir(DIR_OUT)
 NAME_FILE_OUT=DIR_OUT+"/dispersion.csv"
 NAME_GRAPH_OUT=DIR_OUT+"/dispersion"
 
@@ -27,49 +29,60 @@ DT = D/LIGHT_SPEED/COEF
 lambdaN=16
 lambd = lambdaN*D
 omega=2*math.pi*LIGHT_SPEED/lambd
+
+N_T=20
+dt_s=DT/100
+dt_f=DT/2
+dt_step=(dt_f-dt_s)/N_T
+T=2*math.pi/omega
+		
+def findV(arr, lambd, t):
+	#return LIGHT_SPEED*(1-math.asin(arr[0])/lambd)
+	return -math.asin(arr[0])*lambd/(2*math.pi*t)
+	
+def dispPSTD(_omega, _dt):
+	return 2/LIGHT_SPEED/_dt*math.sin(_omega*_dt/2)
 		
 for FIELD_SOLVER in ["PSTD","PSATD"]:
-	for NUM_OF_PROCESSES in range(1,3):
+	for NUM_OF_PROCESSES in [1]:
 		
 		if (NUM_OF_PROCESSES==1):
-			NAME_FILE_IN = "./consistent_results/E/cons_res.csv"
-			NAME_PROGRAM = "\""+"../../build/src/Examples/RunningWave/ConsistentFieldSolver_RunningWave/Release/runningWave_consistent"+"\""
-			CALL = "cons"
+			NAME_FILE_IN = DIR_OUT+"/sequential_result.csv"
+			NAME_PROGRAM = "\""+"../../../build/src/examples/running_wave/running_wave_sequential/Release/running_wave_sequential"+"\""
+			CALL = "seq"
 		else:
-			NAME_FILE_IN = "./parallel_results/second_steps.csv"
-			NAME_PROGRAM = "\""+"../../build/src/Examples/RunningWave/ParallelFieldSolver_RunningWave/Release/runningWave_parallel"+"\""
+			NAME_FILE_IN = DIR_OUT+"/parallel_result.csv"
+			NAME_PROGRAM = "\""+"../../../build/src/examples/running_wave/running_wave_parallel/Release/running_wave_parallel"+"\""
 			CALL = "par"
 			
-		def callProcess(_lambdaN, _dt, _nIter):
-			if (CALL == "cons"):
-				args=" --dt "+str(_dt)+" --solver "+FIELD_SOLVER+\
-					" --nx "+str(N)+" --ny "+str(N)+" --nz "+str(1)+\
-					" --lambdaN "+str(_lambdaN)+\
-					" --nCons "+str(_nIter)+" -d "+str(D)
+		def callProcess(_lambda, _dt, _nIter):
+			if (CALL == "seq"):
+				args=" -dt "+str(_dt)+" -solver "+FIELD_SOLVER+\
+					" -nx "+str(N)+" -ny "+str(1)+" -nz "+str(N)+\
+					" -lambda "+str(_lambda)+\
+					" -nseqi "+str(_nIter)+\
+					" -dx "+str(D)+" -dy "+str(D)+" -dz "+str(D)+\
+					" -bx "+str(N*D)+" -by "+str(D)+" -bz "+str(N*D)+\
+					" -dir "+DIR_OUT
 				process = subprocess.Popen(NAME_PROGRAM+" "+args, shell=True)
 				process.wait()
 			else:
-				args=" --dt "+str(_dt)+" --solver "+FIELD_SOLVER+\
-					" --nx "+str(N)+" --ny "+str(N)+" --nz "+str(1)+\
-					" --lambdaN "+str(_lambdaN)+\
-					" --nCons 0 --nPar "+str(_nIter)+" -d "+str(D)+\
-					" --filter on "
+				args=" -dt "+str(_dt)+" -solver "+FIELD_SOLVER+\
+					" -nx "+str(N)+" -nz "+str(N)+" -ny "+str(1)+\
+					" -gx "+str(GUARD)+" -gy 0 -gz 0 "+\
+					" -dx "+str(D)+" -dy "+str(D)+" -dz "+str(D)+\
+					" -npx "+str(NUM_OF_PROCESSES)+" -npy 1 -npz 1 "+\
+					" -lambda "+str(_lambda)+\
+					" -mask smooth -mwx 8 -mwy 0 -mwz 0 "+\
+					" -nseqi 0 -npari "+str(_nIter)+" -d "+str(D)+\
+					" -filter on -fwx 8 -fwy 0 -fwz 0 -fnzx 4 -fnzy 0 -fnzz 0 "+\
+					" -bx "+str(N*D)+" -by "+str(D)+" -bz "+str(N*D)+\
+					" -dir "+DIR_OUT
 				process = subprocess.Popen("mpiexec -n "+str(NUM_OF_PROCESSES)+" "+NAME_PROGRAM+" "+args, shell=True)
 				process.wait()
 		
-		def findV(arr, lambd, t):
-			#return LIGHT_SPEED*(1-math.asin(arr[0])/lambd)
-			return -math.asin(arr[0])*lambd/(2*math.pi*t)
-			
-		def dispPSTD(_omega, _dt):
-			return 2/LIGHT_SPEED/_dt*math.sin(_omega*_dt/2)
-		
 		arrDt=[]; arrV=[]
-		N_T=20
-		dt_s=DT/100
-		dt_f=DT/2
-		dt_step=(dt_f-dt_s)/N_T
-		T=2*math.pi/omega
+		
 		for i in range(N_T+1):
 			print(i, "\n")
 			
@@ -81,12 +94,12 @@ for FIELD_SOLVER in ["PSTD","PSATD"]:
 			print(nIter)
 			print(dt)
 			
-			callProcess(lambdaN, dt, nIter)
-			dat=pg.readFile_1d(NAME_FILE_IN)
+			callProcess(lambd, dt, nIter)
+			dat=pg.readFile1d(NAME_FILE_IN)
 			v=findV(dat, lambd, nIter*dt)
 			
 			arrDt.insert(i, T/dt)
-			arrV.insert(i, v/LIGHT_SPEED)
+			arrV.insert(i, (v-LIGHT_SPEED)/LIGHT_SPEED)
 			
 		with open(NAME_FILE_OUT, 'a') as file:
 			for i in range(len(arrV)):
@@ -94,9 +107,9 @@ for FIELD_SOLVER in ["PSTD","PSATD"]:
 			file.write("\n")
 		
 		
-		#ax.plot(arrDtDisp, arrVDisp)
-		if (CALL=="cons"):
-			ax.plot(arrDt, arrV)
+		if (CALL=="seq"):
+			if (FIELD_SOLVER=="PSTD"): ax.plot(arrDt, arrV, 'y')
+			else: ax.plot(arrDt, arrV, 'g')
 		else:
 			ax.plot(arrDt, arrV, "--")
 			
@@ -105,14 +118,16 @@ for i in range(500):
 	dt=dt_s+(dt_f-dt_s)/500*i
 	
 	arrDtDisp.insert(i, T/dt)
-	arrVDisp.insert(i, abs(omega/dispPSTD(omega, dt)/LIGHT_SPEED))
+	arrVDisp.insert(i, abs((omega/dispPSTD(omega, dt)-LIGHT_SPEED)/LIGHT_SPEED))
 ax.plot(arrDtDisp, arrVDisp, ':r')			
 
-ax.set_xlabel("T/dt")
-ax.set_ylabel("v/c")
+ax.set_xlabel("N_T")
+ax.set_ylabel("(v-c)/c")
 plt.tight_layout()
 #legend(["PSTD sequential", "PSTD parallel", "PSATD sequential", "PSATD parallel"])	
-legend(["PSTD", "PSATD", "f(T/dt)"])	
+legend(["PSTD", "PSATD", "f(N_T)"])
+
+ax.set_xscale ('log')	
 	
 plt.savefig(NAME_GRAPH_OUT+".png")
 		

@@ -15,14 +15,14 @@ public:
         ParametersForMyTest& p = static_cast<ParametersForMyTest&>(p1);
 
         std::cout <<
-            "-help                    get help\n" <<
-            "-dt                      set time step, default value is " << p.dt << "\n" <<
-            "-ax, -ay, -az, -a        set start of area (end will be set automatically), default value is " << p.a << "\n" <<
-            "-nx, -ny, -nz, -n        set size of grid, default value is "<< p.n << "\n" <<
-            "-dx, -dy, -dz, -d        set grid spacing, default value is " << p.d << "\n" <<
-            "-solver                  set solver (\"PSTD\", \"PSATD\", \"FDTD\" or \"PSATD_omp\"), default value is \"PSATD\"\n" <<
-            "-nseqi                   set number of sequential iterations, default value is " << p.nSeqSteps << "\n" <<
-            "-dir                     set output directory" << "\n";
+            "-help                       get help\n" <<
+            "-dt                         set time step, default value is " << p.dt << "\n" <<
+            "-ax, -ay, -az, -a           set start of area (end will be set automatically), default value is " << p.a << "\n" <<
+            "-nx, -ny, -nz, -n           set size of grid, default value is "<< p.n << "\n" <<
+            "-dx, -dy, -dz, -d           set grid spacing, default value is " << p.d << "\n" <<
+            "-solver                     set solver (\"PSTD\", \"PSATD\", \"FDTD\"), default value is \"PSATD\"\n" <<
+            "-nseqi                      set number of sequential iterations, default value is " << p.nSeqSteps << "\n" <<
+            "-dir                        set output directory" << "\n";
         if (task == Task::parallel) {
             std::cout <<
                 "-npari                      set number of parallel iterations, default value is " << p.nParSteps << "\n" <<
@@ -33,7 +33,7 @@ public:
                 "-filter                     set on or off for low-frequency filter (\"on\" or \"off\"), default value is " << p.filter.to_string() << "\n" <<
                 "-fwx, -fwy, -fwz, -fw       set width of low-frequency filter, default value is " << p.filter.getWidth() << "\n" <<
                 "-fnzx, -fnzy, -fnzz, -fnz   set num of frequences which should be set to zeros for low-frequency filter, default value is " << p.filter.getNumZeroFreq() << "\n" <<
-                "-npx, -npy, -npz, -np       set num of domains for every dimension, default value is (MPISize,1,1)" << 
+                "-npx, -npy, -npz, -np       set num of domains for every dimension, default value is (MPISize,1,1)\n" << 
                 "-scheme                     set parallel scheme (\"copy\" or \"sum\"), default value is \"sum\"" << "\n";
         }
     }

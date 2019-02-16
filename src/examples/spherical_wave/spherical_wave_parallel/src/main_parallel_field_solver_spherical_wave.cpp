@@ -5,9 +5,11 @@
 #include <string>
 #include <iostream>
 #include "status.h"
+#include "fftw3.h"
 
 int main(int argc, char** argv) {
     MPIWrapper::MPIInitialize(argc, argv);
+    fftw_init_threads();
     ParametersForSphericalWave params;
     ParserSphericalWave parser;
     MPIWorker* mpiWorker = 0;

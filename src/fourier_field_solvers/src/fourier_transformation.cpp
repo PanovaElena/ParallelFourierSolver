@@ -5,9 +5,11 @@
 #include "fourier_transformation.h"
 #include "array3d.h"
 #include "class_member_ptr.h"
+#include <omp.h>
 
 void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, int Nz, Direction dir) {
     fftw_plan plan = 0;
+    fftw_plan_with_nthreads(omp_get_max_threads());
     switch (dir) {
     case RtoC:
         plan = fftw_plan_dft_r2c_3d(Nx, Ny, Nz, &(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_ESTIMATE);

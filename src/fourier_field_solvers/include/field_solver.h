@@ -18,7 +18,6 @@ typedef void (*FieldSolverType)(Grid3d&, double);
 void fieldSolverFDTD(Grid3d& gr, double dt);
 void fieldSolverPSTD(Grid3d& gr, double dt);
 void fieldSolverPSATD(Grid3d& gr, double dt);
-void fieldSolverPSATD_omp(Grid3d& gr, double dt);
 
 class FieldSolver {
     FieldSolverType func;
@@ -90,13 +89,9 @@ const FieldSolver FDTD(fieldSolverFDTD, "FDTD", 0, -0.5, 0.5,
     vec3<vec3<double>>(vec3<double>(0.5, 0, 0), vec3<double>(0, 0.5, 0), vec3<double>(0, 0, 0.5)),
     vec3<vec3<double>>(vec3<double>(0, 0.5, 0.5), vec3<double>(0.5, 0, 0.5), vec3<double>(0.5, 0.5, 0)),
     vec3<vec3<double>>(vec3<double>(0.5, 0, 0), vec3<double>(0, 0.5, 0), vec3<double>(0, 0, 0.5)));
-const FieldSolver PSATD_OMP(fieldSolverPSATD_omp, "PSATD_omp", 0, 0, 0.5,
-    vec3<vec3<double>>(vec3<double>(0)),
-    vec3<vec3<double>>(vec3<double>(0)),
-    vec3<vec3<double>>(vec3<double>(0)));
 
 const std::map<std::string, FieldSolver> FieldSolverMap =
-    { { "PSTD",PSTD },{ "PSATD",PSATD },{ "FDTD",FDTD },{ "PSATD_omp",PSATD_OMP } };
+    { { "PSTD",PSTD },{ "PSATD",PSATD },{ "FDTD",FDTD } };
 
 void FieldSolverParallel(MPIWorker& worker, FieldSolver fieldSolver, int numIter, int maxNumIterBetweenExchanges,
     double dt, FileWriter& fileWriter);

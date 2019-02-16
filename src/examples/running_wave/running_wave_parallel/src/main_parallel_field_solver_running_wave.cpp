@@ -5,9 +5,11 @@
 #include <iostream>
 #include "parser_running_wave.h"
 #include "status.h"
+#include "fftw3.h"
 
 int main(int argc, char** argv) {
     MPIWrapper::MPIInitialize(argc, argv);
+    fftw_init_threads();
     ParametersForRunningWave params;
     ParserRunningWave parser;
     MPIWorker* mpiWorker = 0;

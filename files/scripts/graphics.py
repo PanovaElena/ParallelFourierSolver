@@ -30,13 +30,16 @@ def readFile2d(file):
 	return data
 
 	
-def plot1d(dir, name, data, arg=[], xlabel="", ylabel="", points=False):
+def plot1d(dir, name, data, arg=[], xlabel="", ylabel="", points=False, _log=False):
 	if (arg==[]): arg=range(0, len(data))
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
-	ax.plot(arg, data)
-	if (points==True):
-		ax.plot(arg, data, "*")
+	if (_log):
+		ax.semilogy(arg, data)
+		if (points==True): ax.semilogy(arg, data, "*")
+	else:
+		ax.plot(arg, data)
+		if (points==True): ax.plot(arg, data, "*")
 	pl.xlabel(xlabel)
 	pl.ylabel(ylabel)
 	#ax.set_title(name)

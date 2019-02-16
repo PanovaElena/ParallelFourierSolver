@@ -4,6 +4,7 @@
 #include "running_wave.h"
 #include "fourier_transformation.h"
 #include "field_solver.h"
+#include "fftw3.h"
 
 void TestBody(RunningWave& runningWave) {
 
@@ -17,6 +18,7 @@ void TestBody(RunningWave& runningWave) {
 }
 
 int main(int argc, char** argv) {
+    fftw_init_threads();
     RunningWave runningWave;
     ParserRunningWave parser;
     ParametersForRunningWave params;
