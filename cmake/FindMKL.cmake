@@ -1,12 +1,10 @@
-# Find the Math Kernel Library from Intel
+#  Find the Math Kernel Library from Intel
 #
 #  MKL_FOUND - System has MKL
 #  MKL_INCLUDE_DIRS - MKL include files directories
-#  MKL_LIBRARIES - The MKL libraries
+#  MKL_LIBRARIES - MKL libraries
 #
-#  The environment variables MKLROOT and INTEL are used to find the library.
-#  Everything else is ignored. If MKL is found "-DMKL_ILP64" is added to
-#  CMAKE_C_FLAGS and CMAKE_CXX_FLAGS.
+#  The environment variables INTEL are used to find the library.
 #
 #  Example usage:
 #
@@ -16,36 +14,58 @@
 #  endif()
 
 # If already in cache, be silent
-if (MKL_INCLUDE_DIRS AND MKL_LIBRARIES AND MKL_INTERFACE_LIBRARY AND
-    MKL_SEQUENTIAL_LAYER_LIBRARY AND MKL_CORE_LIBRARY)
-  set (MKL_FIND_QUIETLY TRUE)
+if ( MKL_INCLUDE_DIRS AND MKL_LIBRARIES )
+    set (MKL_FIND_QUIETLY TRUE)
 endif()
 
-set(MKL_INCLUDE_DIRS $ENV{MKLROOT}/include $ENV{MKLROOT}/include/fftw )
-set(MKL_LIBRARIES $ENV{MKLROOT}/lib/intel64)
+set( INTEL $ENV{INTEL} )
+if ( NOT INTEL )
+    message( WARNING "Environment variable INTEL is not defined!" )
+endif()
+set( MKLROOT ${INTEL}/mkl )
+    
+find_path( MKL_INCLUDE_DIR NAMES mkl.h HINTS ${MKLROOT}/include)
+set( MKL_INCLUDE_DIRS ${MKL_INCLUDE_DIR} ${MKL_INCLUDE_DIR}/fftw )	
+set( MKL_LIBRARIES_PATHS "${MKLROOT}/lib;${MKLROOT}/lib/intel64;${INTEL}/mkl/lib/intel64" )
 
-if (MKL_INCLUDE_DIRS AND MKL_LIBRARIES)
+find_library( MKL_CDFT_LIB mkl_cdft_core ${MKL_LIBRARIES_PATHS} )
+find_library( MKL_INT_LIB mkl_intel_ilp64 ${MKL_LIBRARIES_PATHS} )
+find_library( MKL_INT_THR_LIB mkl_intel_thread ${MKL_LIBRARIES_PATHS} )
+find_library( MKL_CORE_LIB mkl_core ${MKL_LIBRARIES_PATHS} )
+find_library( MKL_BLACS_INTMPI_LIB mkl_blacs_intelmpi_ilp64 ${MKL_LIBRARIES_PATHS} )
 
-    if (NOT DEFINED ENV{CRAY_PRGENVPGI} AND
-        NOT DEFINED ENV{CRAY_PRGENVGNU} AND
-        NOT DEFINED ENV{CRAY_PRGENVCRAY} AND
-        NOT DEFINED ENV{CRAY_PRGENVINTEL})
-      set(ABI "-m64")
-    endif()
 
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMKL_ILP64 ${ABI}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMKL_ILP64 ${ABI}")
-
+if ( MKL_INCLUDE_DIRS AND
+     MKL_CDFT_LIB AND
+     MKL_INT_LIB AND
+	 MKL_INT_THR_LIB AND 
+	 MKL_CORE_LIB AND
+	 MKL_BLACS_INTMPI_LIB )
+	 
+	set( MKL_LIBRARIES "${MKL_CDFT_LIB};${MKL_INT_LIB};${MKL_INT_THR_LIB};${MKL_CORE_LIB};${MKL_BLACS_INTMPI_LIB}" )
+	
+	if ( WIN32 )
+	    find_library( IOMP5_LIB libiomp5md${CMAKE_STATIC_LIBRARY_SUFFIX} ${INTEL}/compiler/lib/intel64 )
+		if ( IOMP5_LIB )
+		    set(MKL_LIBRARIES "${MKL_LIBRARIES};${IOMP5_LIB}")
+		else()
+		    message( WARNING "Cannot find iomp5" )
+		endif()
+	elseif( UNIX )
+	    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -liomp5 -lpthread -lm -ldl")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -liomp5 -lpthread -lm -ldl")
+	endif()
+	 
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMKL_ILP64")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMKL_ILP64")
+       
+    # Handle the QUIETLY and REQUIRED arguments and set MKL_FOUND to TRUE if
+    # all listed variables are TRUE.
+    INCLUDE(FindPackageHandleStandardArgs)
+    FIND_PACKAGE_HANDLE_STANDARD_ARGS(MKL DEFAULT_MSG MKL_LIBRARIES MKL_INCLUDE_DIRS)
+    
+    MARK_AS_ADVANCED(MKL_INCLUDE_DIRS MKL_LIBRARIES)
+	
 else()
-
-  set(MKL_INCLUDE_DIRS "")
-  set(MKL_LIBRARIES "")
-
+    message( WARNING "Cannot find some necessary mkl components" )
 endif()
-
-# Handle the QUIETLY and REQUIRED arguments and set MKL_FOUND to TRUE if
-# all listed variables are TRUE.
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(MKL DEFAULT_MSG MKL_LIBRARIES MKL_INCLUDE_DIRS)
-
-MARK_AS_ADVANCED(MKL_INCLUDE_DIRS MKL_LIBRARIES)
