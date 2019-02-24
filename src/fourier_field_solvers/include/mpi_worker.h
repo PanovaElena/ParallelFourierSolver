@@ -39,7 +39,7 @@ public:
     Status Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, int _size, int _rank);
 	Status Initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, MPIWrapper3d& _mpiWrapper3d);
 
-    void setMPIWrapper3d(MPIWrapper3d& _mpiWrapper) {
+    void setMPIWrapper3d(const MPIWrapper3d& _mpiWrapper) {
         mpiWrapper3d = _mpiWrapper;
     }
     

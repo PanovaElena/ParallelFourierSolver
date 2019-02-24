@@ -10,26 +10,26 @@ struct FieldForGrid: public vec3<Array3d<T>> {
 
     vec3<T> operator()(int i, int j, int k)
     {
-        return vec3<T>(x(i, j, k), y(i, j, k), z(i, j, k));
+        return vec3<T>(this->x(i, j, k), this->y(i, j, k), this->z(i, j, k));
     }
     vec3<T> operator()(vec3<int> v)
     {
         return (*this)(v.x, v.y, v.z);
     }
     void Write(int i, int j, int k, vec3<T> val) {
-        x(i, j, k) = val.x;
-        y(i, j, k) = val.y;
-        z(i, j, k) = val.z;
+        this->x(i, j, k) = val.x;
+        this->y(i, j, k) = val.y;
+        this->z(i, j, k) = val.z;
     }
     void Clear() {
-        x.Clear();
-        y.Clear();
-        z.Clear();
+        this->x.Clear();
+        this->y.Clear();
+        this->z.Clear();
     }
     void Initialize(int nx, int ny, int nz) {
-        x.Initialize(nx, ny, nz);
-        y.Initialize(nx, ny, nz);
-        z.Initialize(nx, ny, nz);
+        this->x.Initialize(nx, ny, nz);
+        this->y.Initialize(nx, ny, nz);
+        this->z.Initialize(nx, ny, nz);
     }
     friend bool operator==(const FieldForGrid& f1, const FieldForGrid& f2) {
         return (f1.x == f2.x && f1.y == f2.y && f1.z == f2.z);

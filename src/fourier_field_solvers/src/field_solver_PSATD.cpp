@@ -22,7 +22,7 @@ void fieldSolverPSATD(Grid3d & gr, double dt) {
 				if (normK == 0) {
 					gr.EF.Write(i, j, k, (-1)*J);
 					gr.BF.Write(i, j, k, vec3<MyComplex>(0));
-					return;
+					continue;
 				}
 
 				gr.EF.Write(i, j, k, C*E + complex_i * S*vec3<MyComplex>::VectorProduct(K, B) -

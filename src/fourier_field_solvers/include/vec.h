@@ -137,7 +137,7 @@ struct vec3
         return ost;
     }
 
-    friend std::string to_string(vec3<Type>& vec) {
+    friend std::string to_string(const vec3<Type>& vec) {
         std::string str="("+ std::to_string(vec.x) + "," + std::to_string(vec.y) + "," +
             std::to_string(vec.z) + ")";
         return str;
