@@ -50,20 +50,26 @@ struct ParametersForMyTest : public ParametersForTest {
     }
 
     void print() {
-        std::cout <<
-            "field solver: " << fieldSolver.to_string() << "\n" <<
-            "dt = " << dt << "\n" <<
-            "n = " << n << "\n" <<
-            "d = " << d << "\n" <<
-            "guard = " << guard << "\n" <<
-            "mask = " << mask.to_string() << "\n" <<
-            "mask width = " << mask.getMaskWidth() << "\n" <<
-            "filter = " << filter.to_string() << "\n" <<
-            "filter width = " << filter.getWidth() << "\n" <<
-            "num zero freq for filter = " << filter.getNumZeroFreq() << "\n" <<
-            "num of steps = " << getNSteps() << "\n" <<
-            "num of consistent steps = " << nSeqSteps << "\n" <<
-            "num of parallel steps = " << nParSteps << "\n"<<
-            "num of steps between exchanges = " << nDomainSteps << "\n";
+
+		int numExchanges = nParSteps / nDomainSteps;
+		int numIterBeforeLastExchange = nParSteps % nDomainSteps;
+
+		std::cout <<
+			"field solver: " << fieldSolver.to_string() << "\n" <<
+			"dt = " << dt << "\n" <<
+			"n = " << n << "\n" <<
+			"d = " << d << "\n" <<
+			"guard = " << guard << "\n" <<
+			"mask = " << mask.to_string() << "\n" <<
+			"mask width = " << mask.getMaskWidth() << "\n" <<
+			"filter = " << filter.to_string() << "\n" <<
+			"filter width = " << filter.getWidth() << "\n" <<
+			"num zero freq for filter = " << filter.getNumZeroFreq() << "\n" <<
+			"num of steps = " << getNSteps() << "\n" <<
+			"num of consistent steps = " << nSeqSteps << "\n" <<
+			"num of parallel steps = " << nParSteps << "\n" <<
+			"num of steps between exchanges = " << nDomainSteps << "\n" <<
+			"number of exchanges = " << numExchanges + 1 << "\n" <<
+		    "number of iterations before last exchange = " << numIterBeforeLastExchange << "\n";
     }
 };

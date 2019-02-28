@@ -4,7 +4,7 @@
 #include "fourier_transformation.h"
 
 void RefreshE_PSTD(Grid3d& gr, double dt) {
-
+#pragma omp parallel for
     for (int i = 0; i < gr.gnxComplexCells(); i++)
         for (int j = 0; j < gr.gnyComplexCells(); j++)
             for (int k = 0; k < gr.gnzComplexCells(); k++) {
@@ -17,7 +17,7 @@ void RefreshE_PSTD(Grid3d& gr, double dt) {
 }
 
 void RefreshB_PSTD(Grid3d& gr, double dt) {
-
+#pragma omp parallel for
     for (int i = 0; i < gr.gnxComplexCells(); i++)
         for (int j = 0; j < gr.gnyComplexCells(); j++)
             for (int k = 0; k < gr.gnzComplexCells(); k++) {

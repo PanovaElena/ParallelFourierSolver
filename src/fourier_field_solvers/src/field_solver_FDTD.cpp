@@ -4,6 +4,7 @@
 
 void RefreshE_FDTD(Grid3d& gr, double dt) {
     double _x, _y, _z;
+#pragma omp parallel for
     for (int i = 0; i < gr.gnxRealCells(); i++)
         for (int j = 0; j < gr.gnyRealCells(); j++)
             for (int k = 0; k < gr.gnzRealCells(); k++) {
@@ -28,6 +29,7 @@ void RefreshE_FDTD(Grid3d& gr, double dt) {
 }
 void RefreshB_FDTD(Grid3d& gr, double dt) {
     double _x, _y, _z;
+#pragma omp parallel for
     for (int i = 0; i < gr.gnxRealCells(); i++)
         for (int j = 0; j < gr.gnyRealCells(); j++)
             for (int k = 0; k < gr.gnzRealCells(); k++) {

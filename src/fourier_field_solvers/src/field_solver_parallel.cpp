@@ -27,19 +27,10 @@ double myRound(double x) {
     return (int)(x + 0.5);
 }
 
-void printInfo(MPIWorker& worker, int numExchanges, int maxIterBetweenExchange, int numIterBeforeLastExchange) {
-    if (MPIWrapper::MPIRank() == 0) {
-        worker.ShowMessage("number of exchanges - " + std::to_string(numExchanges + 1));
-        worker.ShowMessage("max iter between exchanges - " + std::to_string(maxIterBetweenExchange));
-        worker.ShowMessage("number of iter before last exchange - " + std::to_string(numIterBeforeLastExchange));
-    }
-}
-
 void FieldSolverParallel(MPIWorker& worker, FieldSolver fieldSolver, int numIter, int maxIterBetweenExchange,
     double dt, FileWriter& fileWriter) {
     int numExchanges = numIter / maxIterBetweenExchange;
     int numIterBeforeLastExchange = numIter % maxIterBetweenExchange;
-    printInfo(worker, numExchanges, maxIterBetweenExchange, numIterBeforeLastExchange);
 
     for (int i = 0; i < numExchanges; i++) {
         FieldSolverParallelInnerCircle(worker, fieldSolver, maxIterBetweenExchange, dt, fileWriter);

@@ -1,6 +1,7 @@
 #pragma once
 #include "mpi_worker.h"
 #include "mpi_wrapper_3d.h"
+#include <omp.h>
 #include "test_parallel.h"
 #include "string"
 #include "running_wave.h"
@@ -49,9 +50,14 @@ public:
         //MPIWorker::ShowMessage("writing to file first domain");
         runningWave.parameters.fileWriter.WriteFile(worker.getGrid(), nameFileAfterDivision);
 
+		double t1 = omp_get_wtime();
+
         //MPIWorker::ShowMessage("parallel field solver");
         FieldSolverParallel(worker, runningWave.parameters.fieldSolver, runningWave.parameters.nParSteps, runningWave.parameters.nDomainSteps,
             runningWave.parameters.dt, runningWave.parameters.fileWriter);
+
+		double t2 = omp_get_wtime();
+		std::cout << "Time of parallel version is " << t2 - t1 << std::endl;
 
         //MPIWorker::ShowMessage("writing to file parallel result");
         runningWave.parameters.fileWriter.WriteFile(worker.getGrid(), nameFileAfterExchange);

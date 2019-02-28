@@ -54,6 +54,13 @@ public:
 };
 
 class FileWriter {
+public:
+	enum State {
+		on,
+		off
+	};
+	State state = on;
+
 private:
     std::string dir = "";
     Field field;
@@ -61,12 +68,14 @@ private:
     Section section;
 
 public:
+
     FileWriter() {}
-    FileWriter(std::string _dir, Field _field, Coordinate _coord, Section _section) {
+    FileWriter(std::string _dir, Field _field, Coordinate _coord, Section _section, State _state=on) {
         dir = _dir;
         field = _field;
         coord = _coord;
         section = _section;
+		state = _state;
     }
     FileWriter(const FileWriter& fileWriter, std::string _dir) {
         *this = fileWriter;
@@ -83,6 +92,7 @@ public:
     }
 
     void WriteFile(Grid3d& gr, std::string name, Type t = Type::Double, std::string message="") {
+		if (state == off) return;
         if (message!="") std::cout << message << "\n";
         section.SetBorders(gr);
         switch (section.dim) {

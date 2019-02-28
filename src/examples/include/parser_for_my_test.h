@@ -3,6 +3,7 @@
 #include "parameters_for_test.h"
 #include "vec.h"
 #include <iostream>
+#include <omp.h>
 
 class ParserForMyTest: public CommandLineParser {
     vec3<int> getVecUseNumOfProcesses(vec3<int> value, vec3<int> numOfPr) {
@@ -22,6 +23,8 @@ public:
             "-dx, -dy, -dz, -d           set grid spacing, default value is " << p.d << "\n" <<
             "-solver                     set solver (\"PSTD\", \"PSATD\", \"FDTD\"), default value is \"PSATD\"\n" <<
             "-nseqi                      set number of sequential iterations, default value is " << p.nSeqSteps << "\n" <<
+			"-dump                       set value whether dump (\"on\" or \"off\"), default value is \"on\"\n" <<
+			"-nthreads                   set number of threads\"on\"\n" <<
             "-dir                        set output directory" << "\n";
         if (task == Task::parallel) {
             std::cout <<
@@ -60,7 +63,13 @@ public:
                 params.fieldSolver = FieldSolverMap.find(m.find("-solver")->second)->second;
 
         if (m.find("-nseqi") != m.end()) params.nSeqSteps = std::stoi(m.find("-nseqi")->second);
+		if (m.find("-dump") != m.end() && m.find("-dump")->second=="off")
+			params.fileWriter.state = FileWriter::State::off;
         if (m.find("-dir") != m.end()) params.fileWriter.ChangeDir(m.find("-dir")->second);
+		if (m.find("-nthreads") != m.end()) {
+			omp_set_num_threads(std::stoi(m.find("-nthreads")->second));
+			std::cout << "number of threads = " << m.find("-nthreads")->second << std::endl;
+		}
 
         if (task == Task::parallel) {
 
