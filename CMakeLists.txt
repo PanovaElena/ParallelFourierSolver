@@ -47,10 +47,11 @@ endif()
 
 # mpi
 if ( WIN32 )
-    set( MPI_LIBRARIES "${I_MPI_ROOT}/intel64/lib/*" )
+    set( MPI_LIBRARIES "$ENV{I_MPI_ROOT}/intel64/lib/*.lib" )
     set( MPI_INCLUDE_PATH "$ENV{I_MPI_ROOT}/intel64/include" )
     include_directories( ${MPI_INCLUDE_PATH} )
     add_element_to_global_property( ALL_LIBS "${MPI_LIBRARIES}" )
+    message( STATUS "Found MPI: ${MPI_LIBRARIES}" )
 else()
     find_package( MPI )
     if ( MPI_FOUND )
