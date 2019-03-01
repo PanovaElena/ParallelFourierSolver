@@ -4,11 +4,16 @@ sys.path.append("../../scripts/")
 import subprocess
 import os
 import graphics as gr
+import read_file as fr
+import calc_error as ce
 import args
 
 DIR_PICTURES = "./pictures/"
 DIR_SCRIPT = "./"+os.path.dirname(sys.argv[0]) 
 FOLDER="/release/"
+
+MPI="mpiexec"
+#MPI="\"C:\Program Files\Microsoft MPI\Bin\mpiexec\""
 
 NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/running_wave/running_wave_sequential/"+FOLDER+"/running_wave_sequential"+"\""
 NAME_PAR_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/running_wave/running_wave_parallel/"+FOLDER+"/running_wave_parallel"+"\""
@@ -32,13 +37,13 @@ if (os.path.exists(DIR_RESULTS)):
 else: os.mkdir(DIR_RESULTS)
 
 if (args.dimension_of_output_data==1):
-	funcRead = gr.readFile1d
+	funcRead = fr.readFile1d
 	funcPlot = gr.plot1d
-	funcPlotError = gr.plotError1d
+	funcCalcError = ce.calcError1d
 else: 
-	funcRead = gr.readFile2d
+	funcRead = fr.readFile2d
 	funcPlot = gr.plot2d
-	funcPlotError = gr.plotError2d
+	funcCalcError = ce.calcError2d
 
 # sequential
 
@@ -60,7 +65,8 @@ command_args_seq = "-ax "+str(args.ax)+" "+\
 					\
 					"-nseqi "+str(args.n_iter)+" "+\
 					\
-					"-dim "+str(args.dimension_of_output_data)+" "\
+					"-dim "+str(args.dimension_of_output_data)+" "+\
+					"-dump on "+\
 					\
 					"-dir "+str(DIR_SCRIPT+DIR_RESULTS)+" "\
 					\
@@ -121,14 +127,15 @@ command_args_par = "-ax "+str(args.ax)+" "+\
 					\
 					"-dim "+str(args.dimension_of_output_data)+" "+\
 					\
-					"-dir "+str(DIR_SCRIPT+DIR_RESULTS)+" "\
+					"-dir "+str(DIR_SCRIPT+DIR_RESULTS)+" "+\
+					"-dump on "+\
 					\
 					"-lambda "+str(args.lambd)+" "+\
 					"-angle "+str(args.angle)+" ";
 					
 np=args.npx*args.npy*args.npz
 					
-process_par = subprocess.Popen("mpiexec -n "+str(np)+" "+NAME_PAR_PROGRAM+" "+command_args_par, shell=True)
+process_par = subprocess.Popen(MPI+" -n "+str(np)+" "+NAME_PAR_PROGRAM+" "+command_args_par, shell=True)
 process_par.wait()
 
 data_par = funcRead(NAME_FILE_PAR)
@@ -141,8 +148,7 @@ for (dirpath, dirnames, filenames) in os.walk(DIR_RESULTS):
 	for file in filenames:
 		funcPlot(DIR_PICTURES, file, funcRead(DIR_RESULTS+file))
 
-funcPlotError(DIR_PICTURES, "error", data_seq, data_par)
-	
+funcPlot(DIR_PICTURES, "error",	funcCalcError(data_seq, data_par))
 
 
 

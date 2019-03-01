@@ -68,4 +68,10 @@ if ( MKL_INCLUDE_DIRS AND
 	
 else()
     message( WARNING "Cannot find some necessary mkl components" )
+	message( STATUS "MKL_INCLUDE_DIRS=${MKL_INCLUDE_DIRS}")
+	message( STATUS "MKL_CDFT_LIB=${MKL_CDFT_LIB}")
+	message( STATUS "MKL_INT_LIB=${MKL_INT_LIB}")
+	message( STATUS "MKL_INT_THR_LIB=${MKL_INT_THR_LIB}")
+	message( STATUS "MKL_CORE_LIB=${MKL_CORE_LIB}")
+	message( STATUS "MKL_BLACS_INTMPI_LIB=${MKL_BLACS_INTMPI_LIB}")
 endif()
