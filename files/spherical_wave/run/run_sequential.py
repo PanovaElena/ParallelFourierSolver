@@ -50,10 +50,18 @@ command_args_seq = "-ax "+str(args.ax)+" "+\
 					\
 					"-dir "+str(DIR_SCRIPT+DIR_RESULTS)+" "\
 					\
-					"-omega "+str(args.omega)+" "+\
-					"-omenv "+str(args.omega_envelope)+" "+\
-					"-ts "+str(args.time_source)+" "+\
-					"-ws "+str(args.width_source)+" ";
+					"-scx "+str(args.coord_source_x)+" "+\
+					"-scy "+str(args.coord_source_y)+" "+\
+					"-scz "+str(args.coord_source_z)+" "+\
+					\
+					"-swx "+str(args.width_source_x)+" "+\
+					"-swy "+str(args.width_source_y)+" "+\
+					"-swz "+str(args.width_source_z)+" "+\
+					\
+					"-somega "+str(args.omega)+" "+\
+					"-somenv "+str(args.omega_envelope)+" "+\
+					"-stimest "+str(args.start_time_source)+" "+\
+					"-stime "+str(args.time_source)+" ";
 					
 					
 process_seq = subprocess.Popen(NAME_SEQ_PROGRAM+" "+command_args_seq, shell=True)

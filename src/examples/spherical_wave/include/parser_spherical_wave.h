@@ -14,10 +14,12 @@ public:
         ParametersForSphericalWave& p = static_cast<ParametersForSphericalWave&>(p1);
 
         std::cout <<
-            "-omega                      set frequency of source, default value is " << p.omega << "\n" <<
-            "-omenv                      set frequency of envelop, default value is " << p.omegaEnv << "\n" <<
-            "-ts                         set working time of source, default value is " << p.T << "\n" <<
-            "-tw                         set width of source, default value is " << p.Tx << "\n" <<
+            "-scx, -scy, -scz            set coordinate of source, default value is " << p.source.coord << "\n" <<
+            "-somega                     set frequency of source, default value is " << p.source.omega << "\n" <<
+            "-somenv                     set frequency of envelop for source, default value is " << p.source.omegaEnv << "\n" <<
+            "-stime                      set working time of source, default value is " << p.source.time << "\n" <<
+            "-stimest                    set start time of source, default value is " << p.source.startTime << "\n" <<
+            "-swx, -swy, -swz            set width of source, default value is " << p.source.width << "\n" <<
             std::endl;
     }
 
@@ -27,13 +29,18 @@ public:
 
         ParametersForSphericalWave& params = static_cast<ParametersForSphericalWave&>(p);
 
-        if (m.find("-omega") != m.end()) params.omega = std::stod(m.find("-omega")->second);
-        if (m.find("-omenv") != m.end()) params.omegaEnv = std::stod(m.find("-omenv")->second);
-        if (m.find("-ts") != m.end()) params.T = std::stod(m.find("-ts")->second);
-        if (m.find("-ws") != m.end()) {
-            params.Tx = std::stod(m.find("-ws")->second);
-            params.Ty = params.Tx;
-        }
+        if (m.find("-scx") != m.end()) params.source.coord.x = std::stod(m.find("-scx")->second);
+        if (m.find("-scy") != m.end()) params.source.coord.y = std::stod(m.find("-scy")->second);
+        if (m.find("-scz") != m.end()) params.source.coord.z = std::stod(m.find("-scz")->second);
+
+        if (m.find("-swx") != m.end()) params.source.width.x = std::stod(m.find("-swx")->second);
+        if (m.find("-swy") != m.end()) params.source.width.y = std::stod(m.find("-swy")->second);
+        if (m.find("-swz") != m.end()) params.source.width.z = std::stod(m.find("-swz")->second);
+
+        if (m.find("-somega") != m.end()) params.source.omega = std::stod(m.find("-somega")->second);
+        if (m.find("-somenv") != m.end()) params.source.omegaEnv = std::stod(m.find("-somenv")->second);
+        if (m.find("-stime") != m.end()) params.source.time = std::stod(m.find("-stime")->second);
+        if (m.find("-stimest") != m.end()) params.source.startTime = std::stod(m.find("-stimest")->second);
 
         return Status::OK;
 

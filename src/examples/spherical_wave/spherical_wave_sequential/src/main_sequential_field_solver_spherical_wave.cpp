@@ -8,15 +8,13 @@
 
 
 void TestBody(SphericalWave& sphericalWave) {
-    TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
     for (int j = 1; j <= sphericalWave.parameters.nSeqSteps; j++) {
-        TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, CtoR);
-        sphericalWave.SetJ(j);
+        sphericalWave.SetJ(j, sphericalWave.gr);
         TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
         sphericalWave.parameters.fieldSolver(sphericalWave.gr, sphericalWave.parameters.dt);
+        TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, CtoR);
     }
 
-    TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, CtoR);
     sphericalWave.parameters.fileWriter.WriteFile(sphericalWave.gr, "sequential_result.csv", Double, "writing...");
 }
 

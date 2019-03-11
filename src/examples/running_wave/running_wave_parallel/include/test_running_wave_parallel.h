@@ -57,7 +57,8 @@ public:
             runningWave.parameters.dt, runningWave.parameters.fileWriter);
 
 		double t2 = omp_get_wtime();
-		std::cout << "Time of parallel version is " << t2 - t1 << std::endl;
+        if (MPIWrapper::MPIRank() == 0)
+            std::cout << "Time of parallel version is " << t2 - t1 << std::endl;
 
         //MPIWorker::ShowMessage("writing to file parallel result");
         runningWave.parameters.fileWriter.WriteFile(worker.getGrid(), nameFileAfterExchange);

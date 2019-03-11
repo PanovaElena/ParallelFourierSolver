@@ -25,7 +25,7 @@ public:
         TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
         for (int i = 1; i <= sphericalWave.parameters.nSeqSteps; i++) {
             TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, CtoR);
-            sphericalWave.SetJ(i);
+            sphericalWave.SetJ(i, sphericalWave.gr);
             TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
             sphericalWave.parameters.fieldSolver(sphericalWave.gr, sphericalWave.parameters.dt);
         }
@@ -34,6 +34,36 @@ public:
         //MPIWorker::ShowMessage("writing to file first steps");
         if (MPIWrapper::MPIRank() == 0)
             sphericalWave.parameters.fileWriter.WriteFile(sphericalWave.gr, nameFileFirstSteps);
+    }
+
+    void CalculateParallel(MPIWorker& worker) {
+        double startTimeOfSource = sphericalWave.parameters.source.getStartTime();
+        double endTimeOfSource = sphericalWave.parameters.source.getEndTime();
+        double startTimeOfSeq = 0;
+        double endTimeOfSeq = sphericalWave.parameters.nSeqSteps * sphericalWave.parameters.dt;
+        double startTimeOfPar = (sphericalWave.parameters.nSeqSteps + 1) * sphericalWave.parameters.dt;
+        double endTimeOfPar = sphericalWave.parameters.getNSteps() * sphericalWave.parameters.dt;
+
+        int nIter1 = 0, nIter2 = 0, nIter3 = 0;
+        if (startTimeOfSource >= startTimeOfPar)
+            nIter1 = (int)((startTimeOfSource - startTimeOfPar) / sphericalWave.parameters.dt);
+        if (endTimeOfSource >= startTimeOfPar)
+            nIter2 = (int)((endTimeOfSource - startTimeOfPar) / sphericalWave.parameters.dt) - nIter1;
+        nIter3 = sphericalWave.parameters.nParSteps - nIter2;
+        const int N_ITER_SAVE = (int)(0.1*nIter3);
+
+        // part 1
+        FieldSolverParallel(worker, sphericalWave.parameters.fieldSolver, nIter1,
+            sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
+        // part 2
+        for (int i = nIter1; i < nIter1 + nIter2 + N_ITER_SAVE; i++) {
+            sphericalWave.SetJ(i, worker.getGrid());
+            FieldSolverParallel(worker, sphericalWave.parameters.fieldSolver, 1,
+                sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter, std::to_string(i));
+        }
+        // part 3
+        FieldSolverParallel(worker, sphericalWave.parameters.fieldSolver, nIter3 - N_ITER_SAVE,
+            sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
     }
 
     void DoParallelPart() {
@@ -52,8 +82,7 @@ public:
         sphericalWave.parameters.fileWriter.WriteFile(worker.getGrid(), nameFileAfterDivision);
 
         //MPIWorker::ShowMessage("parallel field solver");
-        FieldSolverParallel(worker, sphericalWave.parameters.fieldSolver, sphericalWave.parameters.nParSteps, sphericalWave.parameters.nDomainSteps,
-            sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
+        CalculateParallel(worker);
 
         //MPIWorker::ShowMessage("writing to file parallel result");
         sphericalWave.parameters.fileWriter.WriteFile(worker.getGrid(), nameFileAfterExchange);
@@ -73,9 +102,11 @@ public:
     }
 
     virtual void TestBody() {
-        DoSequentialPart();
+        if (sphericalWave.parameters.nSeqSteps != 0)
+            DoSequentialPart();
         MPIWrapper::MPIBarrier();
-        DoParallelPart();
+        if (sphericalWave.parameters.nParSteps != 0)
+            DoParallelPart();
     }
 
 };

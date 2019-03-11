@@ -56,52 +56,44 @@ struct vec3
         return vec3<T>(x, y, z);
     }
 
-    vec3 operator+(const vec3 &v)  const {
-        return vec3(x + v.get_x(), y + v.get_y(), z + v.get_z());
+
+    friend vec3 operator+(const vec3 &v1, const vec3 &v2) {
+        return vec3(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
     };
-    vec3& operator+=(const vec3 &v) {
-        x += v.get_x();
-        y += v.get_y();
-        z += v.get_z();
-        return *this;
-    };
-    vec3 operator-(const vec3 &v)  const {
-        return vec3(x - v.get_x(), y - v.get_y(), z - v.get_z());
-    };
-    vec3& operator-=(const vec3 &v) {
-        x -= v.get_x();
-        y -= v.get_y();
-        z -= v.get_z();
-        return *this;
+    friend vec3 operator-(const vec3& v1, const vec3& v2) {
+        return vec3(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
     };
 
-    vec3 operator* (Type b) const {
-        return vec3(x*b, y*b, z*b);
+
+    friend vec3 operator* (Type b, const vec3& v) {
+        return v * b;
     };
-    friend vec3 operator* (Type b, vec3 v) {
-        return v*b;
-    };
-    //by components
-    vec3 operator*(const vec3 &v)  const {
-        return vec3(x * v.get_x(), y * v.get_y(), z * v.get_z());
-    };
-    vec3& operator*=(const Type &v) {
-        x *= v;
-        y *= v;
-        z *= v;
-        return *this;
-    };
-    vec3 operator/ (Type b) const {
-        return vec3(x/b, y/b, z/b);
+    friend vec3 operator* (const vec3& v, Type b) {
+        return vec3(v.x*b, v.y*b, v.z*b);
     };
     //by components
-    vec3 operator/(const vec3 &v)  const {
-        return vec3(x / v.get_x(), y / v.get_y(), z / v.get_z());
+    friend vec3 operator*(const vec3& v1, const vec3& v2) {
+        return vec3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+    };
+
+
+    friend vec3 operator/(const vec3& v, Type b) {
+        return vec3(v.x/b, v.y/b, v.z/b);
     };
     //by components
-    vec3 operator%(const vec3 &v)  const {
-        return vec3(x % v.get_x(), y % v.get_y(), z % v.get_z());
+    friend vec3 operator/(const vec3& v1, const vec3& v2) {
+        return vec3(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z);
     };
+
+
+    friend vec3 operator%(const vec3& v, Type b) {
+        return vec3(v.x % b, v.y % b, v.z % b);
+    };
+    //by components
+    friend vec3 operator%(const vec3& v1, const vec3& v2) {
+        return vec3(v1.x % v2.x, v1.y % v2.y, v1.z % v2.z);
+    };
+
 
     friend bool operator==(const vec3& a, const vec3& b)  
     {

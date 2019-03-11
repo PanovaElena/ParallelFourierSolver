@@ -57,6 +57,8 @@ struct ParametersForMyTest : public ParametersForTest {
 		std::cout <<
 			"field solver: " << fieldSolver.to_string() << "\n" <<
 			"dt = " << dt << "\n" <<
+            "a = " << a << "\n" <<
+            "b = " << (a + d * (vec3<double>)n) << "\n" <<
 			"n = " << n << "\n" <<
 			"d = " << d << "\n" <<
 			"guard = " << guard << "\n" <<

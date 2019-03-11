@@ -26,7 +26,7 @@ struct ParametersForRunningWave : public ParametersForMyTest {
         guard = vec3<int>(64);
         d = vec3<double>(sqrt(6)*constants::pi);
         a = vec3<double>(0); b = vec3<double>(n.x*d.x);
-        b = a + n*d;
+        b = a + (vec3<double>)n * d;
         dt = COURANT_CONDITION_PSTD(fmin(fmin(d.x, d.y), d.z)) / 2;
         nSeqSteps = 200;
         nParSteps = 600;
@@ -67,7 +67,7 @@ public:
     }
 
     void Initialize() {
-        gr = Grid3d(parameters.n, parameters.a, parameters.a + parameters.n*parameters.d);
+        gr = Grid3d(parameters.n, parameters.a, parameters.a + (vec3<double>)parameters.n*parameters.d);
         SetEB();
     }
 

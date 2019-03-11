@@ -104,6 +104,10 @@ public:
     double gbz() const; //get bz
     vec3<double> gb() const;
 
+    vec3<> getCoord(vec3<int> node) {
+        return a + (vec3<>)node * d;
+    }
+
     Type getState() {
         return state;
     }

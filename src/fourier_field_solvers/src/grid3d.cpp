@@ -43,16 +43,14 @@ void Grid3d::Initialize(vec3<int> _n, vec3<double> _a, vec3<double> _b)
 
     n = _n; a = _a; b = _b;
 
-    d = (b - a) / n;
+    d = (b - a) / (vec3<double>)n;
 
-    for (int i = 0; i < 3; i++) {
-        E.Initialize(n.x, n.y, n.z);
-        B.Initialize(n.x, n.y, n.z);
-        J.Initialize(n.x, n.y, n.z);
-        EF.Initialize(n.x, n.y, n.z / 2 + 1);
-        BF.Initialize(n.x, n.y, n.z / 2 + 1);
-        JF.Initialize(n.x, n.y, n.z / 2 + 1);
-    }
+    E.Initialize(n.x, n.y, n.z);
+    B.Initialize(n.x, n.y, n.z);
+    J.Initialize(n.x, n.y, n.z);
+    EF.Initialize(n.x, n.y, n.z / 2 + 1);
+    BF.Initialize(n.x, n.y, n.z / 2 + 1);
+    JF.Initialize(n.x, n.y, n.z / 2 + 1);
 }
 
 int Grid3d::operator==(const Grid3d& gr) {

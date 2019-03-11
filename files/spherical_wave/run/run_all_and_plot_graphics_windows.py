@@ -5,6 +5,8 @@ import subprocess
 import os
 import shutil
 import graphics as gr
+import read_file as rf
+import calc_error as ce
 import args
 
 DIR_SCRIPT = "./"+os.path.dirname(sys.argv[0])
@@ -31,9 +33,9 @@ if (os.path.exists(DIR_RESULTS)):
 			os.remove(DIR_RESULTS+file)
 else: os.mkdir(DIR_RESULTS)
 		
-funcRead = gr.readFile2d
+funcRead = rf.readFile2d
 funcPlot = gr.plot2d
-funcPlotError = gr.plotError2d
+funcCalcError = ce.calcError2d
 
 # sequential
 
@@ -59,10 +61,18 @@ command_args_seq = "-ax "+str(args.ax)+" "+\
 					\
 					"-dir "+str(DIR_SCRIPT+DIR_RESULTS)+" "\
 					\
-					"-omega "+str(args.omega)+" "+\
-					"-omenv "+str(args.omega_envelope)+" "+\
-					"-ts "+str(args.time_source)+" "+\
-					"-ws "+str(args.width_source)+" ";
+					"-scx "+str(args.coord_source_x)+" "+\
+					"-scy "+str(args.coord_source_y)+" "+\
+					"-scz "+str(args.coord_source_z)+" "+\
+					\
+					"-swx "+str(args.width_source_x)+" "+\
+					"-swy "+str(args.width_source_y)+" "+\
+					"-swz "+str(args.width_source_z)+" "+\
+					\
+					"-somega "+str(args.omega)+" "+\
+					"-somenv "+str(args.omega_envelope)+" "+\
+					"-stimest "+str(args.start_time_source)+" "+\
+					"-stime "+str(args.time_source)+" ";
 					
 					
 process_seq = subprocess.Popen(NAME_SEQ_PROGRAM+" "+command_args_seq, shell=True)
@@ -120,10 +130,18 @@ command_args_par = "-ax "+str(args.ax)+" "+\
 					\
 					"-dir "+str(DIR_SCRIPT+DIR_RESULTS)+" "\
 					\
-					"-omega "+str(args.omega)+" "+\
-					"-omenv "+str(args.omega_envelope)+" "+\
-					"-ts "+str(args.time_source)+" "+\
-					"-ws "+str(args.width_source)+" ";
+					"-scx "+str(args.coord_source_x)+" "+\
+					"-scy "+str(args.coord_source_y)+" "+\
+					"-scz "+str(args.coord_source_z)+" "+\
+					\
+					"-swx "+str(args.width_source_x)+" "+\
+					"-swy "+str(args.width_source_y)+" "+\
+					"-swz "+str(args.width_source_z)+" "+\
+					\
+					"-somega "+str(args.omega)+" "+\
+					"-somenv "+str(args.omega_envelope)+" "+\
+					"-stimest "+str(args.start_time_source)+" "+\
+					"-stime "+str(args.time_source)+" ";
 					
 np=args.npx*args.npy*args.npz
 					
@@ -140,7 +158,7 @@ for (dirpath, dirnames, filenames) in os.walk(DIR_RESULTS):
 	for file in filenames:
 		funcPlot(DIR_PICTURES, file, funcRead(DIR_RESULTS+file))
 
-funcPlotError(DIR_PICTURES, "error", data_seq, data_par)
+funcPlot(DIR_PICTURES, "error", funcCalcError(data_seq, data_par))
 	
 
 

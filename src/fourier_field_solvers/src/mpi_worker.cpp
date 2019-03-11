@@ -63,9 +63,9 @@ void MPIWorker::setRightGuardStart(vec3<int> guardWidth, Grid3d & gr)
         rightGuardStart.z = 0;
 }
 
-void MPIWorker::CreateGrid(Grid3d & gr)
-{
-    vec3<double> a = vec3<>(0), b = gr.gd()*getFullDomainSize() + a;
+void MPIWorker::CreateGrid(Grid3d & gr) {
+    vec3<double> a = (vec3<double>)(getMainDomainStart() - getGuardSize())*gr.gd() + gr.ga(),
+    b = a + (vec3<double>)getFullDomainSize()*gr.gd();
     grid = Grid3d(getFullDomainSize(), a, b);
     for (int i = 0; i < getFullDomainSize().x; i++)
         for (int j = 0; j < getFullDomainSize().y; j++)
