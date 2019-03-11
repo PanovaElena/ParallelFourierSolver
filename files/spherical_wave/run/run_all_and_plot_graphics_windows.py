@@ -12,6 +12,9 @@ import args
 DIR_SCRIPT = "./"+os.path.dirname(sys.argv[0])
 FOLDER="/Release/"
 
+MPI="mpiexec"
+#MPI="\"C:\Program Files\Microsoft MPI\Bin\mpiexec\""
+
 NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/spherical_wave/spherical_wave_sequential/"+FOLDER+"/spherical_wave_sequential"+"\""
 NAME_PAR_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/spherical_wave/spherical_wave_parallel/"+FOLDER+"/spherical_wave_parallel"+"\""
 
@@ -57,9 +60,10 @@ command_args_seq = "-ax "+str(args.ax)+" "+\
 					\
 					"-nseqi "+str(args.n_iter)+" "+\
 					\
-					"-dim "+str(args.dimension_of_output_data)+" "\
+					"-dim "+str(args.dimension_of_output_data)+" "+\
 					\
-					"-dir "+str(DIR_SCRIPT+DIR_RESULTS)+" "\
+					"-dir "+str(DIR_SCRIPT+DIR_RESULTS)+" "+\
+					"-dump on "+\
 					\
 					"-scx "+str(args.coord_source_x)+" "+\
 					"-scy "+str(args.coord_source_y)+" "+\
@@ -128,7 +132,8 @@ command_args_par = "-ax "+str(args.ax)+" "+\
 					\
 					"-dim "+str(args.dimension_of_output_data)+" "+\
 					\
-					"-dir "+str(DIR_SCRIPT+DIR_RESULTS)+" "\
+					"-dir "+str(DIR_SCRIPT+DIR_RESULTS)+" "+\
+					"-dump on "+\
 					\
 					"-scx "+str(args.coord_source_x)+" "+\
 					"-scy "+str(args.coord_source_y)+" "+\
@@ -145,7 +150,7 @@ command_args_par = "-ax "+str(args.ax)+" "+\
 					
 np=args.npx*args.npy*args.npz
 					
-process_par = subprocess.Popen("mpiexec -n "+str(np)+" "+NAME_PAR_PROGRAM+" "+command_args_par, shell=True)
+process_par = subprocess.Popen(MPI+" -n "+str(np)+" "+NAME_PAR_PROGRAM+" "+command_args_par, shell=True)
 process_par.wait()
 
 data_par = funcRead(NAME_FILE_PAR)
@@ -159,6 +164,7 @@ for (dirpath, dirnames, filenames) in os.walk(DIR_RESULTS):
 		funcPlot(DIR_PICTURES, file, funcRead(DIR_RESULTS+file))
 
 funcPlot(DIR_PICTURES, "error", funcCalcError(data_seq, data_par))
+
 	
 
 
