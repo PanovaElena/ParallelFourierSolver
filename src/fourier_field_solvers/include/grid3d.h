@@ -107,6 +107,9 @@ public:
     vec3<> getCoord(vec3<int> node) {
         return a + (vec3<>)node * d;
     }
+    vec3<int> getNode(vec3<> coord) {
+        return (vec3<int>)((coord-a)/d+vec3<>(0.5));
+    }
 
     Type getState() {
         return state;

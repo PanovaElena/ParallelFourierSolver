@@ -38,6 +38,7 @@ public:
         return !(arr1 == arr2);
     };
     T& operator()(int i, int j, int k);
+    T& operator()(vec3<int> index);
 	T& get(int i, int j, int k);
     T& operator[](int index);
     T operator()(int index) const;
@@ -108,6 +109,12 @@ template<class T>
 inline T & Array3d<T>::operator()(int i, int j, int k)
 {
     return data[i][j][k];
+}
+
+template<class T>
+inline T & Array3d<T>::operator()(vec3<int> index)
+{
+    return data[index.x][index.y][index.z];
 }
 
 template<class T>

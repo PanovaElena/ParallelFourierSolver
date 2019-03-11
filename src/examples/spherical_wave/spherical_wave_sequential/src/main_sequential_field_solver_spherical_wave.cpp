@@ -8,7 +8,7 @@
 
 
 void TestBody(SphericalWave& sphericalWave) {
-    for (int j = 1; j <= sphericalWave.parameters.nSeqSteps; j++) {
+    for (int j = 0; j < sphericalWave.parameters.nSeqSteps; j++) {
         sphericalWave.SetJ(j, sphericalWave.gr);
         TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
         sphericalWave.parameters.fieldSolver(sphericalWave.gr, sphericalWave.parameters.dt);
