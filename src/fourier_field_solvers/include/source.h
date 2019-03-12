@@ -1,7 +1,7 @@
 #pragma once
-#include "vec.h"
+#include "vector3d.h"
 
-struct Source {
+class Source {
     vec3<double> coord;
     double time;   // время работы источника
     double omega;    // частота источника
@@ -22,12 +22,13 @@ public:
         width = _width;
         startTime = _startTime;
     }
-    double getStartTime() {
-        return startTime;
-    }
-    double getEndTime() {
-        return startTime + time;
-    }
+    double& getStartTime() { return startTime; }
+    double getEndTime() { return startTime + time; }
+    double& getTime() { return time; }
+    vec3<>& getCoord() { return coord; }
+    vec3<>& getWidth() { return width; }
+    double& getFreq() { return omega; }
+    double& getFreqEnvelope() { return omegaEnv; }
 
-    double GetJ(vec3<double> coordinate, double time);
+    double getJ(vec3<double> coordinate, double time);
 };

@@ -1,11 +1,11 @@
-#include "file_writer.h"
 #include <fstream>
-#include "grid3d.h"
-#include "simple_types_and_constants.h"
-#include "class_member_ptr.h"
 #include <iomanip>
+#include "grid3d.h"
+#include "file_writer.h"
+#include "simple_types.h"
+#include "class_member_ptr.h"
 
-void SetSymb(Section::Plane plane, std::string& si, std::string& sj, std::string& sk) {
+void setSymbols(Section::Plane plane, std::string& si, std::string& sj, std::string& sk) {
     switch (plane) {
     case Section::XOY:
         si = ";"; sj = "\n"; sk = "";
@@ -21,7 +21,7 @@ void SetSymb(Section::Plane plane, std::string& si, std::string& sj, std::string
     }
 }
 
-void FileWriter::Write(Grid3d & gr, std::string name, Type type, std::string si, std::string sj, std::string sk) {
+void FileWriter::write(Grid3d & gr, std::string name, Type type, std::string si, std::string sj, std::string sk) {
     std::ofstream file(dir + name);
     //std::cout << dir + name << std::endl;
 
@@ -29,7 +29,7 @@ void FileWriter::Write(Grid3d & gr, std::string name, Type type, std::string si,
         for (int k = section.startZ; k <= section.endZ; k++) {
             for (int j = section.startY; j <= section.endY; j++) {
                 for (int i = section.startX; i <= section.endX; i++)
-                    file << std::setprecision(15) << (gr.*GetField<double>(field).*GetFieldCoord<double>(coord))(i, j, k) << si;
+                    file << std::setprecision(15) << (gr.*getMemberPtrField<double>(field).*getMemberPtrFieldCoord<double>(coord))(i, j, k) << si;
                 file << sj;
             }
             file << sk;
@@ -39,7 +39,7 @@ void FileWriter::Write(Grid3d & gr, std::string name, Type type, std::string si,
         for (int k = section.startZ; k <= section.endZ; k++) {
             for (int j = section.startY; j <= section.endY; j++) {
                 for (int i = section.startX; i <= section.endX; i++)
-                    file << std::setprecision(15) << (gr.*GetField<MyComplex>(field).*GetFieldCoord<MyComplex>(coord))(i, j, k).GetAbs() << si;
+                    file << std::setprecision(15) << (gr.*getMemberPtrField<MyComplex>(field).*getMemberPtrFieldCoord<MyComplex>(coord))(i, j, k).getAbs() << si;
                 file << sj;
             }
             file << sk;
@@ -49,24 +49,21 @@ void FileWriter::Write(Grid3d & gr, std::string name, Type type, std::string si,
     file.close();
 }
 
-void FileWriter::WriteFile0d(Grid3d & gr, std::string name, Type type)
-{
-    Write(gr, name, type, "\n", "", "");
+void FileWriter::write0d(Grid3d & gr, std::string name, Type type) {
+    write(gr, name, type, "\n", "", "");
 }
 
-void FileWriter::WriteFile1d(Grid3d & gr, std::string name, Type type)
-{
-    Write(gr, name, type, "\n", "", "");
+void FileWriter::write1d(Grid3d & gr, std::string name, Type type) {
+    write(gr, name, type, "\n", "", "");
 }
 
-void FileWriter::WriteFile2d(Grid3d & gr, std::string name, Type type)
-{
+void FileWriter::write2d(Grid3d & gr, std::string name, Type type) {
     std::string si, sj, sk;
-    SetSymb(section.plane1, si, sj, sk);
-    Write(gr, name, type, si, sj, sk);
+    setSymbols(section.plane1, si, sj, sk);
+    write(gr, name, type, si, sj, sk);
 }
 
-void SetCoordUsingLocation(Section::LocationOfPlane loc, int& start, int& end, int n) {
+void setCoordUsingLocation(Section::LocationOfPlane loc, int& start, int& end, int n) {
     switch (loc) {
     case Section::start:
         start = end = 0;
@@ -82,22 +79,24 @@ void SetCoordUsingLocation(Section::LocationOfPlane loc, int& start, int& end, i
     }
 }
 
-void Section::SetBorders(Grid3d& gr)
-{
+void Section::setBorders(Grid3d& gr) {
     startX = startY = startZ = 0;
-    endX = gr.gnxRealCells() - 1;
-    endY = gr.gnyRealCells() - 1;
-    endZ = gr.gnzRealCells() - 1;
+    endX = gr.sizeReal().x - 1;
+    endY = gr.sizeReal().y - 1;
+    endZ = gr.sizeReal().z - 1;
     if (plane1 == Plane::XOY || plane2 == Plane::XOY || plane3 == Plane::XOY) {
-        LocationOfPlane loc = plane1 == Plane::XOY ? loc1 : plane2 == Plane::XOY ? loc2 : plane3 == Plane::XOY ? loc3 : LocationOfPlane::noneLocation;
-        SetCoordUsingLocation(loc, startZ, endZ, gr.gnzRealCells());
+        LocationOfPlane loc = plane1 == Plane::XOY ? loc1 : plane2 == Plane::XOY ?
+            loc2 : plane3 == Plane::XOY ? loc3 : LocationOfPlane::noneLocation;
+        setCoordUsingLocation(loc, startZ, endZ, gr.sizeReal().z);
     }
     if (plane1 == Plane::XOZ || plane2 == Plane::XOZ || plane3 == Plane::XOZ) {
-        LocationOfPlane loc = plane1 == Plane::XOZ ? loc1 : plane2 == Plane::XOZ ? loc2 : plane3 == Plane::XOZ ? loc3 : LocationOfPlane::noneLocation;
-        SetCoordUsingLocation(loc, startY, endY, gr.gnyRealCells());
+        LocationOfPlane loc = plane1 == Plane::XOZ ? loc1 : plane2 == Plane::XOZ ?
+            loc2 : plane3 == Plane::XOZ ? loc3 : LocationOfPlane::noneLocation;
+        setCoordUsingLocation(loc, startY, endY, gr.sizeReal().y);
     }
     if (plane1 == Plane::YOZ || plane2 == Plane::YOZ || plane3 == Plane::YOZ) {
-        LocationOfPlane loc = plane1 == Plane::YOZ ? loc1 : plane2 == Plane::YOZ ? loc2 : plane3 == Plane::YOZ ? loc3 : LocationOfPlane::noneLocation;
-        SetCoordUsingLocation(loc, startX, endX, gr.gnxRealCells());
+        LocationOfPlane loc = plane1 == Plane::YOZ ? loc1 : plane2 == Plane::YOZ ?
+            loc2 : plane3 == Plane::YOZ ? loc3 : LocationOfPlane::noneLocation;
+        setCoordUsingLocation(loc, startX, endX, gr.sizeReal().x);
     }
 }

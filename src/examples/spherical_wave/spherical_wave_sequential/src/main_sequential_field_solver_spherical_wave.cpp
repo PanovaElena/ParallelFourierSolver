@@ -7,15 +7,15 @@
 #include "fftw3.h"
 
 
-void TestBody(SphericalWave& sphericalWave) {
+void testBody(SphericalWave& sphericalWave) {
     for (int j = 0; j < sphericalWave.parameters.nSeqSteps; j++) {
         sphericalWave.SetJ(j, sphericalWave.gr);
-        TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
+        transformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
         sphericalWave.parameters.fieldSolver(sphericalWave.gr, sphericalWave.parameters.dt);
-        TransformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, CtoR);
+        transformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, CtoR);
     }
 
-    sphericalWave.parameters.fileWriter.WriteFile(sphericalWave.gr, "sequential_result.csv", Double, "writing...");
+    sphericalWave.parameters.fileWriter.write(sphericalWave.gr, "sequential_result.csv", Double, "writing...");
 }
 
 int main(int argc, char** argv) {
@@ -27,6 +27,6 @@ int main(int argc, char** argv) {
     if (status != 0) return 0;
     params.nParSteps = 0;
     params.print();
-    sphericalWave.SetParamsForTest(params);
-    TestBody(sphericalWave);
+    sphericalWave.setParamsForTest(params);
+    testBody(sphericalWave);
 }

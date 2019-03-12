@@ -10,7 +10,7 @@ class ParserRunningWave : public ParserForMyTest {
 public:
     void help(ParametersForTest& p1, Task task) override {
         ParserForMyTest::help(p1, task);
-        ParametersForRunningWave& p=static_cast<ParametersForRunningWave&>(p1);
+        ParametersForRunningWave& p = static_cast<ParametersForRunningWave&>(p1);
 
         std::cout <<
             "-lambda                     set length of wave (more important, then \"-lambdaN\"), default value is " << p.lambda << "\n" <<

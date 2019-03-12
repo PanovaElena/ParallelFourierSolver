@@ -1,8 +1,7 @@
 #pragma once
-class Grid3d;
-#include "simple_types_and_constants.h"
 #include <string>
-#include "iostream"
+#include "simple_types.h"
+class Grid3d;
 
 class Section {
 public:
@@ -27,7 +26,7 @@ private:
     Plane plane1, plane2, plane3;
     LocationOfPlane loc1, loc2, loc3;
 
-    void SetBorders(Grid3d& gr);
+    void setBorders(Grid3d& gr);
 
 public:
     Section() {}
@@ -39,10 +38,10 @@ public:
             plane1 = plane2 = plane3 = Plane::nonePlane;
             loc1 = loc2 = loc3 = LocationOfPlane::noneLocation;
         }
-        SetDim();
+        setDim();
     }
 
-    void SetDim() {
+    void setDim() {
         int idim = 3;
         if (plane1 != Plane::nonePlane && loc1 != LocationOfPlane::noneLocation) idim--;
         if (plane2 != Plane::nonePlane && loc2 != LocationOfPlane::noneLocation) idim--;
@@ -55,11 +54,11 @@ public:
 
 class FileWriter {
 public:
-	enum State {
-		on,
-		off
-	};
-	State state = on;
+    enum State {
+        on,
+        off
+    };
+    State state = on;
 
 private:
     std::string dir = "";
@@ -70,45 +69,47 @@ private:
 public:
 
     FileWriter() {}
-    FileWriter(std::string _dir, Field _field, Coordinate _coord, Section _section, State _state=on) {
+    FileWriter(std::string _dir, Field _field, Coordinate _coord, Section _section, State _state = on) {
         dir = _dir;
         field = _field;
         coord = _coord;
         section = _section;
-		state = _state;
+        state = _state;
     }
     FileWriter(const FileWriter& fileWriter, std::string _dir) {
         *this = fileWriter;
         dir = _dir;
     }
-    void Initialize(std::string _dir, Field _field, Coordinate _coord, const Section& _section) {
+    void initialize(std::string _dir, Field _field, Coordinate _coord, const Section& _section) {
         dir = _dir;
         field = _field;
         coord = _coord;
         section = _section;
     }
-    void SetSection(const Section& s) {
-        section = s;
-    }
 
-    void WriteFile(Grid3d& gr, std::string name, Type t = Type::Double, std::string message="") {
-		if (state == off) return;
-        if (message!="") std::cout << message << "\n";
-        section.SetBorders(gr);
+    void write(Grid3d& gr, std::string name, Field _field, Coordinate _coord,
+        Type t = Type::Double, std::string message = "") {
+        if (state == off) return;
+        if (message != "") std::cout << message << "\n";
+        section.setBorders(gr);
         switch (section.dim) {
         case d0:
-            WriteFile0d(gr, name, t);
+            write0d(gr, name, t);
             break;
-        case d1: 
-            WriteFile1d(gr, name, t);
+        case d1:
+            write1d(gr, name, t);
             break;
-        case d2: 
-            WriteFile2d(gr, name, t);
+        case d2:
+            write2d(gr, name, t);
             break;
-        default: 
+        default:
             std::cout << "ERROR!!!!! Cannot write to file array with dimension 3 or more\n";
             break;
         }
+    }
+
+    void write(Grid3d& gr, std::string name, Type t = Type::Double, std::string message = "") {
+        write(gr, name, field, coord, t, message);
     }
 
     Coordinate getCoord() { return coord; }
@@ -116,13 +117,14 @@ public:
     std::string getDir() { return dir; }
     Section getSection() { return section; }
 
-    void ChangeDir(std::string newDir) {
-        dir = newDir;
-    }
+    void setCoord(Coordinate _coord) { coord = _coord; }
+    void setField(Field _field) { field = _field; }
+    void setDirectory(std::string _directory) { dir = _directory; }
+    void setSection(const Section& _section) { section = _section; }
 
 protected:
-    void WriteFile0d(Grid3d& gr, std::string name, Type type);
-    void WriteFile1d(Grid3d& gr, std::string name, Type type);
-    void WriteFile2d(Grid3d& gr, std::string name, Type type);
-    void Write(Grid3d & gr, std::string name, Type type, std::string si, std::string sj, std::string sk);
+    void write0d(Grid3d& gr, std::string name, Type type);
+    void write1d(Grid3d& gr, std::string name, Type type);
+    void write2d(Grid3d& gr, std::string name, Type type);
+    void write(Grid3d & gr, std::string name, Type type, std::string si, std::string sj, std::string sk);
 };

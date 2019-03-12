@@ -5,7 +5,7 @@ import subprocess
 import os
 import graphics as gr
 import read_file as fr
-import calc_error as ce
+import compute_error as ce
 import args
 
 DIR_PICTURES = "./pictures/"
@@ -39,11 +39,11 @@ else: os.mkdir(DIR_RESULTS)
 if (args.dimension_of_output_data==1):
 	funcRead = fr.readFile1d
 	funcPlot = gr.plot1d
-	funcCalcError = ce.calcError1d
+	funcCalcError = ce.computeError1d
 else: 
 	funcRead = fr.readFile2d
 	funcPlot = gr.plot2d
-	funcCalcError = ce.calcError2d
+	funcCalcError = ce.computeError2d
 
 # sequential
 

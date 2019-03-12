@@ -2,7 +2,7 @@
 #include "field_solver.h"
 #include "filter.h"
 #include "mask.h"
-#include "vec.h"
+#include "vector3d.h"
 #include "file_writer.h"
 #include <iostream>
 #include <string>
@@ -68,7 +68,7 @@ struct ParametersForMyTest : public ParametersForTest {
 			"filter width = " << filter.getWidth() << "\n" <<
 			"num zero freq for filter = " << filter.getNumZeroFreq() << "\n" <<
 			"num of steps = " << getNSteps() << "\n" <<
-			"num of consistent steps = " << nSeqSteps << "\n" <<
+			"num of sequential steps = " << nSeqSteps << "\n" <<
 			"num of parallel steps = " << nParSteps << "\n" <<
 			"num of steps between exchanges = " << nDomainSteps << "\n" <<
 			"number of exchanges = " << numExchanges + 1 << "\n" <<

@@ -1,7 +1,7 @@
 #pragma once
 #include "command_line_parser.h"
 #include "parameters_for_test.h"
-#include "vec.h"
+#include "vector3d.h"
 #include <iostream>
 #include <omp.h>
 
@@ -65,7 +65,7 @@ public:
         if (m.find("-nseqi") != m.end()) params.nSeqSteps = std::stoi(m.find("-nseqi")->second);
 		if (m.find("-dump") != m.end() && m.find("-dump")->second=="off")
 			params.fileWriter.state = FileWriter::State::off;
-        if (m.find("-dir") != m.end()) params.fileWriter.ChangeDir(m.find("-dir")->second);
+        if (m.find("-dir") != m.end()) params.fileWriter.setDirectory(m.find("-dir")->second);
 		if (m.find("-nthreads") != m.end()) {
 			omp_set_num_threads(std::stoi(m.find("-nthreads")->second));
 			std::cout << "number of threads = " << m.find("-nthreads")->second << std::endl;

@@ -1,13 +1,12 @@
-#include <iostream>
+#include <omp.h>
 #include "fftw3.h"
 #include "grid3d.h"
 #include "my_complex.h"
 #include "fourier_transformation.h"
 #include "array3d.h"
 #include "class_member_ptr.h"
-#include <omp.h>
 
-void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, int Nz, Direction dir) {
+void useFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, int Nz, Direction dir) {
     fftw_plan plan = 0;
     fftw_plan_with_nthreads(omp_get_max_threads());
     switch (dir) {
@@ -18,37 +17,35 @@ void UseFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, in
     case CtoR:
         plan = fftw_plan_dft_c2r_3d(Nx, Ny, Nz, (fftw_complex*)&(arr2[0]), &(arr1[0]), FFTW_ESTIMATE);
         fftw_execute(plan);
-        for (int i = 0; i < Nx*Ny*Nz; i++)
-            arr1[i] /= Nx*Ny*Nz;
+        for (int i = 0; i < Nx * Ny * Nz; i++)
+            arr1[i] /= Nx * Ny * Nz;
         break;
     }
     fftw_destroy_plan(plan);
 }
 
-void FourierTransformation(Grid3d & gr, Field _field, Coordinate _coord, Direction dir)
-{
-    Array3d<double>& arrD = (gr.*GetField<double>(_field)).*GetFieldCoord<double>(_coord);
-    Array3d<MyComplex>& arrC = (gr.*GetField<MyComplex>(_field)).*GetFieldCoord<MyComplex>(_coord);
+void fourierTransformation(Grid3d & gr, Field _field, Coordinate _coord, Direction dir) {
+    Array3d<double>& arrD = (gr.*getMemberPtrField<double>(_field)).*getMemberPtrFieldCoord<double>(_coord);
+    Array3d<MyComplex>& arrC = (gr.*getMemberPtrField<MyComplex>(_field)).*getMemberPtrFieldCoord<MyComplex>(_coord);
 
-    UseFFTW(arrD, arrC, gr.gnxRealCells(), gr.gnyRealCells(), gr.gnzRealCells(), dir);
+    useFFTW(arrD, arrC, gr.sizeReal().x, gr.sizeReal().y, gr.sizeReal().z, dir);
 }
 
-void FourierTransformation(Grid3d & gr, Direction dir)
-{
-    if (gr.getLastFourierTransform() == dir) {
+void fourierTransformation(Grid3d & gr, Direction dir) {
+    if (gr.getLastFourierTransformDirect() == dir) {
         std::cout << "Try to transform to the same direction: " << dir << std::endl;
         return;
     }
 
-    FourierTransformation(gr, E, x, dir);
-    FourierTransformation(gr, E, y, dir);
-    FourierTransformation(gr, E, z, dir);
-    FourierTransformation(gr, B, x, dir);
-    FourierTransformation(gr, B, y, dir);
-    FourierTransformation(gr, B, z, dir);
-    FourierTransformation(gr, J, x, dir);
-    FourierTransformation(gr, J, y, dir);
-    FourierTransformation(gr, J, z, dir);
+    fourierTransformation(gr, E, x, dir);
+    fourierTransformation(gr, E, y, dir);
+    fourierTransformation(gr, E, z, dir);
+    fourierTransformation(gr, B, x, dir);
+    fourierTransformation(gr, B, y, dir);
+    fourierTransformation(gr, B, z, dir);
+    fourierTransformation(gr, J, x, dir);
+    fourierTransformation(gr, J, y, dir);
+    fourierTransformation(gr, J, z, dir);
 
-    gr.setLastFourierTransform(dir);
+    gr.setLastFourierTransformDirect(dir);
 }

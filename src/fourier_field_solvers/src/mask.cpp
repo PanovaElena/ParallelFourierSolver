@@ -1,5 +1,6 @@
+#include <cmath>
+#include "physical_constants.h"
 #include "mask.h"
-#include "cmath"
 
 double simpleMask(vec3<int> ind, vec3<int> mainSize, vec3<int> guardWidth, vec3<int> maskWidth) {
     if (ind.x < guardWidth.x || ind.x >= mainSize.x + guardWidth.x ||

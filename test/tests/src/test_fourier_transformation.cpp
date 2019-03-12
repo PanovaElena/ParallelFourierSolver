@@ -12,7 +12,7 @@ public:
     double X = 6, Y = 8, Z = 10;
     Grid3d grid;
 
-    TestFourierTransform() : grid(nx, ny, nz, 0, X, 0, Y, 0, Z) {
+    TestFourierTransform() : grid({ nx, ny, nz }, { 0, 0, 0 }, { X, Y, Z }) {
         double A = 10;
         for (int i = 0; i < nx; i++)
             for (int j = 0; j < ny; j++)
@@ -27,31 +27,29 @@ public:
                 }
     }
 
-    
- 
     void MyTestBody(Field field, Coordinate coord) {
 
-        MemberOfNode p = GetField<double>(field);
-        MemberOfField m = GetFieldCoord<double>(coord);
+        MemberOfNode p = getMemberPtrField<double>(field);
+        MemberOfField m = getMemberPtrFieldCoord<double>(coord);
 
         Grid3d grid2 = grid;
-         
-        FourierTransformation(grid, field, coord, RtoC);
-        FourierTransformation(grid, field, coord, CtoR);
 
-		for (int i = 0; i < grid.gnxRealCells(); i++)
-			for (int j = 0; j < grid.gnyRealCells(); j++)
-				for (int k = 0; k < grid.gnzRealCells(); k++)
-					ASSERT_NEAR((grid.*p.*m)(i, j, k), (grid2.*p.*m)(i, j, k), 0.1);
-	}
+        fourierTransformation(grid, field, coord, RtoC);
+        fourierTransformation(grid, field, coord, CtoR);
+
+        for (int i = 0; i < grid.sizeReal().x; i++)
+            for (int j = 0; j < grid.sizeReal().y; j++)
+                for (int k = 0; k < grid.sizeReal().z; k++)
+                    ASSERT_NEAR((grid.*p.*m)(i, j, k), (grid2.*p.*m)(i, j, k), 0.1);
+    }
 };
 
 TEST_F(TestFourierTransform, no_throws_RtoC) {
-    ASSERT_NO_THROW(FourierTransformation(grid, E, x, RtoC));
+    ASSERT_NO_THROW(fourierTransformation(grid, E, x, RtoC));
 }
 
 TEST_F(TestFourierTransform, no_throws_CtoR) {
-    ASSERT_NO_THROW(FourierTransformation(grid, E, x, CtoR));
+    ASSERT_NO_THROW(fourierTransformation(grid, E, x, CtoR));
 }
 
 TEST_F(TestFourierTransform, transform_correctly_Ex) {
@@ -80,21 +78,32 @@ TEST_F(TestFourierTransform, transform_correctly_Bz) {
 
 
 TEST_F(TestFourierTransform, fourier_transform_writes_data_correctly_to_grid) {
-	Array3d<MyComplex> arr1(grid.gnxRealCells(),grid.gnyRealCells(),grid.gnzRealCells()), arr2(grid.gnxRealCells(),grid.gnyRealCells(),grid.gnzRealCells());
-	for (int i = 0; i < arr1.gnx(); i++)
-		for (int j = 0; j < arr1.gny(); j++)
-			for (int k = 0; k < arr1.gnz(); k++)
-				arr1(i,j,k).SetReal(grid.E.x(i, j, k));
+    Array3d<MyComplex> arr1(grid.sizeReal()), arr2(grid.sizeReal());
+    for (int i = 0; i < arr1.size().x; i++)
+        for (int j = 0; j < arr1.size().y; j++)
+            for (int k = 0; k < arr1.size().z; k++)
+                arr1(i, j, k).setReal(grid.E.x(i, j, k));
 
-	fftw_plan plan = fftw_plan_dft_3d(grid.gnxRealCells(), grid.gnyRealCells(), grid.gnzRealCells(), (fftw_complex*)&(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_FORWARD, FFTW_ESTIMATE);
-	fftw_execute(plan);
+    fftw_plan plan = fftw_plan_dft_3d(grid.sizeReal().x, grid.sizeReal().y, grid.sizeReal().z,
+        (fftw_complex*)&(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_FORWARD, FFTW_ESTIMATE);
+    fftw_execute(plan);
 
-	FourierTransformation(grid, E, x, RtoC);
+    fourierTransformation(grid, RtoC);
 
-	for (int i = 0; i < grid.gnxComplexCells(); i++)
-		for (int j = 0; j < grid.gnyComplexCells(); j++)
-			for (int k = 0; k < grid.gnzComplexCells(); k++) {
-				ASSERT_EQ(grid.EF[0](i, j, k), arr2(i, j, k));
-			}
+    for (int i = 0; i < arr2.size1d(); i++)
+        std::cout << arr2[i] << " ";
+    std::cout << std::endl;
+
+    for (int i = 0; i < grid.sizeComplex().x; i++)
+        for (int j = 0; j < grid.sizeComplex().y; j++)
+            for (int k = 0; k < grid.sizeComplex().z; k++)
+                std::cout << grid.EF.x(i, j, k) << " ";
+    std::cout << std::endl;
+
+    for (int i = 0; i < grid.sizeComplex().x; i++)
+        for (int j = 0; j < grid.sizeComplex().y; j++)
+            for (int k = 0; k < grid.sizeComplex().z; k++) {
+                EXPECT_NEAR(grid.EF.x(i, j, k), arr2(i, j, k), 1e-12);
+            }
 
 }

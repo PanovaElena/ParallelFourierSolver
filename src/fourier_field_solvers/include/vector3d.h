@@ -1,31 +1,39 @@
 #pragma once
 #include <cmath>
-#include "my_complex.h"
 #include <iostream>
 #include <string>
-#include "simple_types_and_constants.h"
+#include <initializer_list>
+#include "my_complex.h"
+#include "simple_types.h"
 
 
 inline double absSquare(double a) {
-    return a*a;
+    return a * a;
 }
 inline double absSquare(MyComplex a) {
-    return a.GetReal()*a.GetReal()+ a.GetImag()*a.GetImag();
+    return a.getReal()*a.getReal() + a.getImag()*a.getImag();
 }
 
-template <class Type=double>
+template <class T = double>
 struct vec3
 {
-    Type x;
-    Type y;
-    Type z;
+    T x;
+    T y;
+    T z;
 
     vec3() {};
 
-    vec3(Type a, Type b, Type c) : x(a), y(b), z(c) {
+    vec3(T a, T b, T c) : x(a), y(b), z(c) {
     };
 
-    explicit vec3(Type a) : x(a), y(a), z(a) {
+    vec3(std::initializer_list<T> l) {
+        if (l.size() < 3) return;
+        x = *(l.begin());
+        y = *(l.begin() + 1);
+        z = *(l.begin() + 2);
+    };
+
+    explicit vec3(T a) : x(a), y(a), z(a) {
     };
 
     vec3& operator=(const vec3 & v) {
@@ -35,7 +43,7 @@ struct vec3
         return *this;
     }
 
-    Type& operator[](int i) {
+    T& operator[](int i) {
         switch (i) {
         case 0: return x;
         case 1: return y;
@@ -44,15 +52,15 @@ struct vec3
         }
     };
 
-    Type get_x() const { return x; }
-    Type get_y() const { return y; }
-    Type get_z() const { return z; }
+    T get_x() const { return x; }
+    T get_y() const { return y; }
+    T get_z() const { return z; }
 
-    vec3(const vec3<Type> &c) : x(c.x), y(c.y), z(c.z) {
+    vec3(const vec3<T> &c) : x(c.x), y(c.y), z(c.z) {
     };
 
     template<class T>
-    operator vec3<T> () {
+    operator vec3<T>() {
         return vec3<T>(x, y, z);
     }
 
@@ -65,10 +73,10 @@ struct vec3
     };
 
 
-    friend vec3 operator* (Type b, const vec3& v) {
+    friend vec3 operator* (T b, const vec3& v) {
         return v * b;
     };
-    friend vec3 operator* (const vec3& v, Type b) {
+    friend vec3 operator* (const vec3& v, T b) {
         return vec3(v.x*b, v.y*b, v.z*b);
     };
     //by components
@@ -77,8 +85,8 @@ struct vec3
     };
 
 
-    friend vec3 operator/(const vec3& v, Type b) {
-        return vec3(v.x/b, v.y/b, v.z/b);
+    friend vec3 operator/(const vec3& v, T b) {
+        return vec3(v.x / b, v.y / b, v.z / b);
     };
     //by components
     friend vec3 operator/(const vec3& v1, const vec3& v2) {
@@ -86,7 +94,7 @@ struct vec3
     };
 
 
-    friend vec3 operator%(const vec3& v, Type b) {
+    friend vec3 operator%(const vec3& v, T b) {
         return vec3(v.x % b, v.y % b, v.z % b);
     };
     //by components
@@ -95,7 +103,7 @@ struct vec3
     };
 
 
-    friend bool operator==(const vec3& a, const vec3& b)  
+    friend bool operator==(const vec3& a, const vec3& b)
     {
         return ((a.get_x() == b.get_x()) && (a.get_y() == b.get_y()) && (a.get_z() == b.get_z()));
     };
@@ -104,24 +112,25 @@ struct vec3
         return !(a == b);
     };
 
-	double getNorm()  const
-	{
-		return sqrt(absSquare(x)+ absSquare(y)+ absSquare(z));
-	};
-    static Type ScalarProduct(const vec3& a, const vec3& b) {
+    double getNorm()  const
+    {
+        return sqrt(absSquare(x) + absSquare(y) + absSquare(z));
+    };
+    vec3 normilize() {
+        if (getNorm() == 0) return *this;
+        (*this) = (*this)*(1.0 / getNorm());
+        return *this;
+    };
+
+    static T dot(const vec3& a, const vec3& b) {
         return (a.x * b.x + a.y * b.y + a.z * b.z);
     };
-    static vec3 VectorProduct(const vec3& a, const vec3& b) {
-        Type c1, c2, c3;
+    static vec3 cross(const vec3& a, const vec3& b) {
+        T c1, c2, c3;
         c1 = a.y * b.z - a.z * b.y;
         c2 = a.z * b.x - a.x * b.z;
         c3 = a.x * b.y - a.y * b.x;
         return vec3(c1, c2, c3);
-    };
-    vec3 Normalize() {
-        if (getNorm() == 0) return *this;
-        (*this)=(*this)*(1.0/getNorm());
-        return *this;
     };
 
     friend std::ostream& operator<<(std::ostream& ost, vec3& vec) {
@@ -129,26 +138,17 @@ struct vec3
         return ost;
     }
 
-    friend std::string to_string(const vec3<Type>& vec) {
-        std::string str="("+ std::to_string(vec.x) + "," + std::to_string(vec.y) + "," +
+    friend std::string to_string(const vec3<T>& vec) {
+        std::string str = "(" + std::to_string(vec.x) + "," + std::to_string(vec.y) + "," +
             std::to_string(vec.z) + ")";
         return str;
     }
 
 
-    template<class Type>
-    static vec3<Type> getVecIfCoord(Coordinate coord, vec3<Type> valCoord, vec3<Type> valOther) {
-        return vec3<Type>(coord == Coordinate::x ? valCoord.x : valOther.x,
+    template<class T>
+    static vec3<T> getVecIfCoord(Coordinate coord, vec3<T> valCoord, vec3<T> valOther) {
+        return vec3<T>(coord == Coordinate::x ? valCoord.x : valOther.x,
             coord == Coordinate::y ? valCoord.y : valOther.y,
             coord == Coordinate::z ? valCoord.z : valOther.z);
     }
-
-    //template<class Type>
-    //static vec3<Type> getVecIfLess(vec3<Type> vecVal, vec3<Type> vecCond) {
-    //    return vec3<Type>(vecVal.x < vecCond.x ? vecVal.x : 0,
-    //        vecVal.y < vecCond.y ? vecVal.y : 0,
-    //        vecVal.z < vecCond.z ? vecVal.z : 0);
-    //}
-
-
 };

@@ -2,7 +2,7 @@
 #include "my_complex.h"
 
 TEST(TestMyComplex, can_add) {
-    MyComplex z1(1, 2), z2(3,4);
+    MyComplex z1(1, 2), z2(3, 4);
     EXPECT_EQ(MyComplex(4, 6), z1 + z2);
 }
 

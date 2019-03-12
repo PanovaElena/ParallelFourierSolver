@@ -1,15 +1,15 @@
-#include "mpi_worker_sum.h"
 #include "gtest.h"
+#include "mpi_worker_sum.h"
 #include "mask.h"
 
 TEST(TestMPIWorker, mpi_worker_dont_fail) {
-    Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
+    Grid3d gr({ 8, 1, 1 }, { 0, 0, 0 }, { 1, 1, 1 });
     ASSERT_NO_THROW(MPIWorkerSum mpiWorker(gr, vec3<int>(1), SimpleMask, 2, 0));
 }
 
 TEST(TestMPIWorker, mpi_worker_sizes_are_correct) {
-    Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
-    MPIWorkerSum mpiWorker(gr, vec3<int>(1,0,0), SimpleMask, 2, 0);
+    Grid3d gr({ 8, 1, 1 }, { 0, 0, 0 }, { 1, 1, 1 });
+    MPIWorkerSum mpiWorker(gr, vec3<int>(1, 0, 0), SimpleMask, 2, 0);
 
     ASSERT_EQ(1, mpiWorker.getGuardSize().x);
     ASSERT_EQ(4, mpiWorker.getMainDomainSize().x);
@@ -17,7 +17,7 @@ TEST(TestMPIWorker, mpi_worker_sizes_are_correct) {
 }
 
 TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_0_left_guard) {
-    Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
+    Grid3d gr({ 8, 1, 1 }, { 0, 0, 0 }, { 1, 1, 1 });
     MPIWorkerSum mpiWorker(gr, vec3<int>(1, 0, 0), SimpleMask, 2, 0);
 
     ASSERT_EQ(7, mpiWorker.getLeftGuardStart().x);
@@ -25,7 +25,7 @@ TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_0_left_guard) {
 }
 
 TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_0_right_guard) {
-    Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
+    Grid3d gr({ 8, 1, 1 }, { 0, 0, 0 }, { 1, 1, 1 });
     MPIWorkerSum mpiWorker(gr, vec3<int>(1, 0, 0), SimpleMask, 2, 0);
 
     ASSERT_EQ(4, mpiWorker.getRightGuardStart().x);
@@ -33,7 +33,7 @@ TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_0_right_guard) {
 }
 
 TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_0_main_domain) {
-    Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
+    Grid3d gr({ 8, 1, 1 }, { 0, 0, 0 }, { 1, 1, 1 });
     MPIWorkerSum mpiWorker(gr, vec3<int>(1, 0, 0), SimpleMask, 2, 0);
 
     ASSERT_EQ(0, mpiWorker.getMainDomainStart().x);
@@ -41,7 +41,7 @@ TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_0_main_domain) {
 }
 
 TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_1_left_guard) {
-    Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
+    Grid3d gr({ 8, 1, 1 }, { 0, 0, 0 }, { 1, 1, 1 });
     MPIWorkerSum mpiWorker(gr, vec3<int>(1, 0, 0), SimpleMask, 2, 1);
 
     ASSERT_EQ(3, mpiWorker.getLeftGuardStart().x);
@@ -49,7 +49,7 @@ TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_1_left_guard) {
 }
 
 TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_1_right_guard) {
-    Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
+    Grid3d gr({ 8, 1, 1 }, { 0, 0, 0 }, { 1, 1, 1 });
     MPIWorkerSum mpiWorker(gr, vec3<int>(1, 0, 0), SimpleMask, 2, 1);
 
     ASSERT_EQ(0, mpiWorker.getRightGuardStart().x);
@@ -57,7 +57,7 @@ TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_1_right_guard) {
 }
 
 TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_1_main_domain) {
-    Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
+    Grid3d gr({ 8, 1, 1 }, { 0, 0, 0 }, { 1, 1, 1 });
     MPIWorkerSum mpiWorker(gr, vec3<int>(1, 0, 0), SimpleMask, 2, 1);
 
     ASSERT_EQ(4, mpiWorker.getMainDomainStart().x);
@@ -65,10 +65,10 @@ TEST(TestMPIWorker, mpi_worker_create_correct_gr_rank_1_main_domain) {
 }
 
 TEST(TestMPIWorker, mpi_worker_copy_gr_correctly_for_process_0) {
-    Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
+    Grid3d gr({ 8, 1, 1 }, { 0, 0, 0 }, { 1, 1, 1 });
     for (int i = 0; i < 8; i++)
-        for (int j = 0; j < gr.gnyRealCells(); j++)
-            for (int k = 0; k < gr.gnzRealCells(); k++)
+        for (int j = 0; j < gr.sizeReal().y; j++)
+            for (int k = 0; k < gr.sizeReal().z; k++)
                 gr.E[0](i, j, k) = i;
     vec3<int> guard = vec3<int>(1, 0, 0);
     MPIWorkerSum mpiWorker(gr, guard, SimpleMask, 2, 0);
@@ -80,10 +80,10 @@ TEST(TestMPIWorker, mpi_worker_copy_gr_correctly_for_process_0) {
 }
 
 TEST(TestMPIWorker, mpi_worker_copy_gr_correctly_for_process_1) {
-    Grid3d gr(8, 1, 1, 0, 1, 0, 1, 0, 1);
-    for (int i = 0; i < gr.gnxRealCells(); i++)
-        for (int j = 0; j < gr.gnyRealCells(); j++)
-            for (int k = 0; k < gr.gnzRealCells(); k++)
+    Grid3d gr({ 8, 1, 1 }, { 0, 0, 0 }, { 1, 1, 1 });
+    for (int i = 0; i < gr.sizeReal().x; i++)
+        for (int j = 0; j < gr.sizeReal().y; j++)
+            for (int k = 0; k < gr.sizeReal().z; k++)
                 gr.E[0](i, j, k) = i;
     vec3<int> guard = vec3<int>(1, 0, 0);
     MPIWorkerSum mpiWorker(gr, guard, SimpleMask, 2, 1);
@@ -91,7 +91,7 @@ TEST(TestMPIWorker, mpi_worker_copy_gr_correctly_for_process_1) {
     for (int i = 0; i < mpiWorker.getMainDomainSize().x; i++)
         for (int j = 0; j < mpiWorker.getMainDomainSize().y; j++)
             for (int k = 0; k < mpiWorker.getMainDomainSize().z; k++)
-                ASSERT_DOUBLE_EQ(i+4, (mpiWorker.getGrid()).E.x(i + guard.x, j + guard.y, k + guard.z));
+                ASSERT_DOUBLE_EQ(i + 4, (mpiWorker.getGrid()).E.x(i + guard.x, j + guard.y, k + guard.z));
 }
 
 

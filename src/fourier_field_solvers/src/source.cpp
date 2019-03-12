@@ -2,7 +2,7 @@
 #include "source.h"
 #include "physical_constants.h"
 
-double Source::GetJ(vec3<double> coordinate, double t) {
+double Source::getJ(vec3<double> coordinate, double t) {
     if (t > time + startTime || t < startTime) return 0;
     if (coordinate.x > coord.x + 0.5*width.x ||
         coordinate.x < coord.x - 0.5*width.x ||

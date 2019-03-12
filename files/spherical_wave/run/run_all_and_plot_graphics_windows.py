@@ -6,7 +6,7 @@ import os
 import shutil
 import graphics as gr
 import read_file as rf
-import calc_error as ce
+import compute_error as ce
 import args
 
 DIR_SCRIPT = "./"+os.path.dirname(sys.argv[0])
@@ -38,7 +38,7 @@ else: os.mkdir(DIR_RESULTS)
 		
 funcRead = rf.readFile2d
 funcPlot = gr.plot2d
-funcCalcError = ce.calcError2d
+funcCalcError = ce.computeError2d
 
 # sequential
 

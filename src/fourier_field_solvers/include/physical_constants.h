@@ -1,6 +1,6 @@
 #pragma once
-namespace constants
-{
+namespace constants {
+
     const double pi = 3.14159265358979323846;
     const double c = 29979245800;
 

@@ -7,21 +7,21 @@
 #include "field_solver.h"
 #include "fftw3.h"
 
-void TestBody(RunningWave& runningWave) {
+void testBody(RunningWave& runningWave) {
 
-	double t1 = omp_get_wtime();
+    double t1 = omp_get_wtime();
 
-    TransformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, RtoC);
+    transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, RtoC);
     for (int j = 1; j <= runningWave.parameters.nSeqSteps; j++) {
         runningWave.parameters.fieldSolver(runningWave.gr, runningWave.parameters.dt);
     }
 
-    TransformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
+    transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
 
-	double t2 = omp_get_wtime();
-	std::cout << "Time of sequential version is " << t2 - t1 << std::endl;
+    double t2 = omp_get_wtime();
+    std::cout << "Time of sequential version is " << t2 - t1 << std::endl;
 
-    runningWave.parameters.fileWriter.WriteFile(runningWave.gr, "sequential_result.csv", Double, "writing...");
+    runningWave.parameters.fileWriter.write(runningWave.gr, "sequential_result.csv", Double, "writing...");
 }
 
 int main(int argc, char** argv) {
@@ -33,6 +33,6 @@ int main(int argc, char** argv) {
     if (status != 0) return 0;
     params.nParSteps = 0;
     params.print();
-    runningWave.SetParamsForTest(params);
-    TestBody(runningWave);
+    runningWave.setParamsForTest(params);
+    testBody(runningWave);
 }

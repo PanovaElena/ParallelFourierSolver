@@ -1,8 +1,8 @@
 #pragma once
-#include "physical_constants.h"
-#include "cmath"
-#include "grid3d.h"
+#include <cmath>
 #include <string>
+#include "physical_constants.h"
+#include "grid3d.h"
 
 typedef void(*FilterFunc) (Grid3d& gr, vec3<int> maskWidth, vec3<int> numZeroFreq);
 
@@ -14,11 +14,13 @@ public:
         on,
         off
     };
+
 private:
     vec3<int> maskWidth;
     vec3<int> numZeroFreq;
+
 public:
-    Filter(vec3<int> _maskWidth, vec3<int> _numZeroFreq):maskWidth(_maskWidth), numZeroFreq(_numZeroFreq){}
+    Filter(vec3<int> _maskWidth, vec3<int> _numZeroFreq) :maskWidth(_maskWidth), numZeroFreq(_numZeroFreq) {}
     Filter() {}
 
     void setParams(vec3<int> _maskWidth, vec3<int> _numZeroFreq) {

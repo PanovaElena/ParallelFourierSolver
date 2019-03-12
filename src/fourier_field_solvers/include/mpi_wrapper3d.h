@@ -1,6 +1,6 @@
 #pragma once
 #include "mpi_wrapper.h"
-#include "vec.h"
+#include "vector3d.h"
 #include "status.h"
 
 class MPIWrapper3d {
@@ -13,14 +13,14 @@ public:
         sizeZ = np.z;
     }
 
-    Status CheckAndSetSize(int _sizeX, int _sizeY, int _sizeZ) {
+    Status checkAndSetSize(int _sizeX, int _sizeY, int _sizeZ) {
         if (_sizeX*_sizeY*_sizeZ != MPIWrapper::MPISize())
             return Status::ERROR;
-        SetSize(_sizeX, _sizeY, _sizeZ);
+        setSize(_sizeX, _sizeY, _sizeZ);
         return Status::OK;
     }
 
-    void SetSize(int _sizeX, int _sizeY, int _sizeZ) {
+    void setSize(int _sizeX, int _sizeY, int _sizeZ) {
         sizeX = _sizeX;
         sizeY = _sizeY;
         sizeZ = _sizeZ;
