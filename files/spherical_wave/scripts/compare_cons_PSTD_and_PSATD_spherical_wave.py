@@ -4,31 +4,26 @@ import subprocess
 import os
 import sys
 sys.path.append("../../scripts/")
-import plot_graph as pg
+import graphics as gr
+import read_file as rf
 
-OS=sys.argv[1]
-FOLDER=""
-EXE=""
-NAME_MPI="/common/intel/impi/4.1.3.048/intel64/bin/mpirun"
-if (OS=="Win"):
-	NAME_MPI="mpiexec"
-	FOLDER="/Release/"
-	EXE=".exe"
+FOLDER="Release"
 
 DIR_SCRIPT = "./"+os.path.dirname(sys.argv[0]) 
-DIR_RES="./../../files/spherical_wave/"
+DIR_RES="./"
 
-NAME_CONS_PROGRAM = "\""+DIR_SCRIPT+"/../../build/src/Examples/SphericalWave/ConsistentFieldSolver_SphericalWave/"+FOLDER+"/sphericalWave_consistent"+"\""
+DIR_CONS_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/spherical_wave/spherical_wave_sequential/"+FOLDER
+NAME_CONS_PROGRAM = DIR_CONS_PROGRAM+"/spherical_wave_sequential"+"\""
 
-NAME_FILE_CONS  = DIR_SCRIPT+"/consistent_results/E/cons_res.csv"
+NAME_FILE_CONS  = DIR_SCRIPT +"/sequential_result.csv"
 
 LIST_FIELD_SOLVERS = ["PSTD", "PSATD"]
 
-LIGHT_SPEED = 2997924580000
+LIGHT_SPEED = 29979245800
 D=LIGHT_SPEED
 COURANT_CONDITION_PSTD = math.sqrt(2)*D/(LIGHT_SPEED*math.pi)
 
-DT=[0.1] #, COURANT_CONDITION_PSTD/4, COURANT_CONDITION_PSTD/2]
+DT=[0.1, 0.05, 0.01] #, COURANT_CONDITION_PSTD/4, COURANT_CONDITION_PSTD/2]
 SOLVER=["PSTD", "PSATD"]
 
 def calc_error(data_1, data_2):	
@@ -55,44 +50,34 @@ def calc_error_arr(data_1, data_2):
 		error.append(tmp)			
 	return error
 
-
-data_graph=[]
+arr_err=[]
 for dt in DT:
 
-	#nIter=int(50*COURANT_CONDITION_PSTD/dt)
-	nIter=500
-	command_args = " --nx "+str(128)+" --ny "+str(128)+" --nz "+str(1)+\
-					" --nCons "+str(nIter)+\
-					" --solver %s"+" --mask "+"smooth"+ " --dt "+str(dt)
+	nIter = int(30/dt)
+
+	command_args = " -solver %s -dt %f -nseqi %d"			
 					
-					
-	process = subprocess.Popen(NAME_CONS_PROGRAM+" "+command_args % "PSTD", shell=True)
+	process = subprocess.Popen(NAME_CONS_PROGRAM+" "+(command_args % ("PSTD",dt,nIter)), shell=True)
 	process.wait()
 	
-	data_PSTD=pg.readFile_2d(NAME_FILE_CONS)
-	print("PSTD: ",calc_ampl(data_PSTD)) 
+	data_PSTD=rf.readFile2d(NAME_FILE_CONS)
 	
-	process_2 = subprocess.Popen(NAME_CONS_PROGRAM+" "+command_args % "PSATD", shell=True)
+	process_2 = subprocess.Popen(NAME_CONS_PROGRAM+" "+(command_args % ("PSATD",dt,nIter)), shell=True)
 	process_2.wait()
 	
-	data_PSATD=pg.readFile_2d(NAME_FILE_CONS)
-	print("PSATD: ",calc_ampl(data_PSATD)) 
+	data_PSATD=rf.readFile2d(NAME_FILE_CONS)
 	
-	process_3 = subprocess.Popen(NAME_CONS_PROGRAM+" "+command_args % "FDTD", shell=True)
-	process_3.wait()
+	arr_err.append(calc_error(data_PSATD, data_PSTD))
+	#gr.plot2d(DIR_RES, "PSATD_nIter_"+str(nIter), data_PSATD)
 	
-	data_FDTD=pg.readFile_2d(NAME_FILE_CONS)
-	print("FDTD: ",calc_ampl(data_FDTD)) 
+
+# gr.plot2d(DIR_RES, "PSTD", data_PSTD)
+# gr.plot2d(DIR_RES, "PSATD", data_PSATD)
+# gr.plot2d(DIR_RES, "FDTD", data_FDTD)
+# gr.plot2d(DIR_RES, "PSATD_PSTD_error", calc_error_arr(data_PSATD, data_PSTD))
+# gr.plot2d(DIR_RES, "PSTD_FDTD_error", calc_error_arr(data_FDTD, data_PSTD))
 	
-	#data_graph.append(calc_error(data_PSATD, data_PSTD))
-	
-	pg.plot_2d("./", "PSTD_dt_%s_nIter_%s" % (dt, nIter), data_PSTD)
-	pg.plot_2d("./", "PSATD_dt_%s_nIter_%s" % (dt, nIter), data_PSATD)
-	pg.plot_2d("./", "FDTD_dt_%s_nIter_%s" % (dt, nIter), data_FDTD)
-	pg.plot_2d("./", "PSATD_PSTD_error_graph_dt_%s" % dt, calc_error_arr(data_PSATD, data_PSTD))
-	pg.plot_2d("./", "PSATD_FDTD_error_graph_dt_%s" % dt, calc_error_arr(data_FDTD, data_PSTD))
-	
-#pg.plot_1d("./", "PSATD_PSTD_cons_error", data_graph, DT, "dt", "error", True)	
+gr.plot1d("./", "PSATD_PSTD_cons_error", arr_err, DT, "dt", "error", True)	
 					
 					
 					

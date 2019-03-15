@@ -50,20 +50,19 @@ public:
         if (endTimeOfSource >= startTimeOfPar)
             nIter2 = (int)((endTimeOfSource - startTimeOfPar) / sphericalWave.parameters.dt) - nIter1;
         nIter3 = sphericalWave.parameters.nParSteps - nIter2 - nIter1;
-        const int N_ITER_SAVE = (int)(0.1*nIter3);
 
         // part 1
         spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, nIter1,
             sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
         // part 2
         for (int i = nIter1 + sphericalWave.parameters.nSeqSteps;
-            i < nIter1 + nIter2 + N_ITER_SAVE + sphericalWave.parameters.nSeqSteps; i++) {
+            i < nIter1 + nIter2 + sphericalWave.parameters.nSeqSteps; i++) {
             sphericalWave.SetJ(i, worker.getGrid());
             spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, 1,
                 sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
         }
         // part 3
-        spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, nIter3 - N_ITER_SAVE,
+        spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, nIter3,
             sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
     }
 
