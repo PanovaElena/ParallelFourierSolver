@@ -5,9 +5,12 @@ void MPIWorkerCopy::applyMask() {
     for (int i = 0; i < grid.sizeReal().x; i++)
         for (int j = 0; j < grid.sizeReal().y; j++)
             for (int k = 0; k < grid.sizeReal().z; k++) {
-                grid.E.write(i, j, k, grid.E(i, j, k) * mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2));
-                grid.B.write(i, j, k, grid.B(i, j, k) * mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2));
-                grid.J.write(i, j, k, grid.J(i, j, k) * mask(vec3<int>(i, j, k), getMainDomainSize() + getGuardSize(), getGuardSize() / 2));
+                grid.E.write(i, j, k, grid.E(i, j, k) * mask(vec3<int>(i, j, k),
+                    getMainDomainSize() + getGuardSize(), getGuardSize() / 2));
+                grid.B.write(i, j, k, grid.B(i, j, k) * mask(vec3<int>(i, j, k),
+                    getMainDomainSize() + getGuardSize(), getGuardSize() / 2));
+                grid.J.write(i, j, k, grid.J(i, j, k) * mask(vec3<int>(i, j, k),
+                    getMainDomainSize() + getGuardSize(), getGuardSize() / 2));
             }
 }
 

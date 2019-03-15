@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "file_writer.h"
+#include "status.h"
 
 class TestParallel {
 public:
@@ -11,7 +12,7 @@ public:
     std::string nameFileAfterDivision;
     std::string nameFileAfterExchange;
 
-    virtual void testBody() = 0;
+    virtual Status testBody() = 0;
 
     void setNameFiles() {
         nameFileFirstSteps = "first_sequential_steps.csv";

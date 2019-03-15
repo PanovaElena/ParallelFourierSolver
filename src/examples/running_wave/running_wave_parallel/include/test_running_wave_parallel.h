@@ -34,16 +34,16 @@ public:
             runningWave.parameters.fileWriter.write(runningWave.gr, nameFileFirstSteps);
     }
 
-    void doParallelPart() {
+    Status doParallelPart() {
         vec3<int> g(worker.getMPIWrapper().MPISize().x == 1 ? 0 : runningWave.parameters.guard.x,
             worker.getMPIWrapper().MPISize().y == 1 ? 0 : runningWave.parameters.guard.y,
             worker.getMPIWrapper().MPISize().z == 1 ? 0 : runningWave.parameters.guard.z);
         if (worker.initialize(runningWave.gr, g,
             runningWave.parameters.mask, worker.getMPIWrapper()) == Status::ERROR)
-            return;
+            return Status::ERROR;
 
-        MPIWorker::showMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +
-            to_string(worker.getMainDomainEnd()) + "; guard is " + to_string(worker.getGuardSize()));
+        //MPIWorker::showMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +
+           // to_string(worker.getMainDomainEnd()) + "; guard is " + to_string(worker.getGuardSize()));
 
         //MPIWorker::showMessage("writing to file first domain");
         runningWave.parameters.fileWriter.write(worker.getGrid(), nameFileAfterDivision);
@@ -74,11 +74,17 @@ public:
         //MPIWorker::showMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)
             runningWave.parameters.fileWriter.write(runningWave.gr, nameFileSecondSteps);
+
+        return Status::OK;
     }
 
-    virtual void testBody() {
-        doSequentialPart();
-        doParallelPart();
+    virtual Status testBody() {
+        if (runningWave.parameters.nSeqSteps != 0)
+            doSequentialPart();
+        MPIWrapper::MPIBarrier();
+        if (runningWave.parameters.nParSteps != 0)
+            return doParallelPart();
+        return Status::OK;
     }
 
 };

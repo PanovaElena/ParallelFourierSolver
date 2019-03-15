@@ -66,17 +66,17 @@ public:
             sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
     }
 
-    void doParallelPart() {
+    Status doParallelPart() {
         //MPIWorker::showMessage("start init worker");
         vec3<int> g(worker.getMPIWrapper().MPISize().x == 1 ? 0 : sphericalWave.parameters.guard.x,
             worker.getMPIWrapper().MPISize().y == 1 ? 0 : sphericalWave.parameters.guard.y,
             worker.getMPIWrapper().MPISize().z == 1 ? 0 : sphericalWave.parameters.guard.z);
         if (worker.initialize(sphericalWave.gr, g,
             sphericalWave.parameters.mask, worker.getMPIWrapper()) == Status::ERROR)
-            return;
+            return Status::ERROR;
 
-        MPIWorker::showMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +
-            to_string(worker.getMainDomainEnd()) + "; guard is " + to_string(worker.getGuardSize()));
+        //MPIWorker::showMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +
+            //to_string(worker.getMainDomainEnd()) + "; guard is " + to_string(worker.getGuardSize()));
 
         //MPIWorker::showMessage("writing to file first domain");
         sphericalWave.parameters.fileWriter.write(worker.getGrid(), nameFileAfterDivision);
@@ -99,14 +99,17 @@ public:
         //MPIWorker::showMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)
             sphericalWave.parameters.fileWriter.write(sphericalWave.gr, nameFileSecondSteps);
+
+        return Status::OK;
     }
 
-    virtual void testBody() {
+    virtual Status testBody() {
         if (sphericalWave.parameters.nSeqSteps != 0)
             doSequentialPart();
         MPIWrapper::MPIBarrier();
         if (sphericalWave.parameters.nParSteps != 0)
-            doParallelPart();
+            return doParallelPart();
+        return Status::OK;
     }
 
 };

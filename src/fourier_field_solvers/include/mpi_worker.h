@@ -9,7 +9,7 @@ class MPIWorker {
 protected:
     MPIWrapper3d mpiWrapper3d;
 
-    const int n = 2, d = 3; //2 вектора (B, E) из 3 компонент
+    const int N_FIELD = 2, N_DIM = 3; //2 вектора (B, E) из 3 компонент
     vec3<int> rank;
     vec3<int> size;
     vec3<int> domainSize;
@@ -112,9 +112,8 @@ protected:
     Status init(Grid3d & gr, vec3<int> guardWidth, Mask _mask);
 
     //обработка всевозможных ошибок ввода
-    Status checkAndSetParams(Grid3d& gr, vec3<int> _guardSize);
-    Status checkAndSetGuardSizeAndDomainStart(Grid3d& gr);
-    Status setGuardSize(vec3<int> _guardSize);
+    void setParams(Grid3d& gr, vec3<int> _guardSize);
+    Status checkParams(Grid3d& gr);
 
     void setLeftGuardStart(vec3<int> guardWidth, Grid3d& gr);
     void setRightGuardStart(vec3<int> guardWidth, Grid3d& gr);

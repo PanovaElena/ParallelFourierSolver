@@ -77,8 +77,6 @@ command_args_seq = "-ax "+str(args.ax)+" "+\
 process_seq = subprocess.Popen(NAME_SEQ_PROGRAM+" "+command_args_seq, shell=True)
 process_seq.wait()
 
-data_seq = funcRead(NAME_FILE_SEQ)
-
 
 # parallel
 
@@ -138,8 +136,6 @@ np=args.npx*args.npy*args.npz
 process_par = subprocess.Popen(MPI+" -n "+str(np)+" "+NAME_PAR_PROGRAM+" "+command_args_par, shell=True)
 process_par.wait()
 
-data_par = funcRead(NAME_FILE_PAR)
-
 
 # plot
 
@@ -147,8 +143,11 @@ os.walk(DIR_RESULTS)
 for (dirpath, dirnames, filenames) in os.walk(DIR_RESULTS):
 	for file in filenames:
 		funcPlot(DIR_PICTURES, file, funcRead(DIR_RESULTS+file))
-
-funcPlot(DIR_PICTURES, "error",	funcCalcError(data_seq, data_par))
+		
+if (args.n_parallel_iter != 0)
+	data_seq = funcRead(NAME_FILE_SEQ)
+	data_par = funcRead(NAME_FILE_PAR)
+	funcPlot(DIR_PICTURES, "error",	funcCalcError(data_seq, data_par))
 
 
 
