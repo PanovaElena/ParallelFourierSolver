@@ -6,10 +6,10 @@ LIGHT_SPEED = 29979245800
 
 # area, cm
 
-ax = 0
-bx = 128*LIGHT_SPEED
-ay = 0
-by = 128*LIGHT_SPEED
+ax = -64*LIGHT_SPEED
+bx = 64*LIGHT_SPEED
+ay = -64*LIGHT_SPEED
+by = 64*LIGHT_SPEED
 az = 0
 bz = 1
 
@@ -27,16 +27,24 @@ dz = (bz-az)/nz
 
 dt = 0.1  # less than courant condition for PSTD
 
-# field solver: PSTD, PSATD, PSATD_omp or FDTD (for sequential launch only)
+# field solver: PSTD, PSATD or FDTD (for sequential launch only)
 
-solver = "PSATD"
+solver = "PSTD"
 
 # parameters of wave
 
-time_source = 16                  # time of working of source
+coord_source_x = 0                # coordinates of source
+coord_source_y = 0   
+coord_source_z = az 
+
+time_source = 160 * dt            # time of working of source
+start_time_source = 0          # start time of working of source
 omega = 2*math.pi / time_source   # frequency of source
-omega_envelope = omega            
-width_source = dx*8       
+omega_envelope = omega
+            
+width_source_x = dx*8             # width of source
+width_source_y = dy*8   
+width_source_z = dz/4      
 
 # output
 
@@ -44,12 +52,12 @@ dimension_of_output_data = 1   # 1 (OX) or 2 (XOZ)
 
 # number of iterations for sequention launch
 
-n_iter = 400
+n_iter = 350
 
 
 # parameters for parallel launch
 
-scheme = "sum"    # scheme of exchange: sum or copy
+scheme = "copy"    # scheme of exchange: sum or copy
 
 # num of processes
 
@@ -59,19 +67,19 @@ npz = 1
 
 # dimension of guard (number of cells of the grid)
 
-gx = 32
+gx = 64 # strictly less than N/NUM_OF_DOMAINS
 gy = 0
 gz = 0
 
 # number of sequential (first) and parallel (second) iterations
 
-n_sequential_iter = 300
+n_sequential_iter = 0
 n_parallel_iter = n_iter-n_sequential_iter
 
 # max number of iterations in every domain
 # if scheme=copy max distance should be half of the guard width
 
-number_of_iterations_in_domain = int(0.3*gx*dx/LIGHT_SPEED/dt)
+number_of_iterations_in_domain = 100 # int(0.4*gx*dx/LIGHT_SPEED/dt)
 
 # parameters of mask
 
