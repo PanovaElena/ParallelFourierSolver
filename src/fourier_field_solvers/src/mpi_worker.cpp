@@ -21,7 +21,9 @@ Status MPIWorker::checkParams(Grid3d & gr) {
         return Status::ERROR;
     }
 
-    if (domainSize.x == 0 || domainSize.y == 0 || domainSize.z == 0) {
+    if (gr.sizeReal().x / size.x == 0 ||
+        gr.sizeReal().y / size.y == 0 ||
+        gr.sizeReal().z / size.z == 0) {
         showMessage("ERROR: domain size is 0");
         return Status::ERROR;
     }
@@ -62,7 +64,6 @@ void MPIWorker::createGrid(Grid3d & gr) {
                 grid.J.write(i, j, k, gr.J(mod(vec3<int>(i, j, k) + getMainDomainStart()
                     - getGuardSize(), gr.sizeReal())));
             }
-    applyMask();
 }
 
 Status MPIWorker::init(Grid3d & gr, vec3<int> guardWidth, Mask _mask) {

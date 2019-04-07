@@ -51,19 +51,24 @@ public:
             nIter2 = (int)((endTimeOfSource - startTimeOfPar) / sphericalWave.parameters.dt) - nIter1;
         nIter3 = sphericalWave.parameters.nParSteps - nIter2 - nIter1;
 
+        // std::cout << nIter1 << nIter2 << nIter3 << std::endl;
+
         // part 1
         spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, nIter1,
-            sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
+            sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.filter,
+            sphericalWave.parameters.fileWriter);
         // part 2
         for (int i = nIter1 + sphericalWave.parameters.nSeqSteps;
             i < nIter1 + nIter2 + sphericalWave.parameters.nSeqSteps; i++) {
             sphericalWave.SetJ(i, worker.getGrid());
             spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, 1,
-                sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
+                sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.filter,
+                sphericalWave.parameters.fileWriter);
         }
         // part 3
         spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, nIter3,
-            sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
+            sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.filter,
+            sphericalWave.parameters.fileWriter);
     }
 
     Status doParallelPart() {
@@ -90,11 +95,11 @@ public:
         //MPIWorker::showMessage("assemble");
         worker.assembleResultsToZeroProcess(sphericalWave.gr);
 
-        if (sphericalWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
+        /*if (sphericalWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
             transformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
             sphericalWave.parameters.filter(sphericalWave.gr);
             transformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, CtoR);
-        }
+        }*/
 
         //MPIWorker::showMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)

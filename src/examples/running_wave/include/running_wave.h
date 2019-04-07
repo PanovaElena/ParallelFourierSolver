@@ -87,17 +87,17 @@ public:
             for (int j = 0; j < gr.sizeReal().y; j++)
                 for (int k = 0; k < gr.sizeReal().z; k++) {
 
-                    double xEy = gr.getCoord(vec3<int>(i + dcE.y.x, 0, 0)).x,
-                        zEy = (vec3<int>(0, 0, k + dcE.y.z)).z,
+                    double xEy = gr.getCoord(vec3<>(i + dcE.y.x, 0, 0)).x,
+                        zEy = (vec3<>(0, 0, k + dcE.y.z)).z,
                         tE = dtE * parameters.dt;
-                    double xBx = gr.getCoord(vec3<int>(i + dcB.x.x, 0, 0)).x,
-                        zBx = (vec3<int>(0, 0, k + dcB.x.z)).z,
-                        xBz = gr.getCoord(vec3<int>(i + dcB.z.x, 0, 0)).x,
-                        zBz = (vec3<int>(0, 0, k + k + dcB.z.z)).z,
+                    double xBx = gr.getCoord(vec3<>(i + dcB.x.x, 0, 0)).x,
+                        zBx = (vec3<>(0, 0, k + dcB.x.z)).z,
+                        xBz = gr.getCoord(vec3<>(i + dcB.z.x, 0, 0)).x,
+                        zBz = (vec3<>(0, 0, k + k + dcB.z.z)).z,
                         tB = dtB * parameters.dt;
 
-                    gr.E.write(i, j, k, vec3<double>(0, f(xEy, zEy, tE), 0));
-                    gr.B.write(i, j, k, vec3<double>(-sin(parameters.angle)*f(xBx, zBx, tB), 0,
+                    gr.E.write(i, j, k, vec3<>(0, f(xEy, zEy, tE), 0));
+                    gr.B.write(i, j, k, vec3<>(-sin(parameters.angle)*f(xBx, zBx, tB), 0,
                         cos(parameters.angle)*f(xBz, zBz, tB)));
                 }
 

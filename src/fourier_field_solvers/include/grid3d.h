@@ -79,11 +79,14 @@ public:
     vec3<double> getStart() const;
     vec3<double> getEnd() const;
 
-    vec3<> getCoord(vec3<int> node) {
+    vec3<> getCoord(vec3<double> node) {
         return a + (vec3<>)node * d;
     }
-    vec3<int> getNode(vec3<> coord) {
-        return (vec3<int>)((coord - a) / d + vec3<>(0.5));
+    vec3<int> getNode(vec3<double> coord) {
+        int x = (int)((coord.x - a.x) / d.x + 0.5);
+        int y = (int)((coord.y - a.y) / d.y + 0.5);
+        int z = (int)((coord.z - a.z) / d.z + 0.5);
+        return vec3<int>(x, y, z);
     }
 
     Direction getLastFourierTransformDirect() {

@@ -7,6 +7,7 @@
 class Grid3d;
 class MPIWorker;
 class FileWriter;
+class Filter;
 
 #define COURANT_CONDITION_PSTD(d) (sqrt(2)*(d)/(constants::c*constants::pi))
 #define COURANT_CONDITION_FDTD(d) ((d)/(constants::c*sqrt(2)))
@@ -95,7 +96,7 @@ const std::map<std::string, FieldSolver> FieldSolverMap =
 { { "PSTD",PSTD },{ "PSATD",PSATD },{ "FDTD",FDTD } };
 
 void spectralSolverParallel(MPIWorker& worker, FieldSolver fieldSolver, int numIter, int maxNumIterBetweenExchanges,
-    double dt, FileWriter& fileWriter);
+    double dt, Filter& filter, FileWriter& fileWriter);
 
 inline int mod(int a, int b) {
     return (a + b) % b;

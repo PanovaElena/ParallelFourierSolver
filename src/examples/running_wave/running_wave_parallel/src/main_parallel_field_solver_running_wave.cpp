@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
         if (MPIWrapper::MPIRank() == 0) params.print();
         TestRunningWaveParallel test(*mpiWorker);
         test.setParamsForTest(params);
-        test.testBody();
+        status2 = test.testBody();
     }
     else if (status == Status::ERROR || status1 == Status::ERROR || status2 == Status::ERROR)
         std::cout << "There are some problems in args" << std::endl;

@@ -52,9 +52,10 @@ public:
 
         //MPIWorker::showMessage("parallel field solver");
         spectralSolverParallel(worker, runningWave.parameters.fieldSolver, runningWave.parameters.nParSteps, runningWave.parameters.nDomainSteps,
-            runningWave.parameters.dt, runningWave.parameters.fileWriter);
+            runningWave.parameters.dt, runningWave.parameters.filter, runningWave.parameters.fileWriter);
 
         double t2 = omp_get_wtime();
+
         if (MPIWrapper::MPIRank() == 0)
             std::cout << "Time of parallel version is " << t2 - t1 << std::endl;
 
@@ -63,13 +64,6 @@ public:
 
         //MPIWorker::showMessage("assemble");
         worker.assembleResultsToZeroProcess(runningWave.gr);
-
-        if (runningWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
-            transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, RtoC);
-            runningWave.parameters.filter(runningWave.gr);
-            runningWave.parameters.fileWriter.write(runningWave.gr, "spectrum.csv", Complex);
-            transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
-        }
 
         //MPIWorker::showMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)
