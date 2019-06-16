@@ -24,14 +24,14 @@ struct ParametersForRunningWave : public ParametersForMyTest {
     ParametersForRunningWave() {
         n.x = 256; n.y = 1; n.z = n.x;
         guard = vec3<int>(64);
-        d = vec3<double>(sqrt(6)*constants::pi);
+        d = vec3<double>(1);
         a = vec3<double>(0); b = vec3<double>(n.x*d.x);
         b = a + (vec3<double>)n * d;
-        dt = COURANT_CONDITION_PSTD(fmin(fmin(d.x, d.y), d.z)) / 2;
+        dt = 1 / (constants::c * 4);// COURANT_CONDITION_PSTD(fmin(fmin(d.x, d.y), d.z)) / 2;
         nSeqSteps = 200;
         nParSteps = 600;
         nDomainSteps = (int)(0.4*guard.x*d.x / constants::c / dt);
-        lambda = 8 * d.x;
+        lambda = 16 * d.x;
         angle = 0;
         dimensionOfOutputData = 1;
         fileWriter.initialize("./", E, y, Section(Section::XOY, Section::center, Section::XOZ, Section::center));

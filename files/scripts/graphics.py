@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib.colors import LinearSegmentedColormap
 import pylab as pl
-
 	
 def plot1d(dir, name, data, arg=[], xlabel="", ylabel="", points=False, _log=False):
+	mpl.rcParams.update({'font.size': 20})
 	if (arg==[]): arg=range(0, len(data))
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
@@ -21,6 +21,7 @@ def plot1d(dir, name, data, arg=[], xlabel="", ylabel="", points=False, _log=Fal
 	plt.savefig(dir+"/"+name+".png")
 	
 def plot2d(dir, name, data):
+	mpl.rcParams.update({'font.size': 20})
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
 	cs = ax.imshow(data, cmap='gray')

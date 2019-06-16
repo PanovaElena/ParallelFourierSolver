@@ -37,31 +37,33 @@ public:
     }
 
     void computeParallel(MPIWorker& worker) {
-        double startTimeOfSource = sphericalWave.parameters.source.getStartTime();
-        double endTimeOfSource = sphericalWave.parameters.source.getEndTime();
-        double startTimeOfSeq = 0;
-        double endTimeOfSeq = (sphericalWave.parameters.nSeqSteps - 1) * sphericalWave.parameters.dt;
-        double startTimeOfPar = sphericalWave.parameters.nSeqSteps * sphericalWave.parameters.dt;
-        double endTimeOfPar = sphericalWave.parameters.getNSteps() * sphericalWave.parameters.dt;
+        //double startTimeOfSource = sphericalWave.parameters.source.getStartTime();
+        //double endTimeOfSource = sphericalWave.parameters.source.getEndTime();
+        //double startTimeOfSeq = 0;
+        //double endTimeOfSeq = (sphericalWave.parameters.nSeqSteps - 1) * sphericalWave.parameters.dt;
+        //double startTimeOfPar = sphericalWave.parameters.nSeqSteps * sphericalWave.parameters.dt;
+        //double endTimeOfPar = sphericalWave.parameters.getNSteps() * sphericalWave.parameters.dt;
 
-        int nIter1 = 0, nIter2 = 0, nIter3 = 0;
-        if (startTimeOfSource >= startTimeOfPar)
-            nIter1 = (int)((startTimeOfSource - startTimeOfPar) / sphericalWave.parameters.dt + (1 - 1.0e-10));
-        if (endTimeOfSource >= startTimeOfPar)
-            nIter2 = (int)((endTimeOfSource - startTimeOfPar) / sphericalWave.parameters.dt) - nIter1;
-        nIter3 = sphericalWave.parameters.nParSteps - nIter2 - nIter1;
+        //int nIter1 = 0, nIter2 = 0, nIter3 = 0;
+        //if (startTimeOfSource >= startTimeOfPar)
+        //    nIter1 = (int)((startTimeOfSource - startTimeOfPar) / sphericalWave.parameters.dt + (1 - 1.0e-10));
+        //if (endTimeOfSource >= startTimeOfPar)
+        //    nIter2 = (int)((endTimeOfSource - startTimeOfPar) / sphericalWave.parameters.dt) - nIter1;
+        //nIter3 = sphericalWave.parameters.nParSteps - nIter2 - nIter1;
 
-        // part 1
-        spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, nIter1,
-            sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
-        // part 2
-        for (int i = nIter1 + sphericalWave.parameters.nSeqSteps;
-            i < nIter1 + nIter2 + sphericalWave.parameters.nSeqSteps; i++) {
-            sphericalWave.SetJ(i, worker.getGrid());
-            spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, 1,
-                sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
-        }
+        //std::cout << nIter1 << " " << nIter2 << " " << nIter3 << std::endl;       
+        //// part 1
+        //spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, nIter1,
+        //    sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
+        //// part 2
+        //for (int i = nIter1 + sphericalWave.parameters.nSeqSteps;
+        //    i < nIter1 + nIter2 + sphericalWave.parameters.nSeqSteps; i++) {
+        //    sphericalWave.SetJ(i, worker.getGrid());
+        //    spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, 1,
+        //        sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
+        //}
         // part 3
+        int nIter3 = sphericalWave.parameters.nParSteps;
         spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, nIter3,
             sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
     }

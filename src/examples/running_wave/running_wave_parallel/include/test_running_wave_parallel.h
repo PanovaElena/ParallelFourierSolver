@@ -35,6 +35,16 @@ public:
     }
 
     Status doParallelPart() {
+
+        FileWriter fw(runningWave.parameters.fileWriter.getDir(), runningWave.parameters.fileWriter.getField(),
+            runningWave.parameters.fileWriter.getCoord(), Section(Section::XOZ, Section::center, Section::XOY, Section::start));
+
+        if (runningWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
+            transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, RtoC);
+            fw.write(runningWave.gr, "spectrum_before_div.csv", Complex);
+            transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
+        }
+
         vec3<int> g(worker.getMPIWrapper().MPISize().x == 1 ? 0 : runningWave.parameters.guard.x,
             worker.getMPIWrapper().MPISize().y == 1 ? 0 : runningWave.parameters.guard.y,
             worker.getMPIWrapper().MPISize().z == 1 ? 0 : runningWave.parameters.guard.z);
@@ -47,6 +57,12 @@ public:
 
         //MPIWorker::showMessage("writing to file first domain");
         runningWave.parameters.fileWriter.write(worker.getGrid(), nameFileAfterDivision);
+
+        if (runningWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
+            transformGridIfNecessary(runningWave.parameters.fieldSolver, worker.getGrid(), RtoC);
+            fw.write(worker.getGrid(), "spectrum_after_div.csv", Complex);
+            transformGridIfNecessary(runningWave.parameters.fieldSolver, worker.getGrid(), CtoR);
+        }
 
         double t1 = omp_get_wtime();
 
@@ -66,8 +82,9 @@ public:
 
         if (runningWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
             transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, RtoC);
+            fw.write(runningWave.gr, "spectrum_before_filter.csv", Complex);
             runningWave.parameters.filter(runningWave.gr);
-            runningWave.parameters.fileWriter.write(runningWave.gr, "spectrum.csv", Complex);
+            fw.write(runningWave.gr, "spectrum_after_filter.csv", Complex);
             transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
         }
 

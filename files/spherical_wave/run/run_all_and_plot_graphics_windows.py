@@ -78,7 +78,7 @@ command_args_seq = "-ax "+str(args.ax)+" "+\
 					"-stimest "+str(args.start_time_source)+" "+\
 					"-stime "+str(args.time_source)+" ";
 					
-					
+		
 process_seq = subprocess.Popen(NAME_SEQ_PROGRAM+" "+command_args_seq, shell=True)
 process_seq.wait()
 
@@ -147,9 +147,10 @@ command_args_par = "-ax "+str(args.ax)+" "+\
 					"-stime "+str(args.time_source)+" ";
 					
 np=args.npx*args.npy*args.npz
-					
-process_par = subprocess.Popen(MPI+" -n "+str(np)+" "+NAME_PAR_PROGRAM+" "+command_args_par, shell=True)
-process_par.wait()
+
+if(args.n_parallel_iter!=0):					
+	process_par = subprocess.Popen(MPI+" -n "+str(np)+" "+NAME_PAR_PROGRAM+" "+command_args_par, shell=True)
+	process_par.wait()
 
 
 # plot

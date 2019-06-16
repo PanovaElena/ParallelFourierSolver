@@ -132,22 +132,47 @@ command_args_par = "-ax "+str(args.ax)+" "+\
 					"-angle "+str(args.angle)+" ";
 					
 np=args.npx*args.npy*args.npz
-					
-process_par = subprocess.Popen(MPI+" -n "+str(np)+" "+NAME_PAR_PROGRAM+" "+command_args_par, shell=True)
-process_par.wait()
+
+if(args.n_parallel_iter!=0):				
+	process_par = subprocess.Popen(MPI+" -n "+str(np)+" "+NAME_PAR_PROGRAM+" "+command_args_par, shell=True)
+	process_par.wait()
 
 
 # plot
 
+def invert_data(data):
+	data1=[]
+	n=int(len(data))
+	for i in range(n//2+1, n):
+		if(data[i]<1e-12):
+			data1.append(1e-12)
+		else: data1.append(data[i])
+	for i in range(0, n//2+1):
+		if(data[i]<1e-12):
+			data1.append(1e-12)
+		else: data1.append(data[i])
+	return data1
+		
+def create_x(n):
+	data=[]
+	for i in range(int(n)):
+		data.append(-n/2+i)
+	return data
+
 os.walk(DIR_RESULTS)
 for (dirpath, dirnames, filenames) in os.walk(DIR_RESULTS):
 	for file in filenames:
-		funcPlot(DIR_PICTURES, file, funcRead(DIR_RESULTS+file))
+		if (file.find('spectrum')!=-1):
+			data=invert_data(funcRead(DIR_RESULTS+file))
+			arg=create_x(len(data))
+			funcPlot(DIR_PICTURES, file, data, arg, _log=True)
+		else:
+			funcPlot(DIR_PICTURES, file, funcRead(DIR_RESULTS+file))
 		
-if (args.n_parallel_iter != 0)
+if (args.n_parallel_iter != 0):
 	data_seq = funcRead(NAME_FILE_SEQ)
 	data_par = funcRead(NAME_FILE_PAR)
-	funcPlot(DIR_PICTURES, "error",	funcCalcError(data_seq, data_par))
+	funcPlot(DIR_PICTURES, "error",	funcCalcError(data_seq, data_par, _abs=True), _log=True)
 
 
 
