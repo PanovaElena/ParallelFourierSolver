@@ -20,8 +20,7 @@ void fieldSolverPSATD(Grid3d & gr, double dt) {
                 vec3<MyComplex> El = K * vec3<MyComplex>::dot(K, E);
 
                 if (normK == 0) {
-                    gr.EF.write(i, j, k, (-1)*J);
-                    gr.BF.write(i, j, k, vec3<MyComplex>(0));
+                    gr.EF.write(i, j, k, E - J);
                     continue;
                 }
 

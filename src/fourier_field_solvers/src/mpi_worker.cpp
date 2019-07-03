@@ -11,6 +11,7 @@ void MPIWorker::setParams(Grid3d & gr, vec3<int> _guardSize) {
 }
 
 Status MPIWorker::checkParams(Grid3d & gr) {
+
     if (gr.sizeReal() % size != vec3<int>(0)) {
         showMessage("ERROR: domain size % MPISize != 0");
         return Status::ERROR;
@@ -66,9 +67,9 @@ void MPIWorker::createGrid(Grid3d & gr) {
 }
 
 Status MPIWorker::init(Grid3d & gr, vec3<int> guardWidth, Mask _mask) {
+    setParams(gr, guardWidth);
     if (checkParams(gr) == Status::ERROR)
         return Status::ERROR;
-    setParams(gr, guardWidth);
     mask = _mask;
     createGrid(gr);
     return Status::OK;
@@ -126,28 +127,28 @@ void MPIWorker::exchangeTwoProcesses(Coordinate coord) {
 
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(sl1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(sl2), grid.sizeReal());
-    //MPIWorker::showMessage("send left from " + to_string(down_left) + " to " + to_string(top_right));
+    //showMessage("send left from " + to_string(down_left) + " to " + to_string(top_right));
     send(down_left, top_right, arrS1, prLeft, 0, grid, request1);
 
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(sr1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(sr2), grid.sizeReal());
-    //MPIWorker::showMessage("send right from " + to_string(down_left) + " to " + to_string(top_right));
+    //showMessage("send right from " + to_string(down_left) + " to " + to_string(top_right));
     send(down_left, top_right, arrS2, prRight, 1, grid, request2);
 
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(rr1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(rr2), grid.sizeReal());
-    //MPIWorker::showMessage("recv right from " + to_string(down_left) + " to " + to_string(top_right));
+    //showMessage("recv right from " + to_string(down_left) + " to " + to_string(top_right));
     recv(down_left, top_right, prRight, 0, grid);
 
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(rl1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(rl2), grid.sizeReal());
-    //MPIWorker::showMessage("recv left from " + to_string(down_left) + " to " + to_string(top_right));
+    //showMessage("recv left from " + to_string(down_left) + " to " + to_string(top_right));
     recv(down_left, top_right, prLeft, 1, grid);
 
     MPIWrapper::MPIWait(request1);
     MPIWrapper::MPIWait(request2);
 
-    //MPIWorker::showMessage("delete arrays");
+    //showMessage("delete arrays");
     if (arrS1) delete[] arrS1;
     if (arrS2) delete[] arrS2;
 }

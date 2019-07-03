@@ -29,7 +29,7 @@ public:
         }
         fourierTransformation(runningWave.gr, CtoR);
 
-        //MPIWorker::showMessage("writing to file first steps");
+        //MPIWrapper::showMessage("writing to file first steps");
         if (MPIWrapper::MPIRank() == 0)
             runningWave.parameters.fileWriter.write(runningWave.gr, nameFileFirstSteps);
     }
@@ -52,10 +52,10 @@ public:
             runningWave.parameters.mask, worker.getMPIWrapper()) == Status::ERROR)
             return Status::ERROR;
 
-        //MPIWorker::showMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +
+        //MPIWrapper::showMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +
            // to_string(worker.getMainDomainEnd()) + "; guard is " + to_string(worker.getGuardSize()));
 
-        //MPIWorker::showMessage("writing to file first domain");
+        //MPIWrapper::showMessage("writing to file first domain");
         runningWave.parameters.fileWriter.write(worker.getGrid(), nameFileAfterDivision);
 
         if (runningWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
@@ -66,7 +66,7 @@ public:
 
         double t1 = omp_get_wtime();
 
-        //MPIWorker::showMessage("parallel field solver");
+        //MPIWrapper::showMessage("parallel field solver");
         spectralSolverParallel(worker, runningWave.parameters.fieldSolver, runningWave.parameters.nParSteps, runningWave.parameters.nDomainSteps,
             runningWave.parameters.dt, runningWave.parameters.fileWriter);
 
@@ -74,10 +74,10 @@ public:
         if (MPIWrapper::MPIRank() == 0)
             std::cout << "Time of parallel version is " << t2 - t1 << std::endl;
 
-        //MPIWorker::showMessage("writing to file parallel result");
+        //MPIWrapper::showMessage("writing to file parallel result");
         runningWave.parameters.fileWriter.write(worker.getGrid(), nameFileAfterExchange);
 
-        //MPIWorker::showMessage("assemble");
+        //MPIWrapper::showMessage("assemble");
         worker.assembleResultsToZeroProcess(runningWave.gr);
 
         if (runningWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
@@ -88,7 +88,7 @@ public:
             transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
         }
 
-        //MPIWorker::showMessage("writing to file assembled result");
+        //MPIWrapper::showMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)
             runningWave.parameters.fileWriter.write(runningWave.gr, nameFileSecondSteps);
 

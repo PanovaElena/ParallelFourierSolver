@@ -90,16 +90,6 @@ TEST_F(TestFourierTransform, fourier_transform_writes_data_correctly_to_grid) {
 
     fourierTransformation(grid, RtoC);
 
-    for (int i = 0; i < arr2.size1d(); i++)
-        std::cout << arr2[i] << " ";
-    std::cout << std::endl;
-
-    for (int i = 0; i < grid.sizeComplex().x; i++)
-        for (int j = 0; j < grid.sizeComplex().y; j++)
-            for (int k = 0; k < grid.sizeComplex().z; k++)
-                std::cout << grid.EF.x(i, j, k) << " ";
-    std::cout << std::endl;
-
     for (int i = 0; i < grid.sizeComplex().x; i++)
         for (int j = 0; j < grid.sizeComplex().y; j++)
             for (int k = 0; k < grid.sizeComplex().z; k++) {

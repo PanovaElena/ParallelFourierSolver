@@ -90,12 +90,12 @@ public:
         return grid;
     }
 
-    virtual void applyMask() = 0;
+    virtual void applyMask() {};
 
     void ExchangeGuard();
 
-    static void showMessage(std::string message) {
-        std::cout << "rank " << MPIWrapper::MPIRank() << ": " << message << std::endl;
+    void showMessage(std::string message) {
+        std::cout << "rank " << mpiWrapper3d.getScalarRank(rank) << ": " << message << std::endl;
     }
 
     void assembleResultsToZeroProcess(Grid3d& gr);
@@ -128,7 +128,7 @@ protected:
     //упаковывает вещественные поля части сетки
     int getPackSize(vec3<int> n1, vec3<int> n2);
     void packData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grFrom);
-    virtual void unpackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo) = 0;
+    virtual void unpackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo) {};
 
     int getNum(int i, int j, int k) {
         return (i * 3 + j) * 3 + k;
@@ -136,5 +136,5 @@ protected:
 
     void exchangeTwoProcesses(Coordinate coord);
     virtual void getBoardsForExchange(int& sl1, int& sl2, int& sr1, int& sr2,
-        int& rl1, int& rl2, int& rr1, int& rr2, Coordinate coord) = 0;
+        int& rl1, int& rl2, int& rr1, int& rr2, Coordinate coord) {};
 };

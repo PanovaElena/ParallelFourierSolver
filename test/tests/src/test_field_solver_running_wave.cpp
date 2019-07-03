@@ -56,6 +56,6 @@ public:
     ~TestRunningWave() {}
 };
 
-TEST_F(TestRunningWave, writing_Ey_Bz) {
+TEST_F(TestRunningWave, DISABLED_writing_Ey_Bz) {
     MyTestBodyWrite();
 }

@@ -75,7 +75,7 @@ public:
 
 };
 
-TEST_F(TestSphericalWave, writing) {
+TEST_F(TestSphericalWave, DISABLED_writing) {
     MyTestBody();
     PlotJ();
 }

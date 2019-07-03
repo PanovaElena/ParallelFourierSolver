@@ -1,5 +1,7 @@
 #pragma once
 #include "mpi.h"
+#include <iostream>
+#include <string>
 
 class MPIWrapper {
 public:
@@ -32,5 +34,9 @@ public:
     }
     static void MPIBarrier() {
         MPI_Barrier(MPI_COMM_WORLD);
+    }
+
+    static void showMessage(std::string message) {
+        std::cout << "rank " << MPIRank() << ": " << message << std::endl;
     }
 };
