@@ -1,5 +1,5 @@
 #include "gtest.h"
-#include "fourier_transformation.h"
+#include "fourier_transform.h"
 #include "grid3d.h"
 #include "my_complex.h"
 #include "physical_constants.h"
@@ -27,14 +27,14 @@ public:
     }
 
     void MyTestBodyLag() {
-        fourierTransformation(gr, RtoC);
+        fourierTransform(gr, RtoC);
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 for (int k = 0; k < n / 2 + 1; k++) {
                     vec3<MyComplex> K = getFreqVector(vec3<int>(i, j, k), gr);
                     gr.EF.x(i, j, k) *= MyComplex::getTrig(1, -c * (K.x + K.y + K.z));
                 }
-        fourierTransformation(gr, CtoR);
+        fourierTransform(gr, CtoR);
     }
 
 };

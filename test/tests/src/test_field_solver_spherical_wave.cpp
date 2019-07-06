@@ -3,7 +3,7 @@
 #include <string>
 #include "physical_constants.h"
 #include "grid3d.h"
-#include "fourier_transformation.h"
+#include "fourier_transform.h"
 #include "class_member_ptr.h"
 #include "spherical_wave.h"
 #include "file_writer.h"

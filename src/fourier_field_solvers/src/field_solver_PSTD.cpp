@@ -1,7 +1,7 @@
 #include "field_solver.h"
 #include "grid3d.h"
 #include "physical_constants.h"
-#include "fourier_transformation.h"
+#include "fourier_transform.h"
 
 void refreshE_PSTD(Grid3d& gr, double dt) {
 #pragma omp parallel for

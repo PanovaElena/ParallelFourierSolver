@@ -2,7 +2,7 @@
 #include <string>
 #include <map>
 #include "physical_constants.h"
-#include "fourier_transformation.h"
+#include "fourier_transform.h"
 #include "simple_types.h"
 class Grid3d;
 class MPIWorker;
@@ -21,20 +21,20 @@ class FieldSolver {
     FieldSolverType func;
     std::string str;
     // смещения для начальных условий
-    double displ_t_E, displ_t_B, displ_t_J;
-    vec3<vec3<double>> displ_c_E, displ_c_B, displ_c_J;
+    double shiftEt, shiftBt, shiftJt;
+    vec3<vec3<double>> shiftE, shiftB, shiftJ;
 
 public:
-    FieldSolver(FieldSolverType f, std::string s, double _displ_t_E, double _displ_t_B, double _displ_t_J,
-        vec3<vec3<double>> _displ_c_E, vec3<vec3<double>> _displ_c_B, vec3<vec3<double>> _displ_c_J) {
+    FieldSolver(FieldSolverType f, std::string s, double _shiftEt, double _shiftBt, double _shiftJt,
+        vec3<vec3<double>> _shiftE, vec3<vec3<double>> _shiftB, vec3<vec3<double>> _shiftJ) {
         func = f;
         str = s;
-        displ_t_E = _displ_t_E;
-        displ_t_B = _displ_t_B;
-        displ_t_J = _displ_t_J;
-        displ_c_E = _displ_c_E;
-        displ_c_B = _displ_c_B;
-        displ_c_J = _displ_c_J;
+        shiftEt = _shiftEt;
+        shiftBt = _shiftBt;
+        shiftJt = _shiftJt;
+        shiftE = _shiftE;
+        shiftB = _shiftB;
+        shiftJ = _shiftJ;
     }
     std::string to_string() {
         return str;
@@ -46,33 +46,33 @@ public:
     vec3<vec3<double>> getCoordOffset(Field field) {
         switch (field) {
         case E:
-            return displ_c_E;
+            return shiftE;
         case B:
-            return displ_c_B;
+            return shiftB;
         default:
-            return displ_c_J;
+            return shiftJ;
         }
     }
 
     double getTimeOffset(Field field) {
         switch (field) {
         case E:
-            return displ_t_E;
+            return shiftEt;
         case B:
-            return displ_t_B;
+            return shiftBt;
         default:
-            return displ_t_J;
+            return shiftJt;
         }
     }
 
     friend void transformGridIfNecessary(FieldSolver fs, Grid3d& gr, Direction dir) {
         if (fs.str == "FDTD") return;
-        fourierTransformation(gr, dir);
+        fourierTransform(gr, dir);
     }
 
     friend void transformGridIfNecessary(FieldSolver fs, Grid3d& gr, Field f, Coordinate c, Direction dir) {
         if (fs.str == "FDTD") return;
-        fourierTransformation(gr, f, c, dir);
+        fourierTransform(gr, f, c, dir);
     }
 };
 

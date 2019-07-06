@@ -1,6 +1,6 @@
 #include "gtest.h"
 #include "grid3d.h"
-#include "fourier_transformation.h"
+#include "fourier_transform.h"
 #include "physical_constants.h"
 #include "class_member_ptr.h"
 #include "my_complex.h"
@@ -34,8 +34,8 @@ public:
 
         Grid3d grid2 = grid;
 
-        fourierTransformation(grid, field, coord, RtoC);
-        fourierTransformation(grid, field, coord, CtoR);
+        fourierTransform(grid, field, coord, RtoC);
+        fourierTransform(grid, field, coord, CtoR);
 
         for (int i = 0; i < grid.sizeReal().x; i++)
             for (int j = 0; j < grid.sizeReal().y; j++)
@@ -45,11 +45,11 @@ public:
 };
 
 TEST_F(TestFourierTransform, no_throws_RtoC) {
-    ASSERT_NO_THROW(fourierTransformation(grid, E, x, RtoC));
+    ASSERT_NO_THROW(fourierTransform(grid, E, x, RtoC));
 }
 
 TEST_F(TestFourierTransform, no_throws_CtoR) {
-    ASSERT_NO_THROW(fourierTransformation(grid, E, x, CtoR));
+    ASSERT_NO_THROW(fourierTransform(grid, E, x, CtoR));
 }
 
 TEST_F(TestFourierTransform, transform_correctly_Ex) {
@@ -88,7 +88,7 @@ TEST_F(TestFourierTransform, fourier_transform_writes_data_correctly_to_grid) {
         (fftw_complex*)&(arr1[0]), (fftw_complex*)&(arr2[0]), FFTW_FORWARD, FFTW_ESTIMATE);
     fftw_execute(plan);
 
-    fourierTransformation(grid, RtoC);
+    fourierTransform(grid, RtoC);
 
     for (int i = 0; i < grid.sizeComplex().x; i++)
         for (int j = 0; j < grid.sizeComplex().y; j++)

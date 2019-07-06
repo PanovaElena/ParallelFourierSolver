@@ -2,7 +2,7 @@
 #include "fftw3.h"
 #include "grid3d.h"
 #include "my_complex.h"
-#include "fourier_transformation.h"
+#include "fourier_transform.h"
 #include "array3d.h"
 #include "class_member_ptr.h"
 
@@ -24,28 +24,28 @@ void useFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, in
     fftw_destroy_plan(plan);
 }
 
-void fourierTransformation(Grid3d & gr, Field _field, Coordinate _coord, Direction dir) {
+void fourierTransform(Grid3d & gr, Field _field, Coordinate _coord, Direction dir) {
     Array3d<double>& arrD = (gr.*getMemberPtrField<double>(_field)).*getMemberPtrFieldCoord<double>(_coord);
     Array3d<MyComplex>& arrC = (gr.*getMemberPtrField<MyComplex>(_field)).*getMemberPtrFieldCoord<MyComplex>(_coord);
 
     useFFTW(arrD, arrC, gr.sizeReal().x, gr.sizeReal().y, gr.sizeReal().z, dir);
 }
 
-void fourierTransformation(Grid3d & gr, Direction dir) {
+void fourierTransform(Grid3d & gr, Direction dir) {
     if (gr.getLastFourierTransformDirect() == dir) {
         std::cout << "Try to transform to the same direction: " << dir << std::endl;
         return;
     }
 
-    fourierTransformation(gr, E, x, dir);
-    fourierTransformation(gr, E, y, dir);
-    fourierTransformation(gr, E, z, dir);
-    fourierTransformation(gr, B, x, dir);
-    fourierTransformation(gr, B, y, dir);
-    fourierTransformation(gr, B, z, dir);
-    fourierTransformation(gr, J, x, dir);
-    fourierTransformation(gr, J, y, dir);
-    fourierTransformation(gr, J, z, dir);
+    fourierTransform(gr, E, x, dir);
+    fourierTransform(gr, E, y, dir);
+    fourierTransform(gr, E, z, dir);
+    fourierTransform(gr, B, x, dir);
+    fourierTransform(gr, B, y, dir);
+    fourierTransform(gr, B, z, dir);
+    fourierTransform(gr, J, x, dir);
+    fourierTransform(gr, J, y, dir);
+    fourierTransform(gr, J, z, dir);
 
     gr.setLastFourierTransformDirect(dir);
 }

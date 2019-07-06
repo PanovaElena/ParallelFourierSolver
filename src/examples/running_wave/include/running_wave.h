@@ -4,7 +4,7 @@
 #include "grid3d.h"
 #include "physical_constants.h"
 #include "simple_types.h"
-#include "fourier_transformation.h"
+#include "fourier_transform.h"
 #include "field_solver.h"
 #include "class_member_ptr.h"
 #include "file_writer.h"
@@ -27,7 +27,7 @@ struct ParametersForRunningWave : public ParametersForMyTest {
         d = vec3<double>(1);
         a = vec3<double>(0); b = vec3<double>(n.x*d.x);
         b = a + (vec3<double>)n * d;
-        dt = 1 / (constants::c * 4);// COURANT_CONDITION_PSTD(fmin(fmin(d.x, d.y), d.z)) / 2;
+        dt = 1 / (constants::c * 4);  // COURANT_CONDITION_PSTD(fmin(fmin(d.x, d.y), d.z)) / 2;
         nSeqSteps = 200;
         nParSteps = 600;
         nDomainSteps = (int)(0.4*guard.x*d.x / constants::c / dt);

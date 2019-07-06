@@ -63,7 +63,6 @@ void MPIWorker::createGrid(Grid3d & gr) {
                 grid.J.write(i, j, k, gr.J(mod(vec3<int>(i, j, k) + getMainDomainStart()
                     - getGuardSize(), gr.sizeReal())));
             }
-    applyMask();
 }
 
 Status MPIWorker::init(Grid3d & gr, vec3<int> guardWidth, Mask _mask) {

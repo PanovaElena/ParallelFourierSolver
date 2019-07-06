@@ -28,24 +28,24 @@ struct ParametersForSphericalWave : public ParametersForMyTest {
         nSeqSteps = 300;
         nParSteps = 100;
         nDomainSteps = (int)(0.4*guard.x*d.x / constants::c / dt);
-        source.getTime() = 16;
-        source.getFreq() = 2 * constants::pi / source.getTime();
-        source.getFreqEnvelope() = source.getFreq();
-        source.getWidth() = vec3<double>(d.x * 8, d.y * 8, d.z / 4);
-        source.getCoord() = vec3<double>(0, 0, 0);
-        source.getStartTime() = 0;
+        source.time = 16;
+        source.omega = 2 * constants::pi / source.time;
+        source.omegaEnv = source.omega;
+        source.width = vec3<double>(d.x * 8, d.y * 8, d.z / 4);
+        source.coord = vec3<double>(0, 0, 0);
+        source.startTime = 0;
         fileWriter.initialize("./", E, z, Section(Section::XOY, Section::center));
     }
 
     void print() {
         ParametersForMyTest::print();
         std::cout <<
-            "coordinate of source = " << source.getCoord() << "\n" <<
-            "omega = " << source.getFreq() << "\n" <<
-            "omega of envelope = " << source.getFreqEnvelope() << "\n" <<
-            "time of working of sourse = " << source.getTime() << "\n" <<
-            "width of sourse = " << source.getWidth() << "\n" <<
-            "start time of sourse = " << source.getStartTime() << "\n" <<
+            "coordinate of source = " << source.coord << "\n" <<
+            "omega = " << source.omega << "\n" <<
+            "omega of envelope = " << source.omegaEnv << "\n" <<
+            "time of working of sourse = " << source.time << "\n" <<
+            "width of sourse = " << source.width << "\n" <<
+            "start time of sourse = " << source.startTime << "\n" <<
             std::endl;
     }
 };

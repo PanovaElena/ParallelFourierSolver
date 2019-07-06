@@ -3,7 +3,7 @@
 #include <omp.h>
 #include "parser_running_wave.h"
 #include "running_wave.h"
-#include "fourier_transformation.h"
+#include "fourier_transform.h"
 #include "field_solver.h"
 #include "fftw3.h"
 

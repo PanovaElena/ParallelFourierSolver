@@ -37,7 +37,7 @@ public:
     }
 
     void computeParallel(MPIWorker& worker) {
-        double startTimeOfSource = sphericalWave.parameters.source.getStartTime();
+        double startTimeOfSource = sphericalWave.parameters.source.startTime;
         double endTimeOfSource = sphericalWave.parameters.source.getEndTime();
         double startTimeOfSeq = 0;
         double endTimeOfSeq = (sphericalWave.parameters.nSeqSteps - 1) * sphericalWave.parameters.dt;
@@ -56,7 +56,8 @@ public:
 
         for (int iter = 0; iter < n1; iter++)
             spectralSolverParallel(worker, sphericalWave.parameters.fieldSolver, n2,
-                sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt, sphericalWave.parameters.fileWriter);
+                sphericalWave.parameters.nDomainSteps, sphericalWave.parameters.dt,
+                sphericalWave.parameters.fileWriter);
     }
 
     Status doParallelPart() {

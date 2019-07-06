@@ -23,11 +23,11 @@ public:
     }
 
     void doSequentialPart() {
-        fourierTransformation(runningWave.gr, RtoC);
+        fourierTransform(runningWave.gr, RtoC);
         for (int i = 1; i <= runningWave.parameters.nSeqSteps; i++) {
             runningWave.parameters.fieldSolver(runningWave.gr, runningWave.parameters.dt);
         }
-        fourierTransformation(runningWave.gr, CtoR);
+        fourierTransform(runningWave.gr, CtoR);
 
         //MPIWrapper::showMessage("writing to file first steps");
         if (MPIWrapper::MPIRank() == 0)
