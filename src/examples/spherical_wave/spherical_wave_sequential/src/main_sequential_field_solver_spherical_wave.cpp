@@ -8,14 +8,14 @@
 
 
 void testBody(SphericalWave& sphericalWave) {
-    for (int j = 0; j < sphericalWave.parameters.nSeqSteps; j++) {
+    for (int j = 0; j < sphericalWave.params.nSeqSteps; j++) {
         sphericalWave.SetJ(j, sphericalWave.gr);
-        transformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, RtoC);
-        sphericalWave.parameters.fieldSolver(sphericalWave.gr, sphericalWave.parameters.dt);
-        transformGridIfNecessary(sphericalWave.parameters.fieldSolver, sphericalWave.gr, CtoR);
+        transformGridIfNecessary(sphericalWave.params.fieldSolver, sphericalWave.gr, RtoC);
+        sphericalWave.params.fieldSolver(sphericalWave.gr, sphericalWave.params.dt);
+        transformGridIfNecessary(sphericalWave.params.fieldSolver, sphericalWave.gr, CtoR);
     }
 
-    sphericalWave.parameters.fileWriter.write(sphericalWave.gr, "sequential_result.csv", Double, "writing...");
+    sphericalWave.params.fileWriter.write(sphericalWave.gr, "sequential_result.csv", Double, "writing...");
 }
 
 int main(int argc, char** argv) {

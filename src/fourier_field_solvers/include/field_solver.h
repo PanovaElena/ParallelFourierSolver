@@ -20,11 +20,12 @@ void fieldSolverPSATD(Grid3d& gr, double dt);
 class FieldSolver {
     FieldSolverType func;
     std::string str;
+public:
     // смещения для начальных условий
     double shiftEt, shiftBt, shiftJt;
     vec3<vec3<double>> shiftE, shiftB, shiftJ;
 
-public:
+    FieldSolver() {}
     FieldSolver(FieldSolverType f, std::string s, double _shiftEt, double _shiftBt, double _shiftJt,
         vec3<vec3<double>> _shiftE, vec3<vec3<double>> _shiftB, vec3<vec3<double>> _shiftJ) {
         func = f;

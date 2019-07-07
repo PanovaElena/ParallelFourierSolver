@@ -11,17 +11,17 @@ void testBody(RunningWave& runningWave) {
 
     double t1 = omp_get_wtime();
 
-    transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, RtoC);
-    for (int j = 1; j <= runningWave.parameters.nSeqSteps; j++) {
-        runningWave.parameters.fieldSolver(runningWave.gr, runningWave.parameters.dt);
+    transformGridIfNecessary(runningWave.params.fieldSolver, runningWave.gr, RtoC);
+    for (int j = 1; j <= runningWave.params.nSeqSteps; j++) {
+        runningWave.params.fieldSolver(runningWave.gr, runningWave.params.dt);
     }
 
-    transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
+    transformGridIfNecessary(runningWave.params.fieldSolver, runningWave.gr, CtoR);
 
     double t2 = omp_get_wtime();
     std::cout << "Time of sequential version is " << t2 - t1 << std::endl;
 
-    runningWave.parameters.fileWriter.write(runningWave.gr, "sequential_result.csv", Double, "writing...");
+    runningWave.params.fileWriter.write(runningWave.gr, "sequential_result.csv", Double, "writing...");
 }
 
 int main(int argc, char** argv) {

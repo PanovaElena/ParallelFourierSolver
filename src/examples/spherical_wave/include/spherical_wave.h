@@ -53,29 +53,29 @@ struct ParametersForSphericalWave : public ParametersForMyTest {
 class SphericalWave {
 public:
 
-    ParametersForSphericalWave parameters;
+    ParametersForSphericalWave params;
 
     Grid3d gr;
 
-    SphericalWave() : parameters() {
+    SphericalWave() : params() {
         initialize();
     }
 
     void setParamsForTest(ParametersForSphericalWave p) {
-        parameters = p;
+        params = p;
         initialize();
     }
 
     void initialize() {
-        gr = Grid3d(parameters.n, parameters.a, parameters.a + (vec3<double>)parameters.n*parameters.d);
+        gr = Grid3d(params.n, params.a, params.a + (vec3<double>)params.n*params.d);
         setEB();
     }
 
     double getJ(Grid3d& grid, int i, int j, int k, int iter) {
-        vec3<vec3<double>> dcJ = parameters.fieldSolver.getCoordOffset(J);
-        double dtJ = parameters.fieldSolver.getTimeOffset(J);
+        vec3<vec3<double>> dcJ = params.fieldSolver.getCoordOffset(J);
+        double dtJ = params.fieldSolver.getTimeOffset(J);
         vec3<double> coord(grid.getCoord(vec3<>(i + dcJ.z.x, j + dcJ.z.y, k + dcJ.z.z)));
-        return parameters.source.getJ(coord, (iter + dtJ)*parameters.dt);
+        return params.source.getJ(coord, (iter + dtJ)*params.dt);
     }
 
     void SetJ(int iter, Grid3d& grid) {

@@ -11,12 +11,51 @@
 #include "mask.h"
 #include "filter.h"
 #include "parameters_for_test.h"
+#include "start_conditions.h"
+
+class StartConditionsRunningWave : public StartConditions {
+    double angle, lambda;
+
+    double f(double x, double z, double t) {
+        double x2 = x * cos(angle) + z * sin(angle);
+        return sin(2 * constants::pi / lambda*(x2 - constants::c*t));
+    }
+
+public:
+
+    StartConditionsRunningWave() {}
+    StartConditionsRunningWave(vec3<> _a, vec3<> _d, double _dt, double _angle,
+        double _lambda, FieldSolver& _fs) : StartConditions(_a, _d, _dt, _fs),
+        angle(_angle), lambda(_lambda) {}
+
+    void initialize(vec3<> _a, vec3<> _d, double _dt, double _angle,
+        double _lambda, FieldSolver& _fs) {
+        a = _a; d = _d; dt = _dt; angle = _angle; lambda = _lambda; fs = _fs;
+    }
+
+    virtual vec3<double> fE(vec3<int>& ind) {
+        double xEy = getCoord(vec3<>(ind.x + fs.shiftE.y.x, 0, 0)).x,
+            zEy = (vec3<>(0, 0, ind.z + fs.shiftE.y.z)).z,
+            tE = fs.shiftEt * dt;
+        return vec3<double>(0, f(xEy, zEy, tE), 0);
+    }
+
+    virtual vec3<double> fB(vec3<int>& ind) {
+        double xBx = getCoord(vec3<>(ind.x + fs.shiftB.x.x, 0, 0)).x,
+            zBx = (vec3<int>(0, 0, ind.z + fs.shiftB.x.z)).z,
+            xBz = getCoord(vec3<int>(ind.x + fs.shiftB.z.x, 0, 0)).x,
+            zBz = (vec3<int>(0, 0, ind.z + fs.shiftB.z.z)).z,
+            tB = fs.shiftBt * dt;
+        vec3<double>(-sin(angle)*f(xBx, zBx, tB), 0, cos(angle)*f(xBz, zBz, tB));
+    }
+};
 
 struct ParametersForRunningWave : public ParametersForMyTest {
 
     // физические параметры
     double lambda;
     double angle;
+    StartConditionsRunningWave startCond;
 
     // параметры вывода
     int dimensionOfOutputData;
@@ -34,6 +73,7 @@ struct ParametersForRunningWave : public ParametersForMyTest {
         lambda = 16 * d.x;
         angle = 0;
         dimensionOfOutputData = 1;
+        startCond.initialize(a, d, dt, angle, lambda, fieldSolver);
         fileWriter.initialize("./", E, y, Section(Section::XOY, Section::center, Section::XOZ, Section::center));
     }
 
@@ -51,55 +91,36 @@ struct ParametersForRunningWave : public ParametersForMyTest {
 class RunningWave {
 public:
 
-    ParametersForRunningWave parameters;
+    ParametersForRunningWave params;
 
     Grid3d gr;
 
-    RunningWave() : parameters() {
+    RunningWave() : params() {
         initialize();
     }
 
+    RunningWave(bool notInitialize) : params() {}
+
     void setParamsForTest(ParametersForRunningWave p) {
-        parameters = p;
-        if (parameters.dimensionOfOutputData == 2)
-            parameters.fileWriter.setSection(Section(Section::XOZ, Section::center));
+        params = p;
+        if (params.dimensionOfOutputData == 2)
+            params.fileWriter.setSection(Section(Section::XOZ, Section::center));
+        params.startCond.initialize(params.a, params.d, params.dt, params.angle,
+            params.lambda, params.fieldSolver);
         initialize();
     }
 
     void initialize() {
-        gr = Grid3d(parameters.n, parameters.a, parameters.a + (vec3<double>)parameters.n*parameters.d);
+        gr = Grid3d(params.n, params.a, params.a + (vec3<double>)params.n*params.d);
         setEB();
     }
 
-    double f(double x, double z, double t) {
-        double x2 = x * cos(parameters.angle) + z * sin(parameters.angle);
-        return sin(2 * constants::pi / parameters.lambda*(x2 - constants::c*t));
-    }
-
     virtual void setEB() {
-
-        vec3<vec3<double>> dcE = parameters.fieldSolver.getCoordOffset(E),
-            dcB = parameters.fieldSolver.getCoordOffset(B);
-        double dtE = parameters.fieldSolver.getTimeOffset(E),
-            dtB = parameters.fieldSolver.getTimeOffset(B);
-
         for (int i = 0; i < gr.sizeReal().x; i++)
             for (int j = 0; j < gr.sizeReal().y; j++)
                 for (int k = 0; k < gr.sizeReal().z; k++) {
-
-                    double xEy = gr.getCoord(vec3<int>(i + dcE.y.x, 0, 0)).x,
-                        zEy = (vec3<int>(0, 0, k + dcE.y.z)).z,
-                        tE = dtE * parameters.dt;
-                    double xBx = gr.getCoord(vec3<int>(i + dcB.x.x, 0, 0)).x,
-                        zBx = (vec3<int>(0, 0, k + dcB.x.z)).z,
-                        xBz = gr.getCoord(vec3<int>(i + dcB.z.x, 0, 0)).x,
-                        zBz = (vec3<int>(0, 0, k + k + dcB.z.z)).z,
-                        tB = dtB * parameters.dt;
-
-                    gr.E.write(i, j, k, vec3<double>(0, f(xEy, zEy, tE), 0));
-                    gr.B.write(i, j, k, vec3<double>(-sin(parameters.angle)*f(xBx, zBx, tB), 0,
-                        cos(parameters.angle)*f(xBz, zBz, tB)));
+                    gr.E.write(i, j, k, params.startCond.fE({ i,j,k }));
+                    gr.B.write(i, j, k, params.startCond.fB({ i,j,k }));
                 }
-
     }
 };

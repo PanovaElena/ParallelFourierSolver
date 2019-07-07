@@ -21,43 +21,43 @@ public:
     FileWriter fileWriterB;
     FileWriter fileWriterJ;
 
-    int nIterBetweenDumps = parameters.getNSteps() / 10;
+    int nIterBetweenDumps = params.getNSteps() / 10;
 
     TestSphericalWave() :
-        fileWriterE(seqDir + dirE, E, z, parameters.fileWriter.getSection()),
-        fileWriterB(seqDir + dirB, B, z, parameters.fileWriter.getSection()),
-        fileWriterJ(seqDir + dirJ, J, z, parameters.fileWriter.getSection()) {}
+        fileWriterE(seqDir + dirE, E, z, params.fileWriter.getSection()),
+        fileWriterB(seqDir + dirB, B, z, params.fileWriter.getSection()),
+        fileWriterJ(seqDir + dirJ, J, z, params.fileWriter.getSection()) {}
 
     void MyTestBody() {
 
         write(fileWriterE, 0);
         write(fileWriterB, 0);
 
-        transformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
+        transformGridIfNecessary(params.fieldSolver, gr, RtoC);
 
-        for (int iter = 1; iter <= parameters.getNSteps(); iter++) {
+        for (int iter = 1; iter <= params.getNSteps(); iter++) {
 
-            transformGridIfNecessary(parameters.fieldSolver, gr, CtoR);
+            transformGridIfNecessary(params.fieldSolver, gr, CtoR);
             SetJ(iter, gr);
-            transformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
+            transformGridIfNecessary(params.fieldSolver, gr, RtoC);
 
-            parameters.fieldSolver(gr, parameters.dt);
+            params.fieldSolver(gr, params.dt);
 
             if (iter%nIterBetweenDumps == 0) {
-                transformGridIfNecessary(parameters.fieldSolver, gr, CtoR);
+                transformGridIfNecessary(params.fieldSolver, gr, CtoR);
 
                 write(fileWriterE, iter);
                 write(fileWriterB, iter);
                 write(fileWriterJ, iter);
 
-                transformGridIfNecessary(parameters.fieldSolver, gr, RtoC);
+                transformGridIfNecessary(params.fieldSolver, gr, RtoC);
             }
 
         }
 
-        write(fileWriterE, parameters.getNSteps(), "last_iter.csv");
-        write(fileWriterB, parameters.getNSteps(), "last_iter.csv");
-        write(fileWriterJ, parameters.getNSteps(), "last_iter.csv");
+        write(fileWriterE, params.getNSteps(), "last_iter.csv");
+        write(fileWriterB, params.getNSteps(), "last_iter.csv");
+        write(fileWriterJ, params.getNSteps(), "last_iter.csv");
     }
 
     void write(FileWriter& fileWriter, int iter, std::string name = "") {

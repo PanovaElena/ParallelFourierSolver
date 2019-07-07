@@ -24,82 +24,82 @@ public:
 
     void doSequentialPart() {
         fourierTransform(runningWave.gr, RtoC);
-        for (int i = 1; i <= runningWave.parameters.nSeqSteps; i++) {
-            runningWave.parameters.fieldSolver(runningWave.gr, runningWave.parameters.dt);
+        for (int i = 1; i <= runningWave.params.nSeqSteps; i++) {
+            runningWave.params.fieldSolver(runningWave.gr, runningWave.params.dt);
         }
         fourierTransform(runningWave.gr, CtoR);
 
         //MPIWrapper::showMessage("writing to file first steps");
         if (MPIWrapper::MPIRank() == 0)
-            runningWave.parameters.fileWriter.write(runningWave.gr, nameFileFirstSteps);
+            runningWave.params.fileWriter.write(runningWave.gr, nameFileFirstSteps);
     }
 
     Status doParallelPart() {
 
-        FileWriter fw(runningWave.parameters.fileWriter.getDir(), runningWave.parameters.fileWriter.getField(),
-            runningWave.parameters.fileWriter.getCoord(), Section(Section::XOZ, Section::center, Section::XOY, Section::start));
+        FileWriter fw(runningWave.params.fileWriter.getDir(), runningWave.params.fileWriter.getField(),
+            runningWave.params.fileWriter.getCoord(), Section(Section::XOZ, Section::center, Section::XOY, Section::start));
 
-        if (runningWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
-            transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, RtoC);
+        if (MPIWrapper::MPIRank() == 0) {
+            transformGridIfNecessary(runningWave.params.fieldSolver, runningWave.gr, RtoC);
             fw.write(runningWave.gr, "spectrum_before_div.csv", Complex);
-            transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
+            transformGridIfNecessary(runningWave.params.fieldSolver, runningWave.gr, CtoR);
         }
 
-        vec3<int> g(worker.getMPIWrapper().MPISize().x == 1 ? 0 : runningWave.parameters.guard.x,
-            worker.getMPIWrapper().MPISize().y == 1 ? 0 : runningWave.parameters.guard.y,
-            worker.getMPIWrapper().MPISize().z == 1 ? 0 : runningWave.parameters.guard.z);
+        vec3<int> g(worker.getMPIWrapper().MPISize().x == 1 ? 0 : runningWave.params.guard.x,
+            worker.getMPIWrapper().MPISize().y == 1 ? 0 : runningWave.params.guard.y,
+            worker.getMPIWrapper().MPISize().z == 1 ? 0 : runningWave.params.guard.z);
         if (worker.initialize(runningWave.gr, g,
-            runningWave.parameters.mask, worker.getMPIWrapper()) == Status::ERROR)
+            runningWave.params.mask, worker.getMPIWrapper()) == Status::ERROR)
             return Status::ERROR;
 
         //MPIWrapper::showMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +
            // to_string(worker.getMainDomainEnd()) + "; guard is " + to_string(worker.getGuardSize()));
 
         //MPIWrapper::showMessage("writing to file first domain");
-        runningWave.parameters.fileWriter.write(worker.getGrid(), nameFileAfterDivision);
+        runningWave.params.fileWriter.write(worker.getGrid(), nameFileAfterDivision);
 
-        if (runningWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
-            transformGridIfNecessary(runningWave.parameters.fieldSolver, worker.getGrid(), RtoC);
+        if (MPIWrapper::MPIRank() == 0) {
+            transformGridIfNecessary(runningWave.params.fieldSolver, worker.getGrid(), RtoC);
             fw.write(worker.getGrid(), "spectrum_after_div.csv", Complex);
-            transformGridIfNecessary(runningWave.parameters.fieldSolver, worker.getGrid(), CtoR);
+            transformGridIfNecessary(runningWave.params.fieldSolver, worker.getGrid(), CtoR);
         }
 
         double t1 = omp_get_wtime();
 
         //MPIWrapper::showMessage("parallel field solver");
-        spectralSolverParallel(worker, runningWave.parameters.fieldSolver, runningWave.parameters.nParSteps, runningWave.parameters.nDomainSteps,
-            runningWave.parameters.dt, runningWave.parameters.fileWriter);
+        spectralSolverParallel(worker, runningWave.params.fieldSolver, runningWave.params.nParSteps, runningWave.params.nDomainSteps,
+            runningWave.params.dt, runningWave.params.fileWriter);
 
         double t2 = omp_get_wtime();
         if (MPIWrapper::MPIRank() == 0)
             std::cout << "Time of parallel version is " << t2 - t1 << std::endl;
 
         //MPIWrapper::showMessage("writing to file parallel result");
-        runningWave.parameters.fileWriter.write(worker.getGrid(), nameFileAfterExchange);
+        runningWave.params.fileWriter.write(worker.getGrid(), nameFileAfterExchange);
 
         //MPIWrapper::showMessage("assemble");
         worker.assembleResultsToZeroProcess(runningWave.gr);
 
-        if (runningWave.parameters.filter.state == Filter::on && MPIWrapper::MPIRank() == 0) {
-            transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, RtoC);
+        if (MPIWrapper::MPIRank() == 0) {
+            transformGridIfNecessary(runningWave.params.fieldSolver, runningWave.gr, RtoC);
             fw.write(runningWave.gr, "spectrum_before_filter.csv", Complex);
-            runningWave.parameters.filter(runningWave.gr);
+            runningWave.params.filter(runningWave.gr);
             fw.write(runningWave.gr, "spectrum_after_filter.csv", Complex);
-            transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
+            transformGridIfNecessary(runningWave.params.fieldSolver, runningWave.gr, CtoR);
         }
 
         //MPIWrapper::showMessage("writing to file assembled result");
         if (MPIWrapper::MPIRank() == 0)
-            runningWave.parameters.fileWriter.write(runningWave.gr, nameFileSecondSteps);
+            runningWave.params.fileWriter.write(runningWave.gr, nameFileSecondSteps);
 
         return Status::OK;
     }
 
     virtual Status testBody() {
-        if (runningWave.parameters.nSeqSteps != 0)
+        if (runningWave.params.nSeqSteps != 0)
             doSequentialPart();
         MPIWrapper::MPIBarrier();
-        if (runningWave.parameters.nParSteps != 0)
+        if (runningWave.params.nParSteps != 0)
             return doParallelPart();
         return Status::OK;
     }
