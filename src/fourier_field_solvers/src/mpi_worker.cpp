@@ -78,7 +78,7 @@ void MPIWorker::createGrid(vec3<int> & _commonSize, StartConditions& sc) {
                 grid.B.write(i, j, k, sc.fB(mod(vec3<int>(i, j, k) + getMainDomainStart()
                     - getGuardSize(), _commonSize)));
                 grid.J.write(i, j, k, sc.fJ(mod(vec3<int>(i, j, k) + getMainDomainStart()
-                    - getGuardSize(), _commonSize)));
+                    - getGuardSize(), _commonSize), 0));
             }
 }
 

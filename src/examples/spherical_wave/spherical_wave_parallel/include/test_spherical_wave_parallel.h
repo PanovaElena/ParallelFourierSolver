@@ -25,7 +25,7 @@ public:
         transformGridIfNecessary(sphericalWave.params.fieldSolver, sphericalWave.gr, RtoC);
         for (int i = 0; i < sphericalWave.params.nSeqSteps; i++) {
             transformGridIfNecessary(sphericalWave.params.fieldSolver, sphericalWave.gr, CtoR);
-            sphericalWave.SetJ(i, sphericalWave.gr);
+            sphericalWave.setJ(i);
             transformGridIfNecessary(sphericalWave.params.fieldSolver, sphericalWave.gr, RtoC);
             sphericalWave.params.fieldSolver(sphericalWave.gr, sphericalWave.params.dt);
         }

@@ -14,7 +14,7 @@ public:
 
     virtual vec3<double> fE(vec3<int>& index) { return vec3<>(0); }
     virtual vec3<double> fB(vec3<int>& index) { return vec3<>(0); }
-    virtual vec3<double> fJ(vec3<int>& index) { return vec3<>(0); }
+    virtual vec3<double> fJ(vec3<int>& index, int numIter) { return vec3<>(0); }
 
     vec3<> getCoord(vec3<double> node) {
         return a + (vec3<>)node * d;

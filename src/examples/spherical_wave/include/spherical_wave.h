@@ -10,12 +10,33 @@
 #include "filter.h"
 #include "physical_constants.h"
 #include "field_solver.h"
-#include "parameters_for_test.h"
+#include "task_parameters.h"
 #include "source.h"
+#include "start_conditions.h"
 
-struct ParametersForSphericalWave : public ParametersForMyTest {
+class StartConditionsSphericalWave : public StartConditions {
+public:
 
-    // физические параметры
+    Source* source;
+
+    StartConditionsSphericalWave() {}
+    StartConditionsSphericalWave(vec3<> _a, vec3<> _d, double _dt, FieldSolver& _fs, Source* _source) :
+        StartConditions(_a, _d, _dt, _fs),  source(_source) {}
+
+    void initialize(vec3<> _a, vec3<> _d, double _dt, FieldSolver& _fs, Source* _source) {
+        a = _a; d = _d; dt = _dt; fs = _fs; source = _source;
+    }
+
+    virtual vec3<double> fJ(vec3<int>& ind, int numIter) {
+        vec3<vec3<double>> dcJ = fs.getCoordOffset(J);
+        double dtJ = fs.getTimeOffset(J);
+        vec3<double> coord(getCoord(vec3<>(ind.x + dcJ.z.x, ind.y + dcJ.z.y, ind.z + dcJ.z.z)));
+        return vec3<>(0, 0, source->getJ(coord, (numIter + dtJ)*dt));
+    }
+};
+
+struct ParametersForSphericalWave : public ParallelTaskParameters {
+
     Source source;
 
     ParametersForSphericalWave() {
@@ -34,11 +55,12 @@ struct ParametersForSphericalWave : public ParametersForMyTest {
         source.width = vec3<double>(d.x * 8, d.y * 8, d.z / 4);
         source.coord = vec3<double>(0, 0, 0);
         source.startTime = 0;
+        startCond.reset(new StartConditionsSphericalWave(a, d, dt, fieldSolver, &source));
         fileWriter.initialize("./", E, z, Section(Section::XOY, Section::center));
     }
 
     void print() {
-        ParametersForMyTest::print();
+        ParallelTaskParameters::print();
         std::cout <<
             "coordinate of source = " << source.coord << "\n" <<
             "omega = " << source.omega << "\n" <<
@@ -63,6 +85,8 @@ public:
 
     void setParamsForTest(ParametersForSphericalWave p) {
         params = p;
+        params.startCond.reset(new StartConditionsSphericalWave(params.a, params.d,
+            params.dt, params.fieldSolver, &params.source));
         initialize();
     }
 
@@ -71,31 +95,21 @@ public:
         setEB();
     }
 
-    double getJ(Grid3d& grid, int i, int j, int k, int iter) {
-        vec3<vec3<double>> dcJ = params.fieldSolver.getCoordOffset(J);
-        double dtJ = params.fieldSolver.getTimeOffset(J);
-        vec3<double> coord(grid.getCoord(vec3<>(i + dcJ.z.x, j + dcJ.z.y, k + dcJ.z.z)));
-        return params.source.getJ(coord, (iter + dtJ)*params.dt);
-    }
-
-    void SetJ(int iter, Grid3d& grid) {
-        for (int i = 0; i < grid.sizeReal().x; i++)
-            for (int j = 0; j < grid.sizeReal().y; j++)
-                for (int k = 0; k < grid.sizeReal().z; k++) {
-                    double J0 = getJ(grid, i, j, k, iter);
-                    grid.J.write(i, j, k, vec3<double>(0, 0, J0));
-                }
+    void setJ(int iter) {
+        for (int i = 0; i < gr.sizeReal().x; i++)
+            for (int j = 0; j < gr.sizeReal().y; j++)
+                for (int k = 0; k < gr.sizeReal().z; k++)
+                    gr.J.write(i, j, k, params.startCond->fJ({ i,j,k }, iter));
     }
 
     virtual void setEB() {
         for (int i = 0; i < gr.sizeReal().x; i++)
             for (int j = 0; j < gr.sizeReal().y; j++)
                 for (int k = 0; k < gr.sizeReal().z; k++) {
-                    gr.E.write(i, j, k, vec3<double>(0, 0, 0));
-                    gr.B.write(i, j, k, vec3<double>(0, 0, 0));
+                    gr.E.write(i, j, k, params.startCond->fE({ i,j,k }));
+                    gr.B.write(i, j, k, params.startCond->fB({ i,j,k }));
+                    gr.J.write(i, j, k, params.startCond->fJ({ i,j,k }, 0));
                 }
-
-        SetJ(0, gr);
     }
 
 };

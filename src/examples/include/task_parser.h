@@ -1,19 +1,19 @@
 #pragma once
 #include "command_line_parser.h"
-#include "parameters_for_test.h"
+#include "task_parameters.h"
 #include "vector3d.h"
 #include <iostream>
 #include <omp.h>
 
-class ParserForMyTest: public CommandLineParser {
+class TaskParser: public CommandLineParser {
     vec3<int> getVecUseNumOfProcesses(vec3<int> value, vec3<int> numOfPr) {
         return vec3<int>(numOfPr.x > 1 ? value.x : 0,
             numOfPr.y > 1 ? value.y : 0,
             numOfPr.z > 1 ? value.z : 0);
     }
 public:
-    void help(ParametersForTest& p1, Task task) override {
-        ParametersForMyTest& p = static_cast<ParametersForMyTest&>(p1);
+    void help(TaskParameters& p1, Task task) override {
+        ParallelTaskParameters& p = static_cast<ParallelTaskParameters&>(p1);
 
         std::cout <<
             "-help                       get help\n" <<
@@ -41,9 +41,9 @@ public:
         }
     }
 
-    Status saveArgs(ParametersForTest& p, Task task) override {
+    Status saveArgs(TaskParameters& p, Task task) override {
 
-        ParametersForMyTest& params = static_cast<ParametersForMyTest&>(p);
+        ParallelTaskParameters& params = static_cast<ParallelTaskParameters&>(p);
 
         if (m.find("-ax") != m.end()) params.a.x = std::stod(m.find("-ax")->second);
         if (m.find("-ay") != m.end()) params.a.y = std::stod(m.find("-ay")->second);

@@ -1,0 +1,1 @@
+create_executable( running_wave_mpi_fftw RUNNING_WAVE_INCLUDE )

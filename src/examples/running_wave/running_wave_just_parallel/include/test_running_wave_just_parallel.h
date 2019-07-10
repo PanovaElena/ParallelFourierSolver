@@ -16,8 +16,8 @@ public:
         params = p;
         if (params.dimensionOfOutputData == 2)
             params.fileWriter.setSection(Section(Section::XOZ, Section::center));
-        params.startCond.initialize(params.a, params.d, params.dt, params.angle,
-            params.lambda, params.fieldSolver);
+        params.startCond.reset(new StartConditionsRunningWave(params.a, params.d, params.dt,
+            params.angle, params.lambda, params.fieldSolver));
     }
 };
 
@@ -44,7 +44,7 @@ public:
             worker.getMPIWrapper().MPISize().y == 1 ? 0 : runningWave.params.guard.y,
             worker.getMPIWrapper().MPISize().z == 1 ? 0 : runningWave.params.guard.z);
         if (worker.initialize(runningWave.params.n, guard, runningWave.params.mask,
-            worker.getMPIWrapper(), runningWave.params.startCond) == Status::ERROR)
+            worker.getMPIWrapper(), *runningWave.params.startCond) == Status::ERROR)
             return Status::ERROR;
 
         MPIWrapper::showMessage("start par: domain from " + to_string(worker.getMainDomainStart()) + " to " +

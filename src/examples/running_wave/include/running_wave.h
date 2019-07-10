@@ -10,18 +10,13 @@
 #include "file_writer.h"
 #include "mask.h"
 #include "filter.h"
-#include "parameters_for_test.h"
+#include "task_parameters.h"
 #include "start_conditions.h"
 
 class StartConditionsRunningWave : public StartConditions {
-    double angle, lambda;
-
-    double f(double x, double z, double t) {
-        double x2 = x * cos(angle) + z * sin(angle);
-        return sin(2 * constants::pi / lambda*(x2 - constants::c*t));
-    }
-
 public:
+
+    double angle, lambda;
 
     StartConditionsRunningWave() {}
     StartConditionsRunningWave(vec3<> _a, vec3<> _d, double _dt, double _angle,
@@ -31,6 +26,11 @@ public:
     void initialize(vec3<> _a, vec3<> _d, double _dt, double _angle,
         double _lambda, FieldSolver& _fs) {
         a = _a; d = _d; dt = _dt; angle = _angle; lambda = _lambda; fs = _fs;
+    }
+
+    double f(double x, double z, double t) {
+        double x2 = x * cos(angle) + z * sin(angle);
+        return sin(2 * constants::pi / lambda * (x2 - constants::c*t));
     }
 
     virtual vec3<double> fE(vec3<int>& ind) {
@@ -50,14 +50,13 @@ public:
     }
 };
 
-struct ParametersForRunningWave : public ParametersForMyTest {
+struct ParametersForRunningWave : public ParallelTaskParameters {
 
-    // физические параметры
+    // physical parameters
     double lambda;
     double angle;
-    StartConditionsRunningWave startCond;
 
-    // параметры вывода
+    // output
     int dimensionOfOutputData;
 
     ParametersForRunningWave() {
@@ -73,12 +72,12 @@ struct ParametersForRunningWave : public ParametersForMyTest {
         lambda = 16 * d.x;
         angle = 0;
         dimensionOfOutputData = 1;
-        startCond.initialize(a, d, dt, angle, lambda, fieldSolver);
+        startCond.reset(new StartConditionsRunningWave(a, d, dt, angle, lambda, fieldSolver));
         fileWriter.initialize("./", E, y, Section(Section::XOY, Section::center, Section::XOZ, Section::center));
     }
 
     void print() {
-        ParametersForMyTest::print();
+        ParallelTaskParameters::print();
         std::cout <<
             "lambda = " << lambda << "\n" <<
             "angle = " << angle << "\n" <<
@@ -105,8 +104,8 @@ public:
         params = p;
         if (params.dimensionOfOutputData == 2)
             params.fileWriter.setSection(Section(Section::XOZ, Section::center));
-        params.startCond.initialize(params.a, params.d, params.dt, params.angle,
-            params.lambda, params.fieldSolver);
+        params.startCond.reset(new StartConditionsRunningWave (params.a, params.d,
+            params.dt, params.angle, params.lambda, params.fieldSolver));
         initialize();
     }
 
@@ -119,8 +118,8 @@ public:
         for (int i = 0; i < gr.sizeReal().x; i++)
             for (int j = 0; j < gr.sizeReal().y; j++)
                 for (int k = 0; k < gr.sizeReal().z; k++) {
-                    gr.E.write(i, j, k, params.startCond.fE({ i,j,k }));
-                    gr.B.write(i, j, k, params.startCond.fB({ i,j,k }));
+                    gr.E.write(i, j, k, params.startCond->fE({ i,j,k }));
+                    gr.B.write(i, j, k, params.startCond->fB({ i,j,k }));
                 }
     }
 };

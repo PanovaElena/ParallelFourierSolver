@@ -66,14 +66,16 @@ public:
         }
     }
 
-    friend void transformGridIfNecessary(FieldSolver fs, Grid3d& gr, Direction dir) {
+    friend void transformGridIfNecessary(FieldSolver fs, Grid3d& gr,
+        Direction dir, bool useMpi = false) {
         if (fs.str == "FDTD") return;
-        fourierTransform(gr, dir);
+        fourierTransform(gr, dir, useMpi);
     }
 
-    friend void transformGridIfNecessary(FieldSolver fs, Grid3d& gr, Field f, Coordinate c, Direction dir) {
+    friend void transformGridIfNecessary(FieldSolver fs, Grid3d& gr, Field f, Coordinate c,
+        Direction dir, bool useMpi = false) {
         if (fs.str == "FDTD") return;
-        fourierTransform(gr, f, c, dir);
+        fourierTransform(gr, f, c, dir, useMpi);
     }
 };
 

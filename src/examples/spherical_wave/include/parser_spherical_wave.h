@@ -1,16 +1,16 @@
 #pragma once
 #include <map>
-#include "parser_for_my_test.h"
+#include "task_parser.h"
 #include "spherical_wave.h"
 #include "mask.h"
 #include "filter.h"
 #include "field_solver.h"
 
-class ParserSphericalWave : public ParserForMyTest {
+class ParserSphericalWave : public TaskParser {
 public:
 
-    void help(ParametersForTest& p1, Task task) override {
-        ParserForMyTest::help(p1, task);
+    void help(TaskParameters& p1, Task task) override {
+        TaskParser::help(p1, task);
         ParametersForSphericalWave& p = static_cast<ParametersForSphericalWave&>(p1);
 
         std::cout <<
@@ -23,8 +23,8 @@ public:
             std::endl;
     }
 
-    Status saveArgs(ParametersForTest& p, Task task) override {
-        Status s = ParserForMyTest::saveArgs(p, task);
+    Status saveArgs(TaskParameters& p, Task task) override {
+        Status s = TaskParser::saveArgs(p, task);
         if (s == Status::ERROR || s == Status::STOP) return s;
 
         ParametersForSphericalWave& params = static_cast<ParametersForSphericalWave&>(p);

@@ -9,7 +9,7 @@
 
 void testBody(SphericalWave& sphericalWave) {
     for (int j = 0; j < sphericalWave.params.nSeqSteps; j++) {
-        sphericalWave.SetJ(j, sphericalWave.gr);
+        sphericalWave.setJ(j);
         transformGridIfNecessary(sphericalWave.params.fieldSolver, sphericalWave.gr, RtoC);
         sphericalWave.params.fieldSolver(sphericalWave.gr, sphericalWave.params.dt);
         transformGridIfNecessary(sphericalWave.params.fieldSolver, sphericalWave.gr, CtoR);
