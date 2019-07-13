@@ -5,8 +5,8 @@
 #include "grid3d.h"
 #include "simple_types.h"
 
-void fourierTransform(Grid3d& gr, Direction dir, bool useMpi = false);
-void fourierTransform(Grid3d& gr, Field _field, Coordinate _coord, Direction dir, bool useMpi = false);
+void fourierTransform(Grid3d& gr, Direction dir);
+void fourierTransform(Grid3d& gr, Field _field, Coordinate _coord, Direction dir);
 
 inline vec3<MyComplex> getFreqVector(const vec3<int>& ind, Grid3d& gr) {
     MyComplex v1 = (2 * constants::pi*((ind.x <= gr.sizeReal().x / 2) ? ind.x : ind.x - gr.sizeReal().x)) / (gr.getEnd().x - gr.getStart().x);

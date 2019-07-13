@@ -38,7 +38,7 @@ public:
         for (int iter = 1; iter <= params.getNSteps(); iter++) {
 
             transformGridIfNecessary(params.fieldSolver, gr, CtoR);
-            SetJ(iter, gr);
+            setJ(iter);
             transformGridIfNecessary(params.fieldSolver, gr, RtoC);
 
             params.fieldSolver(gr, params.dt);
@@ -69,7 +69,7 @@ public:
 
     void PlotJ() {
         int iter = 2;
-        SetJ(iter, gr);
+        setJ(iter);
         write(fileWriterJ, iter);
     }
 

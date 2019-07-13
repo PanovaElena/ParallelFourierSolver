@@ -1,7 +1,8 @@
 import sys
 import math
 sys.path.append("../../scripts/")
-import read_file as rf
+import read_file as fr
+import graphics as gr
 import subprocess
 import os
 import shutil
@@ -36,11 +37,9 @@ else: os.mkdir(DIR_RESULTS)
 if (args.dimension_of_output_data==1):
 	funcRead = fr.readFile1d
 	funcPlot = gr.plot1d
-	funcCalcError = ce.computeError1d
 else: 
 	funcRead = fr.readFile2d
 	funcPlot = gr.plot2d
-	funcCalcError = ce.computeError2d
 
 command_args = "-ax "+str(args.ax)+" "+\
 					"-ay "+str(args.ay)+" "+\

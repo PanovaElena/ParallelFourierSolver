@@ -104,28 +104,23 @@ if ( USE_FFTW )
     set( FFTW_VERSION 3.3.8 )
     include( ExternalProject )
     ExternalProject_Add( project_fftw
-	    #GIT_REPOSITORY  https://github.com/FFTW/fftw3
-        URL "http://www.fftw.org/fftw-3.3.8.tar.gz"
+        URL "http://fftw.org/fftw-${FFTW_VERSION}.tar.gz"
         PREFIX ${CMAKE_CURRENT_BINARY_DIR}/fftw
-		INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/fftw/install
         CMAKE_ARGS
-            "-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}"
+            "-DCMAKE_CFLAGS=${CMAKE_C_FLAGS}"
             "-DBUILD_SHARED_LIBS=OFF"
             "-DENABLE_AVX2=ON"
-            "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/fftw/install" 
-			"-DPREFIX=${CMAKE_CURRENT_BINARY_DIR}/fftw/install" 
+            "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}/fftw" 
             "-DENABLE_OPENMP=ON"
-			"-DENABLE_MPI=ON"
             "-DBUILD_TESTS=OFF"
             )
     install( DIRECTORY "${INSTALL_DIR}" DESTINATION . )
     
     set( FFTW_DIR ${INSTALL_DIR}/fftw )
     include_directories( ${FFTW_DIR}/include )
-	find_library( FFTW3_LIB ${CMAKE_STATIC_LIBRARY_PREFIX}fftw3${CMAKE_STATIC_LIBRARY_SUFFIX} ${FFTW_DIR}/lib )
-	find_library( FFTW3_OMP_LIB ${CMAKE_STATIC_LIBRARY_PREFIX}fftw3_omp${CMAKE_STATIC_LIBRARY_SUFFIX} ${FFTW_DIR}/lib )
-	find_library( FFTW3_MPI_LIB ${CMAKE_STATIC_LIBRARY_PREFIX}fftw3_mpi${CMAKE_STATIC_LIBRARY_SUFFIX} ${FFTW_DIR}/lib )
-    add_element_to_global_property( ALL_LIBS "${FFTW3_LIB};${FFTW3_OMP_LIB};${FFTW3_MPI_LIB}" )
+	set( FFTW3_LIB ${FFTW_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}fftw3${CMAKE_STATIC_LIBRARY_SUFFIX})
+	set( FFTW3_OMP_LIB ${FFTW_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}fftw3_omp${CMAKE_STATIC_LIBRARY_SUFFIX})
+    add_element_to_global_property( ALL_LIBS "${FFTW3_LIB};${FFTW3_OMP_LIB}" )
 	
 endif()
 
