@@ -35,18 +35,18 @@ public:
 
     virtual vec3<double> fE(vec3<int>& ind) {
         double xEy = getCoord(vec3<>(ind.x + fs.shiftE.y.x, 0, 0)).x,
-            zEy = (vec3<>(0, 0, ind.z + fs.shiftE.y.z)).z,
+            zEy = getCoord(vec3<>(0, 0, ind.z + fs.shiftE.y.z)).z,
             tE = fs.shiftEt * dt;
         return vec3<double>(0, f(xEy, zEy, tE), 0);
     }
 
     virtual vec3<double> fB(vec3<int>& ind) {
         double xBx = getCoord(vec3<>(ind.x + fs.shiftB.x.x, 0, 0)).x,
-            zBx = (vec3<int>(0, 0, ind.z + fs.shiftB.x.z)).z,
+            zBx = getCoord(vec3<int>(0, 0, ind.z + fs.shiftB.x.z)).z,
             xBz = getCoord(vec3<int>(ind.x + fs.shiftB.z.x, 0, 0)).x,
-            zBz = (vec3<int>(0, 0, ind.z + fs.shiftB.z.z)).z,
+            zBz = getCoord(vec3<int>(0, 0, ind.z + fs.shiftB.z.z)).z,
             tB = fs.shiftBt * dt;
-        vec3<double>(-sin(angle)*f(xBx, zBx, tB), 0, cos(angle)*f(xBz, zBz, tB));
+        return vec3<double>(-sin(angle)*f(xBx, zBx, tB), 0, cos(angle)*f(xBz, zBz, tB));
     }
 };
 
@@ -104,6 +104,9 @@ public:
         params = p;
         if (params.dimensionOfOutputData == 2)
             params.fileWriter.setSection(Section(Section::XOZ, Section::center));
+        else if (params.dimensionOfOutputData == 1)
+            params.fileWriter.setSection(Section(Section::XOY, Section::center,
+                Section::XOZ, Section::center));
         params.startCond.reset(new StartConditionsRunningWave (params.a, params.d,
             params.dt, params.angle, params.lambda, params.fieldSolver));
         initialize();
