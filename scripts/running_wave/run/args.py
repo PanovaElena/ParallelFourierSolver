@@ -9,15 +9,15 @@ LIGHT_SPEED = 29979245800
 ax = 0
 bx = 256
 ay = 0
-by = 1
+by = 256
 az = 0
 bz = 256
 
 # grid
 
-nx = 256
-ny = 1
-nz = 256
+nx = 64
+ny = 64
+nz = 64
 
 dx = (bx-ax)/nx
 dy = (by-ay)/ny

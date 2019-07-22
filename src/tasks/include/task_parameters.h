@@ -1,4 +1,8 @@
 #pragma once
+#include <iostream>
+#include <string>
+#include <cmath>
+#include <memory>
 #include "field_solver.h"
 #include "filter.h"
 #include "mask.h"
@@ -6,10 +10,6 @@
 #include "file_writer.h"
 #include "physical_constants.h"
 #include "start_conditions.h"
-#include <iostream>
-#include <string>
-#include <cmath>
-#include <memory>
 
 struct TaskParameters {
     // type of field solver

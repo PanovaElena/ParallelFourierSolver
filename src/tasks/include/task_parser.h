@@ -1,9 +1,9 @@
 #pragma once
+#include <iostream>
+#include <omp.h>
 #include "command_line_parser.h"
 #include "task_parameters.h"
 #include "vector3d.h"
-#include <iostream>
-#include <omp.h>
 
 class TaskParser: public CommandLineParser {
     vec3<int> getVecUseNumOfProcesses(vec3<int> value, vec3<int> numOfPr) {

@@ -55,7 +55,7 @@ public:
         }
 
         for (int iter = 0; iter < n1; iter++)
-            spectralSolverParallel(worker, sphericalWave.params.fieldSolver, n2,
+            parallelScheme(worker, sphericalWave.params.fieldSolver, n2,
                 sphericalWave.params.nDomainSteps, sphericalWave.params.dt,
                 sphericalWave.params.fileWriter);
     }

@@ -97,7 +97,7 @@ const FieldSolver FDTD(fieldSolverFDTD, "FDTD", 0, -0.5, 0.5,
 const std::map<std::string, FieldSolver> FieldSolverMap =
 { { "PSTD",PSTD },{ "PSATD",PSATD },{ "FDTD",FDTD } };
 
-void spectralSolverParallel(MPIWorker& worker, FieldSolver fieldSolver, int numIter, int maxNumIterBetweenExchanges,
+void parallelScheme(MPIWorker& worker, FieldSolver fieldSolver, int numIter, int maxNumIterBetweenExchanges,
     double dt, FileWriter& fileWriter);
 
 inline int mod(int a, int b) {

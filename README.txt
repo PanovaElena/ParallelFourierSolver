@@ -14,10 +14,9 @@ and so on.
 
 To get information about command arguments use option --help.
 
-To use mkl fft with mpi create wrapper library:
-1) go to "mkl\interfaces\fftw3x_cdft"
-2) run VsDevCmd.bat ("Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" for example)
-3) run makefile with make (for linux) or nmake (for windows, before run VsDevCmd.bat), command line is such as
+To use mkl fft with mpi create a wrapper library:
+1) go to "mkl\interfaces\fftw3x_cdft" and open the command line
+2) run makefile with make (for linux) or nmake (for windows, before should run VsDevCmd.bat), command line is such as:
 nmake libintel64 compiler="C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\intel64\icl.exe" mpi=intelmpi INSTALL_DIR="C:\Users\Elena\Documents\Visual Studio 2017\Projects\plasma\parallel-algorithms\build\3rdparty\mkl_wrapper\"
-4) link generated fftw3x_cdft.lib with project build/src/examples/running_wave/running_wave_mpi_fftw
+3) link generated fftw3x_cdft.lib with project running_wave_mpi_fftw
 

@@ -1,9 +1,9 @@
 #pragma once
 #include <omp.h>
+#include <string>
 #include "mpi_worker.h"
-#include "mpi_wrapper3d.h"
+#include "mpi_wrapper_3d.h"
 #include "test_parallel.h"
-#include "string"
 #include "running_wave.h"
 #include "field_solver.h"
 #include "file_writer.h"
@@ -62,7 +62,7 @@ public:
         double t1 = omp_get_wtime();
 
         //MPIWrapper::showMessage("parallel field solver");
-        spectralSolverParallel(worker, runningWave.params.fieldSolver, runningWave.params.nParSteps,
+        parallelScheme(worker, runningWave.params.fieldSolver, runningWave.params.nParSteps,
             runningWave.params.nDomainSteps, runningWave.params.dt, runningWave.params.fileWriter);
 
         double t2 = omp_get_wtime();
