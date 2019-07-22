@@ -1,0 +1,11 @@
+if(USE_FFTW)
+    message(WARNING "Cannot use fftw-mpi")
+elseif(USE_MKL)
+    if(EXISTS "${INSTALL_DIR}/mkl_wrapper/fftw3x_cdft${CMAKE_STATIC_LIBRARY_SUFFIX}")
+        add_element_to_global_property( ALL_LIBS "${INSTALL_DIR}/mkl_wrapper/fftw3x_cdft${CMAKE_STATIC_LIBRARY_SUFFIX}" )
+    else()
+        message(WARNING "Create mkl wrapper for fftw-mpi in folder ${INSTALL_DIR}/mkl_wrapper/")
+    endif()
+endif()
+
+create_executable( running_wave_mpi_fftw RUNNING_WAVE_INCLUDE )

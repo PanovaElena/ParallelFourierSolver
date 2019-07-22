@@ -1,13 +1,14 @@
 #include "field_solver.h"
 #include "grid3d.h"
 #include "physical_constants.h"
-#include "fourier_transformation.h"
+#include "fourier_transform.h"
 #include "my_complex.h"
 
 void fieldSolverPSATD(Grid3d & gr, double dt) {
 #pragma omp parallel for
     for (int i = 0; i < gr.sizeComplex().x; i++)
         for (int j = 0; j < gr.sizeComplex().y; j++)
+#pragma omp simd
             for (int k = 0; k < gr.sizeComplex().z; k++) {
                 vec3<MyComplex> K = getFreqVector(vec3<int>(i, j, k), gr);
                 double normK = K.getNorm();
@@ -20,8 +21,7 @@ void fieldSolverPSATD(Grid3d & gr, double dt) {
                 vec3<MyComplex> El = K * vec3<MyComplex>::dot(K, E);
 
                 if (normK == 0) {
-                    gr.EF.write(i, j, k, (-1)*J);
-                    gr.BF.write(i, j, k, vec3<MyComplex>(0));
+                    gr.EF.write(i, j, k, E - J);
                     continue;
                 }
 

@@ -7,6 +7,7 @@ void refreshE_FDTD(Grid3d& gr, double dt) {
 #pragma omp parallel for
     for (int i = 0; i < gr.sizeReal().x; i++)
         for (int j = 0; j < gr.sizeReal().y; j++)
+#pragma omp simd
             for (int k = 0; k < gr.sizeReal().z; k++) {
 
                 int prevI = mod(i - 1, gr.sizeReal().x);
@@ -24,7 +25,7 @@ void refreshE_FDTD(Grid3d& gr, double dt) {
                     (gr.B(i, j, k).x - gr.B(i, prevJ, k).x) / (gr.getStep().y));
 
                 vec3<double> res(_x, _y, _z);
-                gr.E.write(i, j, k, res - 4 * constants::pi*gr.J(i, j, k) * dt);
+                gr.E.write(i, j, k, res - 4 * constants::pi * gr.J(i, j, k) * dt);
             }
 }
 
@@ -33,6 +34,7 @@ void refreshB_FDTD(Grid3d& gr, double dt) {
 #pragma omp parallel for
     for (int i = 0; i < gr.sizeReal().x; i++)
         for (int j = 0; j < gr.sizeReal().y; j++)
+#pragma omp simd
             for (int k = 0; k < gr.sizeReal().z; k++) {
 
                 int nextI = mod(i + 1, gr.sizeReal().x);

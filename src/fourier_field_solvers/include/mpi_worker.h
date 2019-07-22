@@ -1,9 +1,10 @@
 #pragma once
 #include <string>
-#include "mpi_wrapper3d.h"
+#include "mpi_wrapper_3d.h"
 #include "grid3d.h"
 #include "mask.h"
 #include "status.h"
+#include "start_conditions.h"
 
 class MPIWorker {
 protected:
@@ -27,17 +28,27 @@ protected:
 
 public:
     MPIWorker() {}
-    MPIWorker(Grid3d& gr, vec3<int> guardWidth, Mask mask, MPIWrapper3d& _mpiWrapper3d) {
-        initialize(gr, guardWidth, mask, _mpiWrapper3d);
+
+    // хранение общей сетки на нулевом процессе
+    MPIWorker(Grid3d& commonGrid, vec3<int> guardWidth, Mask mask, MPIWrapper3d& _mpiWrapper3d) {
+        initialize(commonGrid, guardWidth, mask, _mpiWrapper3d);
     }
 
-    //для последовательного запуска
-    MPIWorker(Grid3d& gr, vec3<int> guardWidth, Mask mask, int _size, int _rank) {
-        initialize(gr, guardWidth, mask, _size, _rank);
+    // без общей сетки на нулевом процессе
+    MPIWorker(vec3<int> & commonSize, vec3<int> guardWidth, Mask mask,
+        MPIWrapper3d& _mpiWrapper3d, StartConditions& startConditions) {
+        initialize(commonSize, guardWidth, mask, _mpiWrapper3d, startConditions);
     }
 
-    Status initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, int _size, int _rank);
-    Status initialize(Grid3d & gr, vec3<int> guardWidth, Mask mask, MPIWrapper3d& _mpiWrapper3d);
+    // для последовательного запуска (тесты)
+    MPIWorker(Grid3d& commonGrid, vec3<int> guardWidth, Mask mask, int _size, int _rank) {
+        initialize(commonGrid, guardWidth, mask, _size, _rank);
+    }
+
+    Status initialize(Grid3d & commonGrid, vec3<int> _guardWidth, Mask _mask, int _size, int _rank);
+    Status initialize(Grid3d & commonGrid, vec3<int> _guardWidth, Mask _mask, MPIWrapper3d& _mpiWrapper3d);
+    Status initialize(vec3<int> & commonSize, vec3<int> _guardWidth, Mask _mask,
+        MPIWrapper3d& _mpiWrapper3d, StartConditions& _startConditions);
 
     void setMPIWrapper3d(const MPIWrapper3d& _mpiWrapper) {
         mpiWrapper3d = _mpiWrapper;
@@ -90,15 +101,15 @@ public:
         return grid;
     }
 
-    virtual void applyMask() = 0;
+    virtual void applyMask() {};
 
     void ExchangeGuard();
 
-    static void showMessage(std::string message) {
-        std::cout << "rank " << MPIWrapper::MPIRank() << ": " << message << std::endl;
+    void showMessage(std::string message) {
+        std::cout << "rank " << mpiWrapper3d.getScalarRank(rank) << ": " << message << std::endl;
     }
 
-    void assembleResultsToZeroProcess(Grid3d& gr);
+    void assembleResultsToZeroProcess(Grid3d& commonGrid);
 
 protected:
     vec3<int> mod(vec3<int> a, vec3<int> b) {
@@ -109,26 +120,26 @@ protected:
         return ((a + b) % b);
     }
 
-    Status init(Grid3d & gr, vec3<int> guardWidth, Mask _mask);
-
     //обработка всевозможных ошибок ввода
-    void setParams(Grid3d& gr, vec3<int> _guardSize);
-    Status checkParams(Grid3d& gr);
+    void setParams(vec3<int> commonSize, vec3<int> _guardSize);
+    Status checkParams(vec3<int> commonSize);
 
-    void setLeftGuardStart(vec3<int> guardWidth, Grid3d& gr);
-    void setRightGuardStart(vec3<int> guardWidth, Grid3d& gr);
+    void setLeftGuardStart(vec3<int> guardWidth, vec3<int> commonSize);
+    void setRightGuardStart(vec3<int> guardWidth);
 
-    void createGrid(Grid3d& gr);
+    void createGrid(Grid3d& commonGrid);
+    void MPIWorker::createGrid(vec3<int> & _commonSize, StartConditions& _startConditions);
 
-    Status send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, Grid3d& grFrom, MPI_Request& request);
+    Status send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, Grid3d& grFrom,
+        MPI_Request& request);
     Status recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Grid3d& grTo);
     void sendToOneProcess(vec3<int> dest);
-    void recvFromAllProcesses(Grid3d& gr);
+    void recvFromAllProcesses(Grid3d& commonGrid);
 
     //упаковывает вещественные поля части сетки
     int getPackSize(vec3<int> n1, vec3<int> n2);
     void packData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grFrom);
-    virtual void unpackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo) = 0;
+    virtual void unpackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo) {};
 
     int getNum(int i, int j, int k) {
         return (i * 3 + j) * 3 + k;
@@ -136,5 +147,5 @@ protected:
 
     void exchangeTwoProcesses(Coordinate coord);
     virtual void getBoardsForExchange(int& sl1, int& sl2, int& sr1, int& sr2,
-        int& rl1, int& rl2, int& rr1, int& rr2, Coordinate coord) = 0;
+        int& rl1, int& rl2, int& rr1, int& rr2, Coordinate coord) {};
 };

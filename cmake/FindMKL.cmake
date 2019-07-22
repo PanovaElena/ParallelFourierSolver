@@ -1,5 +1,7 @@
 #  Find the Math Kernel Library from Intel
 #
+#  MKLROOT is to be defined
+#
 #  MKL_FOUND - System has MKL
 #  MKL_INCLUDE_DIRS - MKL include files directories
 #  MKL_LIBRARIES - MKL libraries
@@ -18,11 +20,10 @@ if ( MKL_INCLUDE_DIRS AND MKL_LIBRARIES )
     set (MKL_FIND_QUIETLY TRUE)
 endif()
 
-set( INTEL $ENV{INTEL} )
-if ( NOT INTEL )
-    message( WARNING "Environment variable INTEL is not defined!" )
+set( MKLROOT $ENV{MKLROOT} )
+if( NOT MKLROOT )
+    message( WARNING "Environment variable MKLROOT is not defined!" )
 endif()
-set( MKLROOT ${INTEL}/mkl )
     
 find_path( MKL_INCLUDE_DIR NAMES mkl.h HINTS ${MKLROOT}/include)
 set( MKL_INCLUDE_DIRS ${MKL_INCLUDE_DIR} ${MKL_INCLUDE_DIR}/fftw )	
@@ -45,7 +46,7 @@ if ( MKL_INCLUDE_DIRS AND
 	set( MKL_LIBRARIES "${MKL_CDFT_LIB};${MKL_INT_LIB};${MKL_INT_THR_LIB};${MKL_CORE_LIB};${MKL_BLACS_INTMPI_LIB}" )
 	
 	if ( WIN32 )
-	    find_library( IOMP5_LIB libiomp5md${CMAKE_STATIC_LIBRARY_SUFFIX} ${INTEL}/compiler/lib/intel64 )
+	    find_library( IOMP5_LIB libiomp5md${CMAKE_STATIC_LIBRARY_SUFFIX} $ENV{INTEL}/compiler/lib/intel64 )
 		if ( IOMP5_LIB )
 		    set(MKL_LIBRARIES "${MKL_LIBRARIES};${IOMP5_LIB}")
 		else()

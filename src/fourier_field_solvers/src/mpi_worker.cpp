@@ -1,22 +1,24 @@
 #include "mpi_worker.h"
 #include "file_writer.h"
 #include "class_member_ptr.h"
+#include "start_conditions.h"
 
-void MPIWorker::setParams(Grid3d & gr, vec3<int> _guardSize) {
-    domainSize = gr.sizeReal() / size; //делится нацело
+void MPIWorker::setParams(vec3<int> commonSize, vec3<int> _guardSize) {
+    domainSize = commonSize / size;  // делится нацело
     domainStart = domainSize * rank;
     guardSize = _guardSize;
-    setLeftGuardStart(guardSize, gr);
-    setRightGuardStart(guardSize, gr);
+    setLeftGuardStart(guardSize, commonSize);
+    setRightGuardStart(guardSize);
 }
 
-Status MPIWorker::checkParams(Grid3d & gr) {
-    if (gr.sizeReal() % size != vec3<int>(0)) {
+Status MPIWorker::checkParams(vec3<int> commonSize) {
+
+    if (commonSize % size != vec3<int>(0)) {
         showMessage("ERROR: domain size % MPISize != 0");
         return Status::ERROR;
     }
 
-    if (gr.sizeReal().x < size.x || gr.sizeReal().y < size.y || gr.sizeReal().z < size.z) {
+    if (commonSize.x < size.x || commonSize.y < size.y || commonSize.z < size.z) {
         showMessage("ERROR: domain size is less than MPISize");
         return Status::ERROR;
     }
@@ -30,17 +32,17 @@ Status MPIWorker::checkParams(Grid3d & gr) {
     return Status::OK;
 }
 
-void MPIWorker::setLeftGuardStart(vec3<int> guardWidth, Grid3d & gr) {
+void MPIWorker::setLeftGuardStart(vec3<int> guardWidth, vec3<int> commonSize) {
     leftGuardStart = getMainDomainStart() - guardWidth;
     if (rank.x == 0)
-        leftGuardStart.x = gr.sizeReal().x - guardWidth.x;
+        leftGuardStart.x = commonSize.x - guardWidth.x;
     if (rank.y == 0)
-        leftGuardStart.y = gr.sizeReal().y - guardWidth.y;
+        leftGuardStart.y = commonSize.y - guardWidth.y;
     if (rank.z == 0)
-        leftGuardStart.z = gr.sizeReal().z - guardWidth.z;
+        leftGuardStart.z = commonSize.z - guardWidth.z;
 }
 
-void MPIWorker::setRightGuardStart(vec3<int> guardWidth, Grid3d & gr) {
+void MPIWorker::setRightGuardStart(vec3<int> guardWidth) {
     rightGuardStart = getMainDomainEnd();
     if (rank.x == size.x - 1)
         rightGuardStart.x = 0;
@@ -50,45 +52,75 @@ void MPIWorker::setRightGuardStart(vec3<int> guardWidth, Grid3d & gr) {
         rightGuardStart.z = 0;
 }
 
-void MPIWorker::createGrid(Grid3d & gr) {
-    vec3<double> a = (vec3<double>)(getMainDomainStart() - getGuardSize())*gr.getStep() + gr.getStart(),
-        b = a + (vec3<double>)getFullDomainSize()*gr.getStep();
+void MPIWorker::createGrid(Grid3d & commonGrid) {
+    vec3<double> a = (vec3<double>)(getMainDomainStart() - getGuardSize())*commonGrid.getStep() + commonGrid.getStart(),
+        b = a + (vec3<double>)getFullDomainSize()*commonGrid.getStep();
     grid = Grid3d(getFullDomainSize(), a, b);
     for (int i = 0; i < getFullDomainSize().x; i++)
         for (int j = 0; j < getFullDomainSize().y; j++)
             for (int k = 0; k < getFullDomainSize().z; k++) {
-                grid.E.write(i, j, k, gr.E(mod(vec3<int>(i, j, k) + getMainDomainStart()
-                    - getGuardSize(), gr.sizeReal())));
-                grid.B.write(i, j, k, gr.B(mod(vec3<int>(i, j, k) + getMainDomainStart()
-                    - getGuardSize(), gr.sizeReal())));
-                grid.J.write(i, j, k, gr.J(mod(vec3<int>(i, j, k) + getMainDomainStart()
-                    - getGuardSize(), gr.sizeReal())));
+                grid.E.write(i, j, k, commonGrid.E(mod(vec3<int>(i, j, k) + getMainDomainStart()
+                    - getGuardSize(), commonGrid.sizeReal())));
+                grid.B.write(i, j, k, commonGrid.B(mod(vec3<int>(i, j, k) + getMainDomainStart()
+                    - getGuardSize(), commonGrid.sizeReal())));
+                grid.J.write(i, j, k, commonGrid.J(mod(vec3<int>(i, j, k) + getMainDomainStart()
+                    - getGuardSize(), commonGrid.sizeReal())));
             }
 }
 
-Status MPIWorker::init(Grid3d & gr, vec3<int> guardWidth, Mask _mask) {
-    if (checkParams(gr) == Status::ERROR)
-        return Status::ERROR;
-    setParams(gr, guardWidth);
-    mask = _mask;
-    createGrid(gr);
-    return Status::OK;
+void MPIWorker::createGrid(vec3<int> & _commonSize, StartConditions& sc) {
+    vec3<double> a = (vec3<double>)(getMainDomainStart() - getGuardSize())*sc.d + sc.a,
+        b = a + (vec3<double>)getFullDomainSize()*sc.d;
+    grid = Grid3d(getFullDomainSize(), a, b);
+    for (int i = 0; i < getFullDomainSize().x; i++)
+        for (int j = 0; j < getFullDomainSize().y; j++)
+            for (int k = 0; k < getFullDomainSize().z; k++) {
+                grid.E.write(i, j, k, sc.fE(mod(vec3<int>(i, j, k) + getMainDomainStart()
+                    - getGuardSize(), _commonSize)));
+                grid.B.write(i, j, k, sc.fB(mod(vec3<int>(i, j, k) + getMainDomainStart()
+                    - getGuardSize(), _commonSize)));
+                grid.J.write(i, j, k, sc.fJ(mod(vec3<int>(i, j, k) + getMainDomainStart()
+                    - getGuardSize(), _commonSize), 0));
+            }
 }
 
-Status MPIWorker::initialize(Grid3d & gr, vec3<int> guardWidth, Mask _mask, int _size, int _rank) {
+Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, Mask _mask, int _size, int _rank) {
     MPIWrapper3d _mpiWrapper3d;
     _mpiWrapper3d.setSize(_size, 1, 1);
     size = vec3<int>(_size, 1, 1);
     rank = _mpiWrapper3d.getVecRank(_rank);
     mpiWrapper3d = _mpiWrapper3d;
-    return init(gr, guardWidth, _mask);
+    setParams(commonGrid.sizeReal(), _guardWidth);
+    if (checkParams(commonGrid.sizeReal()) == Status::ERROR)
+        return Status::ERROR;
+    mask = _mask;
+    createGrid(commonGrid);
+    return Status::OK;
 }
 
-Status MPIWorker::initialize(Grid3d & gr, vec3<int> _guardWidth, Mask _mask, MPIWrapper3d& _mpiWrapper3d) {
-    setMPIWrapper3d(mpiWrapper3d);
+Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, Mask _mask, MPIWrapper3d& _mpiWrapper3d) {
+    setMPIWrapper3d(_mpiWrapper3d);
     size = mpiWrapper3d.MPISize();
     rank = mpiWrapper3d.MPIRank();
-    return init(gr, _guardWidth, _mask);
+    setParams(commonGrid.sizeReal(), _guardWidth);
+    if (checkParams(commonGrid.sizeReal()) == Status::ERROR)
+        return Status::ERROR;
+    mask = _mask;
+    createGrid(commonGrid);
+    return Status::OK;
+}
+
+Status MPIWorker::initialize(vec3<int> & _commonSize, vec3<int> _guardWidth, Mask _mask,
+    MPIWrapper3d& _mpiWrapper3d, StartConditions& startConditions) {
+    setMPIWrapper3d(_mpiWrapper3d);
+    size = mpiWrapper3d.MPISize();
+    rank = mpiWrapper3d.MPIRank();
+    setParams(_commonSize, _guardWidth);
+    if (checkParams(_commonSize) == Status::ERROR)
+        return Status::ERROR;
+    mask = _mask;
+    createGrid(_commonSize, startConditions);
+    return Status::OK;
 }
 
 Status MPIWorker::send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest,
@@ -127,28 +159,28 @@ void MPIWorker::exchangeTwoProcesses(Coordinate coord) {
 
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(sl1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(sl2), grid.sizeReal());
-    //MPIWorker::showMessage("send left from " + to_string(down_left) + " to " + to_string(top_right));
+    //showMessage("send left from " + to_string(down_left) + " to " + to_string(top_right));
     send(down_left, top_right, arrS1, prLeft, 0, grid, request1);
 
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(sr1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(sr2), grid.sizeReal());
-    //MPIWorker::showMessage("send right from " + to_string(down_left) + " to " + to_string(top_right));
+    //showMessage("send right from " + to_string(down_left) + " to " + to_string(top_right));
     send(down_left, top_right, arrS2, prRight, 1, grid, request2);
 
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(rr1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(rr2), grid.sizeReal());
-    //MPIWorker::showMessage("recv right from " + to_string(down_left) + " to " + to_string(top_right));
+    //showMessage("recv right from " + to_string(down_left) + " to " + to_string(top_right));
     recv(down_left, top_right, prRight, 0, grid);
 
     down_left = vec3<int>::getVecIfCoord(coord, vec3<int>(rl1), vec3<int>(0));
     top_right = vec3<int>::getVecIfCoord(coord, vec3<int>(rl2), grid.sizeReal());
-    //MPIWorker::showMessage("recv left from " + to_string(down_left) + " to " + to_string(top_right));
+    //showMessage("recv left from " + to_string(down_left) + " to " + to_string(top_right));
     recv(down_left, top_right, prLeft, 1, grid);
 
     MPIWrapper::MPIWait(request1);
     MPIWrapper::MPIWait(request2);
 
-    //MPIWorker::showMessage("delete arrays");
+    //showMessage("delete arrays");
     if (arrS1) delete[] arrS1;
     if (arrS2) delete[] arrS2;
 }
@@ -170,15 +202,15 @@ void MPIWorker::sendToOneProcess(vec3<int> dest) {
     if (arrS) delete[] arrS;
 }
 
-void MPIWorker::recvFromAllProcesses(Grid3d& gr) {
-    gr = Grid3d(gr.sizeReal(), gr.getStart(), gr.getEnd());
+void MPIWorker::recvFromAllProcesses(Grid3d& commonGrid) {
+    commonGrid = Grid3d(commonGrid.sizeReal(), commonGrid.getStart(), commonGrid.getEnd());
 
     for (int i = 0; i < getMainDomainSize().x; i++)
         for (int j = 0; j < getMainDomainSize().y; j++)
             for (int k = 0; k < getMainDomainSize().z; k++) {
-                gr.E.write(i, j, k, grid.E(vec3<int>(i, j, k) + getGuardSize()));
-                gr.B.write(i, j, k, grid.B(vec3<int>(i, j, k) + getGuardSize()));
-                gr.J.write(i, j, k, grid.J(vec3<int>(i, j, k) + getGuardSize()));
+                commonGrid.E.write(i, j, k, grid.E(vec3<int>(i, j, k) + getGuardSize()));
+                commonGrid.B.write(i, j, k, grid.B(vec3<int>(i, j, k) + getGuardSize()));
+                commonGrid.J.write(i, j, k, grid.J(vec3<int>(i, j, k) + getGuardSize()));
             }
 
     for (int i = 0; i < size.x; i++)
@@ -186,15 +218,15 @@ void MPIWorker::recvFromAllProcesses(Grid3d& gr) {
             for (int k = 0; k < size.z; k++) {
                 if (i == 0 && j == 0 && k == 0) continue;
                 vec3<int> r(i, j, k);
-                recv(r*getMainDomainSize(), (r + vec3<int>(1))*getMainDomainSize(), r, 2, gr);
+                recv(r*getMainDomainSize(), (r + vec3<int>(1))*getMainDomainSize(), r, 2, commonGrid);
             }
 }
 
-void MPIWorker::assembleResultsToZeroProcess(Grid3d& gr) {
+void MPIWorker::assembleResultsToZeroProcess(Grid3d& commonGrid) {
     if (mpiWrapper3d.MPIRank() != vec3<int>(0))
         sendToOneProcess(vec3<int>(0));
     if (mpiWrapper3d.MPIRank() == vec3<int>(0))
-        recvFromAllProcesses(gr);
+        recvFromAllProcesses(commonGrid);
 }
 
 int MPIWorker::getPackSize(vec3<int> n1, vec3<int> n2) {
