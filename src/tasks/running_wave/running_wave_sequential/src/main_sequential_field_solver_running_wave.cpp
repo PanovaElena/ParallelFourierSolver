@@ -11,13 +11,13 @@ void testBody(RunningWave& runningWave) {
 
     double t1 = omp_get_wtime();
 
-    transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, RtoC);
+    transformGridIfNecessary(runningWave.params.fieldSolver, runningWave.gr, RtoC);
 
-    for (int j = 0; j < runningWave.parameters.nSeqSteps; j++) {
-        runningWave.parameters.fieldSolver(runningWave.gr, runningWave.parameters.dt);
+    for (int j = 0; j < runningWave.params.nSeqSteps; j++) {
+        runningWave.params.fieldSolver(runningWave.gr, runningWave.params.dt);
     }
 
-    transformGridIfNecessary(runningWave.parameters.fieldSolver, runningWave.gr, CtoR);
+    transformGridIfNecessary(runningWave.params.fieldSolver, runningWave.gr, CtoR);
 	
     double t2 = omp_get_wtime();
 

@@ -15,8 +15,8 @@ FOLDER="/release/"
 MPI="mpiexec"
 #MPI="\"C:\Program Files\Microsoft MPI\Bin\mpiexec\""
 
-NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/running_wave/running_wave_sequential/"+FOLDER+"/running_wave_sequential"+"\""
-NAME_PAR_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/running_wave/running_wave_parallel/"+FOLDER+"/running_wave_parallel"+"\""
+NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/tasks/running_wave/running_wave_sequential/"+FOLDER+"/running_wave_sequential"+"\""
+NAME_PAR_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/tasks/running_wave/running_wave_parallel/"+FOLDER+"/running_wave_parallel"+"\""
 
 DIR_PICTURES = "./pictures/"
 DIR_RESULTS = "./results/"

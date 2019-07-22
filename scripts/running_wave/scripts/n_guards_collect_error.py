@@ -25,8 +25,8 @@ if (OS=="Win"):
 	
 DIR_SCRIPT = "./"+os.path.dirname(sys.argv[0]) 
 
-NAME_PROGRAM_SEQ = "\""+DIR_SCRIPT+"/../../../build/src/examples/running_wave/running_wave_sequential/"+FOLDER+"/running_wave_sequential"+"\""
-NAME_PROGRAM_PAR = "\""+DIR_SCRIPT+"/../../../build/src/examples/running_wave/running_wave_parallel/"+FOLDER+"/running_wave_parallel"+"\""
+NAME_PROGRAM_SEQ = "\""+DIR_SCRIPT+"/../../../build/src/tasks/running_wave/running_wave_sequential/"+FOLDER+"/running_wave_sequential"+"\""
+NAME_PROGRAM_PAR = "\""+DIR_SCRIPT+"/../../../build/src/tasks/running_wave/running_wave_parallel/"+FOLDER+"/running_wave_parallel"+"\""
 
 DIR_RESULTS = "./results/"
 

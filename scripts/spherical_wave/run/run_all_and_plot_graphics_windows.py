@@ -15,8 +15,8 @@ FOLDER="/Release/"
 MPI="mpiexec"
 #MPI="\"C:\Program Files\Microsoft MPI\Bin\mpiexec\""
 
-NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/spherical_wave/spherical_wave_sequential/"+FOLDER+"/spherical_wave_sequential"+"\""
-NAME_PAR_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/spherical_wave/spherical_wave_parallel/"+FOLDER+"/spherical_wave_parallel"+"\""
+NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/tasks/spherical_wave/spherical_wave_sequential/"+FOLDER+"/spherical_wave_sequential"+"\""
+NAME_PAR_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/tasks/spherical_wave/spherical_wave_parallel/"+FOLDER+"/spherical_wave_parallel"+"\""
 
 DIR_PICTURES = "./pictures/"
 DIR_RESULTS = "./results/"

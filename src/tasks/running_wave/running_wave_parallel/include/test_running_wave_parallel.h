@@ -24,7 +24,7 @@ public:
 
     void doSequentialPart() {
         fourierTransform(runningWave.gr, RtoC);
-        for (int i = 1; i <= runningWave.params.nSeqSteps; i++) {
+        for (int i = 0; i < runningWave.params.nSeqSteps; i++) {
             runningWave.params.fieldSolver(runningWave.gr, runningWave.params.dt);
         }
         fourierTransform(runningWave.gr, CtoR);

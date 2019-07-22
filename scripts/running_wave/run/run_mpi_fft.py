@@ -17,7 +17,7 @@ NUM_PROCESSES=2
 
 MPI="mpiexec"
 
-NAME_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/running_wave/running_wave_mpi_fftw/"+FOLDER+"/running_wave_mpi_fftw"+"\""
+NAME_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/tasks/running_wave/running_wave_mpi_fftw/"+FOLDER+"/running_wave_mpi_fftw"+"\""
 
 DIR_PICTURES = "./pictures/"
 DIR_RESULTS = "./results/"

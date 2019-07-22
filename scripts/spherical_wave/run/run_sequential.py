@@ -12,7 +12,7 @@ if (sys.platform == "win32"):
 	FOLDER="/Release/"
 else: FOLDER=""
 
-NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/examples/spherical_wave/spherical_wave_sequential/"+FOLDER+"/spherical_wave_sequential"+"\""
+NAME_SEQ_PROGRAM = "\""+DIR_SCRIPT+"/../../../build/src/tasks/spherical_wave/spherical_wave_sequential/"+FOLDER+"/spherical_wave_sequential"+"\""
 
 DIR_RESULTS = "./results/"
 
