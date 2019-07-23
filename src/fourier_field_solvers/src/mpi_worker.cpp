@@ -23,9 +23,7 @@ Status MPIWorker::checkParams(vec3<int> commonSize) {
         return Status::ERROR;
     }
 
-    if (gr.sizeReal().x / size.x == 0 ||
-        gr.sizeReal().y / size.y == 0 ||
-        gr.sizeReal().z / size.z == 0) {
+    if (commonSize.x == 0 || commonSize.y == 0 || commonSize.z == 0) {
         showMessage("ERROR: domain size is 0");
         return Status::ERROR;
     }
