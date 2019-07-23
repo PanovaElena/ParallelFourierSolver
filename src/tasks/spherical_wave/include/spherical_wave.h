@@ -27,7 +27,7 @@ public:
         a = _a; d = _d; dt = _dt; fs = _fs; source = _source;
     }
 
-    virtual vec3<double> fJ(vec3<int>& ind, int numIter) {
+    virtual vec3<double> fJ(vec3<int> ind, int numIter) {
         vec3<vec3<double>> dcJ = fs.getCoordOffset(J);
         double dtJ = fs.getTimeOffset(J);
         vec3<double> coord(getCoord(vec3<>(ind.x + dcJ.z.x, ind.y + dcJ.z.y, ind.z + dcJ.z.z)));

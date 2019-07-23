@@ -33,14 +33,14 @@ public:
         return sin(2 * constants::pi / lambda * (x2 - constants::c*t));
     }
 
-    virtual vec3<double> fE(vec3<int>& ind) {
+    virtual vec3<double> fE(vec3<int> ind) {
         double xEy = getCoord(vec3<>(ind.x + fs.shiftE.y.x, 0, 0)).x,
             zEy = getCoord(vec3<>(0, 0, ind.z + fs.shiftE.y.z)).z,
             tE = fs.shiftEt * dt;
         return vec3<double>(0, f(xEy, zEy, tE), 0);
     }
 
-    virtual vec3<double> fB(vec3<int>& ind) {
+    virtual vec3<double> fB(vec3<int> ind) {
         double xBx = getCoord(vec3<>(ind.x + fs.shiftB.x.x, 0, 0)).x,
             zBx = getCoord(vec3<int>(0, 0, ind.z + fs.shiftB.x.z)).z,
             xBz = getCoord(vec3<int>(ind.x + fs.shiftB.z.x, 0, 0)).x,

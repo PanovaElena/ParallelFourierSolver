@@ -49,6 +49,7 @@ struct TaskParameters {
         nSeqSteps = t.nSeqSteps;
         b = a + d * (vec3<>)n;
         startCond.reset(new StartConditions(a, d, dt, fieldSolver));
+        return *this;
     }
 
 };
