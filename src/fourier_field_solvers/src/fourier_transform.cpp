@@ -27,14 +27,14 @@ void useFFTW(Array3d<double>& arr1, Array3d<MyComplex>& arr2, int Nx, int Ny, in
     fftw_destroy_plan(plan);
 }
 
-void fourierTransform(Grid3d & gr, Field _field, Coordinate _coord, Direction dir) {
+void fourierTransform(Grid3d& gr, Field _field, Coordinate _coord, Direction dir) {
     Array3d<double>& arrD = (gr.*getMemberPtrField<double>(_field)).*getMemberPtrFieldCoord<double>(_coord);
     Array3d<MyComplex>& arrC = (gr.*getMemberPtrField<MyComplex>(_field)).*getMemberPtrFieldCoord<MyComplex>(_coord);
 
     useFFTW(arrD, arrC, gr.sizeReal().x, gr.sizeReal().y, gr.sizeReal().z, dir);
 }
 
-void fourierTransform(Grid3d & gr, Direction dir) {
+void fourierTransform(Grid3d& gr, Direction dir) {
     if (gr.getLastFourierTransformDirect() == dir) {
         std::cout << "Try to transform to the same direction: " << dir << std::endl;
         return;

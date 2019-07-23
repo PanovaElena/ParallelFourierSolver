@@ -26,7 +26,7 @@ class TestRunningWaveJustParallel : public TestParallel {
     MPIWorker& worker;
 
 public:
-    void setParamsForTest(ParametersForRunningWave p) {
+    void setParamsForTest(const ParametersForRunningWave& p) {
         runningWave.setParamsForTest(p);
     }
 

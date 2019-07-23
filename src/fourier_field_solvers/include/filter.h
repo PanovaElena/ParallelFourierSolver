@@ -15,11 +15,9 @@ public:
         off
     };
 
-private:
     vec3<int> maskWidth;
     vec3<int> numZeroFreq;
 
-public:
     Filter(vec3<int> _maskWidth, vec3<int> _numZeroFreq) :maskWidth(_maskWidth), numZeroFreq(_numZeroFreq) {}
     Filter() {}
 
@@ -33,10 +31,10 @@ public:
     void setNumZeroFreq(vec3<int> nzf) {
         numZeroFreq = nzf;
     }
-    vec3<int>& getWidth() {
+    vec3<int> getWidth() const {
         return maskWidth;
     }
-    vec3<int>& getNumZeroFreq() {
+    vec3<int> getNumZeroFreq() const {
         return numZeroFreq;
     }
 
@@ -44,7 +42,7 @@ public:
     void operator() (Grid3d& gr) {
         if (state == on) lowFrequencyFilter(gr, maskWidth, numZeroFreq);
     }
-    std::string to_string() {
+    std::string to_string() const {
         switch (state) {
         case on:
             return "on";

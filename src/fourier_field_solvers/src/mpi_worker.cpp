@@ -49,7 +49,7 @@ void MPIWorker::setRightGuardStart(vec3<int> guardWidth) {
         rightGuardStart.z = 0;
 }
 
-void MPIWorker::createGrid(Grid3d & commonGrid) {
+void MPIWorker::createGrid(Grid3d& commonGrid) {
     vec3<double> a = (vec3<double>)(getMainDomainStart() - getGuardSize())*commonGrid.getStep() + commonGrid.getStart(),
         b = a + (vec3<double>)getFullDomainSize()*commonGrid.getStep();
     grid = Grid3d(getFullDomainSize(), a, b);
@@ -65,7 +65,7 @@ void MPIWorker::createGrid(Grid3d & commonGrid) {
             }
 }
 
-void MPIWorker::createGrid(vec3<int> _commonSize, StartConditions& sc) {
+void MPIWorker::createGrid(vec3<int> _commonSize, const StartConditions& sc) {
     vec3<double> a = (vec3<double>)(getMainDomainStart() - getGuardSize())*sc.d + sc.a,
         b = a + (vec3<double>)getFullDomainSize()*sc.d;
     grid = Grid3d(getFullDomainSize(), a, b);
@@ -81,7 +81,7 @@ void MPIWorker::createGrid(vec3<int> _commonSize, StartConditions& sc) {
             }
 }
 
-Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, const Mask& _mask, int _size, int _rank) {
+Status MPIWorker::initialize(Grid3d& commonGrid, vec3<int> _guardWidth, const Mask& _mask, int _size, int _rank) {
     MPIWrapper3d _mpiWrapper3d;
     _mpiWrapper3d.setSize(_size, 1, 1);
     size = vec3<int>(_size, 1, 1);
@@ -95,7 +95,8 @@ Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, const M
     return Status::OK;
 }
 
-Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, const Mask& _mask, MPIWrapper3d& _mpiWrapper3d) {
+Status MPIWorker::initialize(Grid3d& commonGrid, vec3<int> _guardWidth, const Mask& _mask,
+    const MPIWrapper3d& _mpiWrapper3d) {
     setMPIWrapper3d(_mpiWrapper3d);
     size = mpiWrapper3d.MPISize();
     rank = mpiWrapper3d.MPIRank();
@@ -108,7 +109,7 @@ Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, const M
 }
 
 Status MPIWorker::initialize(vec3<int> _commonSize, vec3<int> _guardWidth, const Mask& _mask,
-    MPIWrapper3d& _mpiWrapper3d, StartConditions& startConditions) {
+    const MPIWrapper3d& _mpiWrapper3d, const StartConditions& startConditions) {
     setMPIWrapper3d(_mpiWrapper3d);
     size = mpiWrapper3d.MPISize();
     rank = mpiWrapper3d.MPIRank();
@@ -121,7 +122,7 @@ Status MPIWorker::initialize(vec3<int> _commonSize, vec3<int> _guardWidth, const
 }
 
 Status MPIWorker::send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest,
-    int tag, Grid3d& grFrom, MPI_Request& request) {
+    int tag, const Grid3d& grFrom, MPI_Request& request) {
     if (n1.x > n2.x || n1.y > n2.y || n1.z > n2.z) return Status::STOP;
     arr = new double[getPackSize(n1, n2)];
     packData(n1, n2, arr, grFrom);
@@ -230,7 +231,7 @@ int MPIWorker::getPackSize(vec3<int> n1, vec3<int> n2) {
     return N_FIELD * N_DIM * (n2.x - n1.x) * (n2.y - n1.y) * (n2.z - n1.z);
 }
 
-void MPIWorker::packData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grFrom) {
+void MPIWorker::packData(vec3<int> n1, vec3<int> n2, double*& arr, const Grid3d& grFrom) {
     int num = 0;
     for (int i = n1.x; i < n2.x; i++)
         for (int j = n1.y; j < n2.y; j++)

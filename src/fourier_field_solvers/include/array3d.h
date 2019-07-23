@@ -38,7 +38,14 @@ public:
     T& operator()(vec3<int> index);
     T& get(int i, int j, int k);
     T& operator[](int index);
+    T& operator()(int index);
+
+    T operator()(int i, int j, int k) const;
+    T operator()(vec3<int> index) const;
+    T get(int i, int j, int k) const;
+    T operator[](int index) const;
     T operator()(int index) const;
+
     Array3d& operator=(const Array3d& arr);
 
     T* getArray1d();
@@ -109,6 +116,31 @@ inline T & Array3d<T>::get(int i, int j, int k) {
 
 template<class T>
 inline T & Array3d<T>::operator[](int index) {
+    return tmp1[index];
+}
+
+template<class T>
+inline T & Array3d<T>::operator()(int index) {
+    return tmp1[index];
+}
+
+template<class T>
+inline T Array3d<T>::operator()(int i, int j, int k) const {
+    return data[i][j][k];
+}
+
+template<class T>
+inline T Array3d<T>::operator()(vec3<int> index) const {
+    return data[index.x][index.y][index.z];
+}
+
+template<class T>
+inline T Array3d<T>::get(int i, int j, int k) const {
+    return data[i][j][k];
+}
+
+template<class T>
+inline T Array3d<T>::operator[](int index) const {
     return tmp1[index];
 }
 

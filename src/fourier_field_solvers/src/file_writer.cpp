@@ -21,7 +21,8 @@ void setSymbols(Section::Plane plane, std::string& si, std::string& sj, std::str
     }
 }
 
-void FileWriter::write(Grid3d & gr, std::string name, Type type, std::string si, std::string sj, std::string sk) {
+void FileWriter::write(const Grid3d& gr, std::string name, Type type, std::string si,
+    std::string sj, std::string sk) const {
     std::ofstream file(dir + name);
     //std::cout << dir + name << std::endl;
 
@@ -29,7 +30,9 @@ void FileWriter::write(Grid3d & gr, std::string name, Type type, std::string si,
         for (int k = section.startZ; k <= section.endZ; k++) {
             for (int j = section.startY; j <= section.endY; j++) {
                 for (int i = section.startX; i <= section.endX; i++)
-                    file << std::setprecision(15) << (gr.*getMemberPtrField<double>(field).*getMemberPtrFieldCoord<double>(coord))(i, j, k) << si;
+                    file << std::setprecision(15) <<
+                    (gr.*getMemberPtrField<double>(field).*getMemberPtrFieldCoord<double>(coord))(i, j, k)
+                    << si;
                 file << sj;
             }
             file << sk;
@@ -39,7 +42,9 @@ void FileWriter::write(Grid3d & gr, std::string name, Type type, std::string si,
         for (int k = section.startZ; k <= section.endZ; k++) {
             for (int j = section.startY; j <= section.endY; j++) {
                 for (int i = section.startX; i <= section.endX; i++)
-                    file << std::setprecision(15) << (gr.*getMemberPtrField<MyComplex>(field).*getMemberPtrFieldCoord<MyComplex>(coord))(i, j, k).getAbs() << si;
+                    file << std::setprecision(15) <<
+                    (gr.*getMemberPtrField<MyComplex>(field).*getMemberPtrFieldCoord<MyComplex>(coord))(i, j, k).getAbs()
+                    << si;
                 file << sj;
             }
             file << sk;
@@ -49,15 +54,15 @@ void FileWriter::write(Grid3d & gr, std::string name, Type type, std::string si,
     file.close();
 }
 
-void FileWriter::write0d(Grid3d & gr, std::string name, Type type) {
+void FileWriter::write0d(const Grid3d& gr, std::string name, Type type) const {
     write(gr, name, type, "\n", "", "");
 }
 
-void FileWriter::write1d(Grid3d & gr, std::string name, Type type) {
+void FileWriter::write1d(const Grid3d& gr, std::string name, Type type) const {
     write(gr, name, type, "\n", "", "");
 }
 
-void FileWriter::write2d(Grid3d & gr, std::string name, Type type) {
+void FileWriter::write2d(const Grid3d& gr, std::string name, Type type) const {
     std::string si, sj, sk;
     setSymbols(section.plane1, si, sj, sk);
     write(gr, name, type, si, sj, sk);
@@ -79,7 +84,7 @@ void setCoordUsingLocation(Section::LocationOfPlane loc, int& start, int& end, i
     }
 }
 
-void Section::setBorders(Grid3d& gr) {
+void Section::setBorders(const Grid3d& gr) {
     startX = startY = startZ = 0;
     endX = gr.sizeReal().x - 1;
     endY = gr.sizeReal().y - 1;

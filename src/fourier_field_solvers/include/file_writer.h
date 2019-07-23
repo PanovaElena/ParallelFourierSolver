@@ -26,7 +26,7 @@ private:
     Plane plane1, plane2, plane3;
     LocationOfPlane loc1, loc2, loc3;
 
-    void setBorders(Grid3d& gr);
+    void setBorders(const Grid3d& gr);
 
 public:
     Section() {}
@@ -87,7 +87,7 @@ public:
         section = _section;
     }
 
-    void write(Grid3d& gr, std::string name, Field _field, Coordinate _coord,
+    void write(const Grid3d& gr, std::string name, Field _field, Coordinate _coord,
         Type t = Type::Double, std::string message = "") {
         if (state == off) return;
         if (message != "") std::cout << message << "\n";
@@ -108,14 +108,14 @@ public:
         }
     }
 
-    void write(Grid3d& gr, std::string name, Type t = Type::Double, std::string message = "") {
+    void write(const Grid3d& gr, std::string name, Type t = Type::Double, std::string message = "") {
         write(gr, name, field, coord, t, message);
     }
 
-    Coordinate getCoord() { return coord; }
-    Field getField() { return field; }
-    std::string getDir() { return dir; }
-    Section getSection() { return section; }
+    Coordinate getCoord() const { return coord; }
+    Field getField() const { return field; }
+    std::string getDir() const { return dir; }
+    Section getSection() const { return section; }
 
     void setCoord(Coordinate _coord) { coord = _coord; }
     void setField(Field _field) { field = _field; }
@@ -123,8 +123,8 @@ public:
     void setSection(const Section& _section) { section = _section; }
 
 protected:
-    void write0d(Grid3d& gr, std::string name, Type type);
-    void write1d(Grid3d& gr, std::string name, Type type);
-    void write2d(Grid3d& gr, std::string name, Type type);
-    void write(Grid3d & gr, std::string name, Type type, std::string si, std::string sj, std::string sk);
+    void write0d(const Grid3d& gr, std::string name, Type type) const;
+    void write1d(const Grid3d& gr, std::string name, Type type) const;
+    void write2d(const Grid3d& gr, std::string name, Type type) const;
+    void write(const Grid3d & gr, std::string name, Type type, std::string si, std::string sj, std::string sk) const;
 };

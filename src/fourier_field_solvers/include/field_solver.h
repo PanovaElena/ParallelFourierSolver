@@ -38,14 +38,14 @@ public:
         shiftB = _shiftB;
         shiftJ = _shiftJ;
     }
-    std::string to_string() {
+    std::string to_string() const {
         return str;
     }
-    void operator() (Grid3d& gr, double dt) {
+    void operator() (Grid3d& gr, double dt) const {
         func(gr, dt);
     }
 
-    vec3<vec3<double>> getCoordOffset(Field field) {
+    vec3<vec3<double>> getCoordOffset(Field field) const {
         switch (field) {
         case E:
             return shiftE;
@@ -56,7 +56,7 @@ public:
         }
     }
 
-    double getTimeOffset(Field field) {
+    double getTimeOffset(Field field) const {
         switch (field) {
         case E:
             return shiftEt;
@@ -67,14 +67,14 @@ public:
         }
     }
 
-    friend void transformGridIfNecessary(FieldSolver fs, Grid3d& gr,
-        Direction dir, bool useMpi = false) {
+    friend void transformGridIfNecessary(const FieldSolver& fs, Grid3d& gr,
+        Direction dir) {
         if (fs.str == "FDTD") return;
         fourierTransform(gr, dir);
     }
 
-    friend void transformGridIfNecessary(FieldSolver fs, Grid3d& gr, Field f, Coordinate c,
-        Direction dir, bool useMpi = false) {
+    friend void transformGridIfNecessary(const FieldSolver& fs, Grid3d& gr, Field f, Coordinate c,
+        Direction dir) {
         if (fs.str == "FDTD") return;
         fourierTransform(gr, f, c, dir);
     }
@@ -98,7 +98,7 @@ const FieldSolver FDTD(fieldSolverFDTD, "FDTD", 0, -0.5, 0.5,
 const std::map<std::string, FieldSolver> FieldSolverMap =
 { { "PSTD",PSTD },{ "PSATD",PSATD },{ "FDTD",FDTD } };
 
-void parallelScheme(MPIWorker& worker, FieldSolver fieldSolver, int numIter, int maxNumIterBetweenExchanges,
+void parallelScheme(MPIWorker& worker, const FieldSolver& fieldSolver, int numIter, int maxNumIterBetweenExchanges,
     double dt, FileWriter& fileWriter);
 
 inline int mod(int a, int b) {

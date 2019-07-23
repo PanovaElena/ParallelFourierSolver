@@ -6,7 +6,7 @@
 #include "filter.h"
 
 
-void parallelSchemeOneExchange(MPIWorker& worker, FieldSolver fieldSolver, int numIter, double dt,
+void parallelSchemeOneExchange(MPIWorker& worker, const FieldSolver& fieldSolver, int numIter, double dt,
     FileWriter& fileWriter) {
     worker.applyMask();
 
@@ -20,7 +20,7 @@ void parallelSchemeOneExchange(MPIWorker& worker, FieldSolver fieldSolver, int n
     fileWriter.write(worker.getGrid(), "iter_rank_" + std::to_string(MPIWrapper::MPIRank()) + "_after_exc.csv", Double);
 }
 
-void parallelScheme(MPIWorker& worker, FieldSolver fieldSolver, int numIter, int maxIterBetweenExchange,
+void parallelScheme(MPIWorker& worker, const FieldSolver& fieldSolver, int numIter, int maxIterBetweenExchange,
     double dt, FileWriter& fileWriter) {
     if (numIter == 0 || maxIterBetweenExchange == 0) return;
     int numExchanges = numIter / maxIterBetweenExchange;

@@ -56,7 +56,7 @@ int Grid3d::operator==(const Grid3d& gr) {
     return (E == gr.E && B == gr.B && J == gr.J);
 }
 
-Grid3d& Grid3d::operator=(const Grid3d & gr) {
+Grid3d& Grid3d::operator=(const Grid3d& gr) {
     initialize(gr.n, gr.a, gr.b);
     E = gr.E;
     B = gr.B;

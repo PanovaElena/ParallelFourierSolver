@@ -31,7 +31,7 @@ void refreshB_PSTD(Grid3d& gr, double dt) {
             }
 }
 
-void fieldSolverPSTD(Grid3d & gr, double dt) {
+void fieldSolverPSTD(Grid3d& gr, double dt) {
     refreshE_PSTD(gr, dt);
     refreshB_PSTD(gr, dt);
 }

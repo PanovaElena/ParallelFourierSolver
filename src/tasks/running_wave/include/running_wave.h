@@ -28,19 +28,19 @@ public:
         a = _a; d = _d; dt = _dt; angle = _angle; lambda = _lambda; fs = _fs;
     }
 
-    double f(double x, double z, double t) {
+    double f(double x, double z, double t) const {
         double x2 = x * cos(angle) + z * sin(angle);
         return sin(2 * constants::pi / lambda * (x2 - constants::c*t));
     }
 
-    virtual vec3<double> fE(vec3<int> ind) {
+    vec3<double> fE(vec3<int> ind) const override {
         double xEy = getCoord(vec3<>(ind.x + fs.shiftE.y.x, 0, 0)).x,
             zEy = getCoord(vec3<>(0, 0, ind.z + fs.shiftE.y.z)).z,
             tE = fs.shiftEt * dt;
         return vec3<double>(0, f(xEy, zEy, tE), 0);
     }
 
-    virtual vec3<double> fB(vec3<int> ind) {
+    vec3<double> fB(vec3<int> ind) const override {
         double xBx = getCoord(vec3<>(ind.x + fs.shiftB.x.x, 0, 0)).x,
             zBx = getCoord(vec3<int>(0, 0, ind.z + fs.shiftB.x.z)).z,
             xBz = getCoord(vec3<int>(ind.x + fs.shiftB.z.x, 0, 0)).x,
@@ -76,7 +76,7 @@ struct ParametersForRunningWave : public ParallelTaskParameters {
         fileWriter.initialize("./", E, y, Section(Section::XOY, Section::center, Section::XOZ, Section::center));
     }
 
-    void print() {
+    void print() const {
         ParallelTaskParameters::print();
         std::cout <<
             "lambda = " << lambda << "\n" <<
@@ -100,7 +100,7 @@ public:
 
     RunningWave(bool notInitialize) : params() {}
 
-    void setParamsForTest(ParametersForRunningWave p) {
+    void setParamsForTest(const ParametersForRunningWave& p) {
         params = p;
         if (params.dimensionOfOutputData == 2)
             params.fileWriter.setSection(Section(Section::XOZ, Section::center));

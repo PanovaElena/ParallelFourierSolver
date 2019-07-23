@@ -77,11 +77,11 @@ struct ParallelTaskParameters : public TaskParameters {
         mask.setMaskWidth(vec3<int>(4));
     }
 
-    int getNSteps() {
+    int getNSteps() const {
         return nSeqSteps + nParSteps;
     }
 
-    void print() {
+    void print() const {
 
 		int numExchanges = nParSteps / nDomainSteps;
 		int numIterBeforeLastExchange = nParSteps % nDomainSteps;
@@ -90,7 +90,7 @@ struct ParallelTaskParameters : public TaskParameters {
 			"field solver = " << fieldSolver.to_string() << "\n" <<
 			"dt = " << dt << "\n" <<
             "a = " << a << "\n" <<
-            "b = " << (a + d * (vec3<double>)n) << "\n" <<
+            "b = " << (a + d * (const vec3<double>)n) << "\n" <<
 			"n = " << n << "\n" <<
 			"d = " << d << "\n" <<
 			"guard = " << guard << "\n" <<

@@ -36,7 +36,7 @@ struct vec3
     explicit vec3(T a) : x(a), y(a), z(a) {
     };
 
-    vec3& operator=(const vec3 & v) {
+    vec3& operator=(const vec3& v) {
         x = v.x;
         y = v.y;
         z = v.z;
@@ -52,20 +52,29 @@ struct vec3
         }
     };
 
+    T operator[](int i) const {
+        switch (i) {
+        case 0: return x;
+        case 1: return y;
+        case 2: return z;
+        default: return x;
+        }
+    };
+
     T get_x() const { return x; }
     T get_y() const { return y; }
     T get_z() const { return z; }
 
-    vec3(const vec3<T> &c) : x(c.x), y(c.y), z(c.z) {
+    vec3(const vec3<T>& c) : x(c.x), y(c.y), z(c.z) {
     };
 
     template<class T>
-    operator vec3<T>() {
+    operator vec3<T>() const {
         return vec3<T>(x, y, z);
     }
 
 
-    friend vec3 operator+(const vec3 &v1, const vec3 &v2) {
+    friend vec3 operator+(const vec3& v1, const vec3& v2) {
         return vec3(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
     };
     friend vec3 operator-(const vec3& v1, const vec3& v2) {
@@ -112,7 +121,7 @@ struct vec3
         return !(a == b);
     };
 
-    double getNorm()  const
+    double getNorm() const
     {
         return sqrt(absSquare(x) + absSquare(y) + absSquare(z));
     };
@@ -138,7 +147,7 @@ struct vec3
         return ost;
     }
 
-    friend std::string to_string(const vec3<T> vec) {
+    friend std::string to_string(const vec3<T>& vec) {
         std::string str = "(" + std::to_string(vec.x) + "," + std::to_string(vec.y) + "," +
             std::to_string(vec.z) + ")";
         return str;

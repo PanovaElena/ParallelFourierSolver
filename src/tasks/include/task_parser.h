@@ -84,9 +84,9 @@ public:
                 if (MaskMap.find(m.find("-mask")->second) != MaskMap.end())
                     params.mask = MaskMap.find(m.find("-mask")->second)->second;
 
-            if (m.find("-mwx") != m.end()) params.mask.getMaskWidth().x = std::stoi(m.find("-mwx")->second);
-            if (m.find("-mwy") != m.end()) params.mask.getMaskWidth().y = std::stoi(m.find("-mwy")->second);
-            if (m.find("-mwz") != m.end()) params.mask.getMaskWidth().z = std::stoi(m.find("-mwz")->second);
+            if (m.find("-mwx") != m.end()) params.mask.maskWidth.x = std::stoi(m.find("-mwx")->second);
+            if (m.find("-mwy") != m.end()) params.mask.maskWidth.y = std::stoi(m.find("-mwy")->second);
+            if (m.find("-mwz") != m.end()) params.mask.maskWidth.z = std::stoi(m.find("-mwz")->second);
 
             if (m.find("-filter") != m.end()) {
                 if (m.find("-filter")->second == "on")
@@ -94,13 +94,13 @@ public:
                 else if (m.find("-filter")->second == "off")
                     params.filter.state = Filter::State::off;
             }
-            if (m.find("-fwx") != m.end()) params.filter.getWidth().x = std::stoi(m.find("-fwx")->second);
-            if (m.find("-fwy") != m.end()) params.filter.getWidth().y = std::stoi(m.find("-fwy")->second);
-            if (m.find("-fwz") != m.end()) params.filter.getWidth().z = std::stoi(m.find("-fwz")->second);
+            if (m.find("-fwx") != m.end()) params.filter.maskWidth.x = std::stoi(m.find("-fwx")->second);
+            if (m.find("-fwy") != m.end()) params.filter.maskWidth.y = std::stoi(m.find("-fwy")->second);
+            if (m.find("-fwz") != m.end()) params.filter.maskWidth.z = std::stoi(m.find("-fwz")->second);
 
-            if (m.find("-fnzx") != m.end()) params.filter.getNumZeroFreq().x = std::stoi(m.find("-fnzx")->second);
-            if (m.find("-fnzy") != m.end()) params.filter.getNumZeroFreq().y = std::stoi(m.find("-fnzy")->second);
-            if (m.find("-fnzz") != m.end()) params.filter.getNumZeroFreq().z = std::stoi(m.find("-fnzz")->second);
+            if (m.find("-fnzx") != m.end()) params.filter.numZeroFreq.x = std::stoi(m.find("-fnzx")->second);
+            if (m.find("-fnzy") != m.end()) params.filter.numZeroFreq.y = std::stoi(m.find("-fnzy")->second);
+            if (m.find("-fnzz") != m.end()) params.filter.numZeroFreq.z = std::stoi(m.find("-fnzz")->second);
 
         }
         return Status::OK;

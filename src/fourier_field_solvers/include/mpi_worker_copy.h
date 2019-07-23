@@ -4,12 +4,15 @@
 class MPIWorkerCopy : public MPIWorker {
 public:
     MPIWorkerCopy() {}
-    MPIWorkerCopy(Grid3d& gr, vec3<int> guardWidth, Mask mask, MPIWrapper3d& _mpiWrapper3d) {
+    MPIWorkerCopy(Grid3d& gr, vec3<int> guardWidth, Mask mask, const MPIWrapper3d& _mpiWrapper3d) {
         initialize(gr, guardWidth, mask, _mpiWrapper3d);
     }
-
     MPIWorkerCopy(Grid3d& gr, vec3<int> guardWidth, Mask mask, int _size, int _rank) {
         initialize(gr, guardWidth, mask, _size, _rank);
+    }
+    MPIWorkerCopy(vec3<int> commonSize, vec3<int> guardWidth, const Mask& mask,
+        const MPIWrapper3d& _mpiWrapper3d, const StartConditions& startConditions) {
+        initialize(commonSize, guardWidth, mask, _mpiWrapper3d, startConditions);
     }
 
     void applyMask() override;

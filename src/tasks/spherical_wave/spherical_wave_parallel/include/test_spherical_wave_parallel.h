@@ -12,7 +12,7 @@ class TestSphericalWaveParallel : public TestParallel {
     MPIWorker& worker;
 
 public:
-    void setParamsForTest(ParametersForSphericalWave p) {
+    void setParamsForTest(const ParametersForSphericalWave& p) {
         sphericalWave.setParamsForTest(p);
     }
 

@@ -8,23 +8,23 @@ double simpleMask(vec3<int> ind, vec3<int> mainSize, vec3<int> guardSize, vec3<i
 double smoothMask(vec3<int> ind, vec3<int> mainSize, vec3<int> guardSize, vec3<int> maskWidth);
 
 class Mask {
+public:
     MaskFunc func;
     std::string str;
     vec3<int> maskWidth;
 
-public:
     Mask() {}
     Mask(MaskFunc f, std::string s) : func(f), str(s) {
     }
     Mask(MaskFunc f, std::string s, vec3<int> _maskWidth) : func(f), str(s), maskWidth(_maskWidth) {
     }
-    vec3<int>& getMaskWidth() {
+    vec3<int> getMaskWidth() const {
         return maskWidth;
     }
     void setMaskWidth(vec3<int> mw) {
         maskWidth = mw;
     }
-    std::string to_string() {
+    std::string to_string() const {
         return str;
     }
     double operator() (vec3<int> ind, vec3<int> mainSize, vec3<int> guardSize) {

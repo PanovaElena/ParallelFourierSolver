@@ -46,7 +46,8 @@ public:
         return MyComplex(z.data[0] * a, z.data[1] * a);
     }
     friend MyComplex operator*(const MyComplex& z1, const MyComplex& z2) {
-        return MyComplex(z1.data[0] * z2.data[0] - z1.data[1] * z2.data[1], z1.data[0] * z2.data[1] + z2.data[0] * z1.data[1]);
+        return MyComplex(z1.data[0] * z2.data[0] - z1.data[1] * z2.data[1],
+            z1.data[0] * z2.data[1] + z2.data[0] * z1.data[1]);
     }
     friend MyComplex operator/(const MyComplex& z, const double a) {
         return MyComplex(z.data[0] / a, z.data[1] / a);

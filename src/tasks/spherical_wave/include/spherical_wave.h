@@ -20,14 +20,14 @@ public:
     Source* source;
 
     StartConditionsSphericalWave() {}
-    StartConditionsSphericalWave(vec3<> _a, vec3<> _d, double _dt, FieldSolver& _fs, Source* _source) :
+    StartConditionsSphericalWave(vec3<> _a, vec3<> _d, double _dt, const FieldSolver& _fs, Source* _source) :
         StartConditions(_a, _d, _dt, _fs),  source(_source) {}
 
-    void initialize(vec3<> _a, vec3<> _d, double _dt, FieldSolver& _fs, Source* _source) {
+    void initialize(vec3<> _a, vec3<> _d, double _dt, const FieldSolver& _fs, Source* _source) {
         a = _a; d = _d; dt = _dt; fs = _fs; source = _source;
     }
 
-    virtual vec3<double> fJ(vec3<int> ind, int numIter) {
+    virtual vec3<double> fJ(vec3<int> ind, int numIter) const override {
         vec3<vec3<double>> dcJ = fs.getCoordOffset(J);
         double dtJ = fs.getTimeOffset(J);
         vec3<double> coord(getCoord(vec3<>(ind.x + dcJ.z.x, ind.y + dcJ.z.y, ind.z + dcJ.z.z)));
@@ -59,7 +59,7 @@ struct ParametersForSphericalWave : public ParallelTaskParameters {
         fileWriter.initialize("./", E, z, Section(Section::XOY, Section::center));
     }
 
-    void print() {
+    void print() const {
         ParallelTaskParameters::print();
         std::cout <<
             "coordinate of source = " << source.coord << "\n" <<
@@ -83,7 +83,7 @@ public:
         initialize();
     }
 
-    void setParamsForTest(ParametersForSphericalWave p) {
+    void setParamsForTest(const ParametersForSphericalWave& p) {
         params = p;
         params.startCond.reset(new StartConditionsSphericalWave(params.a, params.d,
             params.dt, params.fieldSolver, &params.source));

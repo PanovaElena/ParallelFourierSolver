@@ -30,13 +30,13 @@ public:
     MPIWorker() {}
 
     // хранение общей сетки на нулевом процессе
-    MPIWorker(Grid3d& commonGrid, vec3<int> guardWidth, const Mask& mask, MPIWrapper3d& _mpiWrapper3d) {
+    MPIWorker(Grid3d& commonGrid, vec3<int> guardWidth, const Mask& mask, const MPIWrapper3d& _mpiWrapper3d) {
         initialize(commonGrid, guardWidth, mask, _mpiWrapper3d);
     }
 
     // без общей сетки на нулевом процессе
     MPIWorker(vec3<int> commonSize, vec3<int> guardWidth, const Mask& mask,
-        MPIWrapper3d& _mpiWrapper3d, StartConditions& startConditions) {
+        const MPIWrapper3d& _mpiWrapper3d, const StartConditions& startConditions) {
         initialize(commonSize, guardWidth, mask, _mpiWrapper3d, startConditions);
     }
 
@@ -46,9 +46,9 @@ public:
     }
 
     Status initialize(Grid3d & commonGrid, vec3<int> _guardWidth, const Mask& _mask, int _size, int _rank);
-    Status initialize(Grid3d & commonGrid, vec3<int> _guardWidth, const Mask& _mask, MPIWrapper3d& _mpiWrapper3d);
+    Status initialize(Grid3d & commonGrid, vec3<int> _guardWidth, const Mask& _mask, const MPIWrapper3d& _mpiWrapper3d);
     Status initialize(vec3<int> _commonSize, vec3<int> _guardWidth, const Mask& _mask,
-        MPIWrapper3d& _mpiWrapper3d, StartConditions& startConditions);
+        const MPIWrapper3d& _mpiWrapper3d, const StartConditions& startConditions);
 
     void setMPIWrapper3d(const MPIWrapper3d& _mpiWrapper) {
         mpiWrapper3d = _mpiWrapper;
@@ -128,9 +128,9 @@ protected:
     void setRightGuardStart(vec3<int> guardWidth);
 
     void createGrid(Grid3d& commonGrid);
-    void MPIWorker::createGrid(vec3<int> _commonSize, StartConditions& _startConditions);
+    void MPIWorker::createGrid(vec3<int> _commonSize, const StartConditions& _startConditions);
 
-    Status send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, Grid3d& grFrom,
+    Status send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, const Grid3d& grFrom,
         MPI_Request& request);
     Status recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Grid3d& grTo);
     void sendToOneProcess(vec3<int> dest);
@@ -138,7 +138,7 @@ protected:
 
     //упаковывает вещественные поля части сетки
     int getPackSize(vec3<int> n1, vec3<int> n2);
-    void packData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grFrom);
+    void packData(vec3<int> n1, vec3<int> n2, double *& arr, const Grid3d& grFrom);
     virtual void unpackData(vec3<int> n1, vec3<int> n2, double *& arr, Grid3d& grTo) {};
 
     int getNum(int i, int j, int k) {
