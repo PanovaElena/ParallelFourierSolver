@@ -1,7 +1,6 @@
 #include "mpi_worker.h"
 #include "file_writer.h"
 #include "class_member_ptr.h"
-#include "start_conditions.h"
 
 void MPIWorker::setParams(vec3<int> commonSize, vec3<int> _guardSize) {
     domainSize = commonSize / size;  // делится нацело
@@ -66,7 +65,7 @@ void MPIWorker::createGrid(Grid3d & commonGrid) {
             }
 }
 
-void MPIWorker::createGrid(vec3<int> & _commonSize, StartConditions& sc) {
+void MPIWorker::createGrid(vec3<int> _commonSize, StartConditions& sc) {
     vec3<double> a = (vec3<double>)(getMainDomainStart() - getGuardSize())*sc.d + sc.a,
         b = a + (vec3<double>)getFullDomainSize()*sc.d;
     grid = Grid3d(getFullDomainSize(), a, b);
@@ -82,7 +81,7 @@ void MPIWorker::createGrid(vec3<int> & _commonSize, StartConditions& sc) {
             }
 }
 
-Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, Mask _mask, int _size, int _rank) {
+Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, const Mask& _mask, int _size, int _rank) {
     MPIWrapper3d _mpiWrapper3d;
     _mpiWrapper3d.setSize(_size, 1, 1);
     size = vec3<int>(_size, 1, 1);
@@ -96,7 +95,7 @@ Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, Mask _m
     return Status::OK;
 }
 
-Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, Mask _mask, MPIWrapper3d& _mpiWrapper3d) {
+Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, const Mask& _mask, MPIWrapper3d& _mpiWrapper3d) {
     setMPIWrapper3d(_mpiWrapper3d);
     size = mpiWrapper3d.MPISize();
     rank = mpiWrapper3d.MPIRank();
@@ -108,7 +107,7 @@ Status MPIWorker::initialize(Grid3d & commonGrid, vec3<int> _guardWidth, Mask _m
     return Status::OK;
 }
 
-Status MPIWorker::initialize(vec3<int> & _commonSize, vec3<int> _guardWidth, Mask _mask,
+Status MPIWorker::initialize(vec3<int> _commonSize, vec3<int> _guardWidth, const Mask& _mask,
     MPIWrapper3d& _mpiWrapper3d, StartConditions& startConditions) {
     setMPIWrapper3d(_mpiWrapper3d);
     size = mpiWrapper3d.MPISize();

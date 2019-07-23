@@ -30,25 +30,25 @@ public:
     MPIWorker() {}
 
     // хранение общей сетки на нулевом процессе
-    MPIWorker(Grid3d& commonGrid, vec3<int> guardWidth, Mask mask, MPIWrapper3d& _mpiWrapper3d) {
+    MPIWorker(Grid3d& commonGrid, vec3<int> guardWidth, const Mask& mask, MPIWrapper3d& _mpiWrapper3d) {
         initialize(commonGrid, guardWidth, mask, _mpiWrapper3d);
     }
 
     // без общей сетки на нулевом процессе
-    MPIWorker(vec3<int> & commonSize, vec3<int> guardWidth, Mask mask,
+    MPIWorker(vec3<int> commonSize, vec3<int> guardWidth, const Mask& mask,
         MPIWrapper3d& _mpiWrapper3d, StartConditions& startConditions) {
         initialize(commonSize, guardWidth, mask, _mpiWrapper3d, startConditions);
     }
 
     // для последовательного запуска (тесты)
-    MPIWorker(Grid3d& commonGrid, vec3<int> guardWidth, Mask mask, int _size, int _rank) {
+    MPIWorker(Grid3d& commonGrid, vec3<int> guardWidth, const Mask& mask, int _size, int _rank) {
         initialize(commonGrid, guardWidth, mask, _size, _rank);
     }
 
-    Status initialize(Grid3d & commonGrid, vec3<int> _guardWidth, Mask _mask, int _size, int _rank);
-    Status initialize(Grid3d & commonGrid, vec3<int> _guardWidth, Mask _mask, MPIWrapper3d& _mpiWrapper3d);
-    Status initialize(vec3<int> & commonSize, vec3<int> _guardWidth, Mask _mask,
-        MPIWrapper3d& _mpiWrapper3d, StartConditions& _startConditions);
+    Status initialize(Grid3d & commonGrid, vec3<int> _guardWidth, const Mask& _mask, int _size, int _rank);
+    Status initialize(Grid3d & commonGrid, vec3<int> _guardWidth, const Mask& _mask, MPIWrapper3d& _mpiWrapper3d);
+    Status initialize(vec3<int> _commonSize, vec3<int> _guardWidth, const Mask& _mask,
+        MPIWrapper3d& _mpiWrapper3d, StartConditions& startConditions);
 
     void setMPIWrapper3d(const MPIWrapper3d& _mpiWrapper) {
         mpiWrapper3d = _mpiWrapper;
@@ -128,7 +128,7 @@ protected:
     void setRightGuardStart(vec3<int> guardWidth);
 
     void createGrid(Grid3d& commonGrid);
-    void MPIWorker::createGrid(vec3<int> & _commonSize, StartConditions& _startConditions);
+    void MPIWorker::createGrid(vec3<int> _commonSize, StartConditions& _startConditions);
 
     Status send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, Grid3d& grFrom,
         MPI_Request& request);

@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <iostream>
 
 class MyComplex {
     double data[2];
@@ -29,13 +30,13 @@ public:
     void setImag(double imag) {
         data[1] = imag;
     }
-    double getReal() {
+    double getReal() const {
         return data[0];
     }
-    double getImag() {
+    double getImag() const {
         return data[1];
     }
-    double getAbs() {
+    double getAbs() const {
         return sqrt(data[0] * data[0] + data[1] * data[1]);
     }
     friend MyComplex operator*(const MyComplex& z, const double a) {
@@ -80,12 +81,17 @@ public:
         return MyComplex(data[0], -data[1]);
     }
     operator double() { return data[0]; }
+	
+	friend std::ostream& operator<<(std::ostream& ost, const MyComplex& c) {
+        ost << "(" << c.data[0] << "," << c.data[1] << ")";
+        return ost;
+    }
+	
+	friend double abs(const MyComplex& a) {
+        return sqrt(a.getReal()*a.getReal() + a.getImag()*a.getImag());
+    }
 
 };
-
-inline double abs(MyComplex a) {
-    return sqrt(a.getReal()*a.getReal() + a.getImag()*a.getImag());
-}
 
 const MyComplex complex_i(0, 1);
 const MyComplex complex_0(0, 0);

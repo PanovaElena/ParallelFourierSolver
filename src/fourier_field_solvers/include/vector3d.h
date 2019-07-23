@@ -133,12 +133,12 @@ struct vec3
         return vec3(c1, c2, c3);
     };
 
-    friend std::ostream& operator<<(std::ostream& ost, vec3& vec) {
+    friend std::ostream& operator<<(std::ostream& ost, const vec3<T>& vec) {
         ost << "(" << vec.x << "," << vec.y << "," << vec.z << ")";;
         return ost;
     }
 
-    friend std::string to_string(const vec3<T>& vec) {
+    friend std::string to_string(const vec3<T> vec) {
         std::string str = "(" + std::to_string(vec.x) + "," + std::to_string(vec.y) + "," +
             std::to_string(vec.z) + ")";
         return str;
@@ -146,7 +146,7 @@ struct vec3
 
 
     template<class T>
-    static vec3<T> getVecIfCoord(Coordinate coord, vec3<T> valCoord, vec3<T> valOther) {
+    static vec3<T> getVecIfCoord(Coordinate coord, const vec3<T>& valCoord, const vec3<T>& valOther) {
         return vec3<T>(coord == Coordinate::x ? valCoord.x : valOther.x,
             coord == Coordinate::y ? valCoord.y : valOther.y,
             coord == Coordinate::z ? valCoord.z : valOther.z);
