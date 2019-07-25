@@ -4,12 +4,14 @@ option( USE_MKL "using mkl" ON )
 option( USE_FFTW "using fftw" OFF )
 option( USE_MPI_FFT "using fft with mpi" OFF )
 option( USE_OMP "using omp" ON )
+option( USE_TESTS "using tests" ON )
+
 
 set( PROJECT "parallel_fourier_solvers" )
 project( ${PROJECT} )
 
 include( cmake/function.cmake )
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 add_definitions( -DROOT_DIR="${CMAKE_SOURCE_DIR}" )
 
@@ -130,4 +132,7 @@ endif()
 
 
 add_subdirectory( src )
-add_subdirectory( test )
+
+if ( USE_TESTS )
+    add_subdirectory( test )
+endif()

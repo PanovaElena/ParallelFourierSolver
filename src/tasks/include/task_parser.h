@@ -1,7 +1,7 @@
 #pragma once
+#include "command_line_parser.h"
 #include <iostream>
 #include <omp.h>
-#include "command_line_parser.h"
 #include "task_parameters.h"
 #include "vector3d.h"
 

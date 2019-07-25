@@ -1,6 +1,6 @@
+#include "mpi_wrapper.h"
 #include <string>
 #include <iostream>
-#include "mpi_wrapper.h"
 #include "test_parallel.h"
 #include "test_running_wave_parallel.h"
 #include "parser_running_wave.h"

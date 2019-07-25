@@ -1,7 +1,6 @@
 #include <omp.h>
-#include "fftw3.h"
-#include "fftw3-mpi.h"
 #include "mpi_wrapper.h"
+#include "fftw3.h"
 #include "grid3d.h"
 #include "my_complex.h"
 #include "fourier_transform.h"

@@ -1,6 +1,6 @@
+#include "mpi_wrapper.h"
 #include <string>
 #include <iostream>
-#include "mpi_wrapper.h"
 #include "parser_spherical_wave.h"
 #include "test_parallel.h"
 #include "test_spherical_wave_parallel.h"

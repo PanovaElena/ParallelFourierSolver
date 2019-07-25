@@ -1,7 +1,7 @@
+#include "mpi_wrapper.h"
 #include <string>
 #include <iostream>
 #include <omp.h>
-#include "mpi_wrapper.h"
 #include "class_member_ptr.h"
 #include "running_wave.h"
 #include "parser_running_wave.h"
@@ -60,14 +60,13 @@ void fourierTransform(Grid3d & gr, Direction dir) {
 void testBody(RunningWave& runningWave) {
 
     double t1 = omp_get_wtime();
-    bool useMpi = true;
 
-    transformGridIfNecessary(runningWave.params.fieldSolver, runningWave.gr, RtoC, useMpi);
+    fourierTransform(runningWave.gr, RtoC);
     for (int j = 1; j <= runningWave.params.nSeqSteps; j++) {
         runningWave.params.fieldSolver(runningWave.gr, runningWave.params.dt);
     }
 
-    transformGridIfNecessary(runningWave.params.fieldSolver, runningWave.gr, CtoR, useMpi);
+    fourierTransform(runningWave.gr, CtoR);
 
     double t2 = omp_get_wtime();
     std::cout << "Time of mpi fft version is " << t2 - t1 << std::endl;

@@ -1,6 +1,6 @@
+#include "parser_spherical_wave.h"
 #include <string>
 #include <iostream>
-#include "parser_spherical_wave.h"
 #include "spherical_wave.h"
 #include "fourier_transform.h"
 #include "field_solver.h"
