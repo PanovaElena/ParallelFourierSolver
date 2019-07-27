@@ -128,7 +128,7 @@ protected:
     void setRightGuardStart(vec3<int> guardWidth);
 
     void createGrid(Grid3d& commonGrid);
-    void MPIWorker::createGrid(vec3<int> _commonSize, const StartConditions& _startConditions);
+    void createGrid(vec3<int> _commonSize, const StartConditions& _startConditions);
 
     Status send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, const Grid3d& grFrom,
         MPI_Request& request);
