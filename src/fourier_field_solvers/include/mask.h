@@ -30,6 +30,12 @@ public:
     double operator() (vec3<int> ind, vec3<int> mainSize, vec3<int> guardSize) {
         return func(ind, mainSize, guardSize, maskWidth);
     }
+    friend double operator==(const Mask& m1, const Mask& m2) {
+        return (m1.func == m2.func);
+    }
+    friend double operator!=(const Mask& m1, const Mask& m2) {
+        return (m1 != m2);
+    }
 };
 
 const Mask SimpleMask(simpleMask, "simple");

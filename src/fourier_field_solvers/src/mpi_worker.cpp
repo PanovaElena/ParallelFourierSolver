@@ -121,24 +121,6 @@ Status MPIWorker::initialize(vec3<int> _commonSize, vec3<int> _guardWidth, const
     return Status::OK;
 }
 
-Status MPIWorker::send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest,
-    int tag, const Grid3d& grFrom, MPI_Request& request) {
-    if (n1.x > n2.x || n1.y > n2.y || n1.z > n2.z) return Status::STOP;
-    arr = new double[getPackSize(n1, n2)];
-    packData(n1, n2, arr, grFrom);
-    mpiWrapper3d.MPIISend(arr, getPackSize(n1, n2), dest, tag, request);
-    return Status::OK;
-}
-
-Status MPIWorker::recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Grid3d& grTo) {
-    if (n1.x > n2.x || n1.y > n2.y || n1.z > n2.z) return Status::ERROR;
-    double* arr = new double[getPackSize(n1, n2)];
-    mpiWrapper3d.MPIRecv(arr, getPackSize(n1, n2), source, tag);
-    unpackData(n1, n2, arr, grTo);
-    if (arr) delete[] arr;
-    return Status::OK;
-}
-
 void MPIWorker::exchangeTwoProcesses(Coordinate coord) {
     if (getGuardSize().*getMemberPtrCoord<int>(coord) == 0) return;
 
@@ -183,7 +165,7 @@ void MPIWorker::exchangeTwoProcesses(Coordinate coord) {
     if (arrS2) delete[] arrS2;
 }
 
-void MPIWorker::ExchangeGuard() {
+void MPIWorker::exchangeGuard() {
     exchangeTwoProcesses(x);
     MPIWrapper::MPIBarrier();
     exchangeTwoProcesses(y);
@@ -233,11 +215,31 @@ int MPIWorker::getPackSize(vec3<int> n1, vec3<int> n2) {
 
 void MPIWorker::packData(vec3<int> n1, vec3<int> n2, double*& arr, const Grid3d& grFrom) {
     int num = 0;
-    for (int i = n1.x; i < n2.x; i++)
-        for (int j = n1.y; j < n2.y; j++)
-            for (int k = n1.z; k < n2.z; k++)
-                for (int coord = 0; coord < 3; coord++) {
-                    arr[num++] = grFrom.E[coord](i, j, k);
+    for (int coord = 0; coord < 3; coord++) {
+#pragma omp parallel for
+        for (int i = n1.x; i < n2.x; i++)
+            for (int j = n1.y; j < n2.y; j++)
+#pragma omp simd
+                for (int k = n1.z; k < n2.z; k++)
+                        arr[num++] = grFrom.E[coord](i, j, k);
+
+#pragma omp parallel for
+        for (int i = n1.x; i < n2.x; i++)
+            for (int j = n1.y; j < n2.y; j++)
+#pragma omp simd
+                for (int k = n1.z; k < n2.z; k++)
                     arr[num++] = grFrom.B[coord](i, j, k);
-                }
+    }
+}
+
+void MPIWorker::applyMask() {
+    applyMask(E, x);
+    applyMask(E, y);
+    applyMask(E, z);
+    applyMask(B, x);
+    applyMask(B, y);
+    applyMask(B, z);
+    applyMask(J, x);
+    applyMask(J, y);
+    applyMask(J, z);
 }

@@ -2,6 +2,7 @@
 #include "mpi.h"
 #include <iostream>
 #include <string>
+#include "array3d.h"
 
 class MPIWrapper {
 public:
@@ -19,8 +20,7 @@ public:
         MPI_Isend(buf, size, MPI_DOUBLE, dest, tag, MPI_COMM_WORLD, &request);
     }
     static void  MPIRecv(double*& buf, int size, int source, int tag) {
-        MPI_Status status;
-        MPI_Recv(buf, size, MPI_DOUBLE, source, tag, MPI_COMM_WORLD, &status);
+        MPI_Recv(buf, size, MPI_DOUBLE, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
     static void MPIWait(MPI_Request& request) {
         MPI_Status status;

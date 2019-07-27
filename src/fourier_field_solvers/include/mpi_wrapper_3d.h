@@ -54,4 +54,34 @@ public:
     void MPIRecv(double*& buf, int size, vec3<int> source, int tag) {
         MPIWrapper::MPIRecv(buf, size, getScalarRank(source), tag);
     }
+    void MPIISendSubarray(Array3d<double>& arr, vec3<int> n1, vec3<int> n2,
+        vec3<int> dest, int tag, MPI_Request& request) {
+        MPI_Datatype mysubarray;
+
+        int starts[3] = { n1.x, n1.y, n1.z };
+        int subsizes[3] = { n2.x - n1.x, n2.y - n1.y, n2.z - n1.z };
+        int bigsizes[3] = { arr.size().x, arr.size().y, arr.size().z };
+
+        MPI_Type_create_subarray(3, bigsizes, subsizes, starts,
+            MPI_ORDER_C, MPI_DOUBLE, &mysubarray);
+        MPI_Type_commit(&mysubarray);
+
+        MPI_Isend(&(arr[0]), 1, mysubarray, getScalarRank(dest), tag, MPI_COMM_WORLD, &request);
+        MPI_Type_free(&mysubarray);
+    }
+    void MPIIRecvSubarray(Array3d<double>& arr, vec3<int> n1, vec3<int> n2,
+        vec3<int> source, int tag) {
+        MPI_Datatype mysubarray;
+
+        int starts[3] = { n1.x, n1.y, n1.z };
+        int subsizes[3] = { n2.x - n1.x, n2.y - n1.y, n2.z - n1.z };
+        int bigsizes[3] = { arr.size().x, arr.size().y, arr.size().z };
+
+        MPI_Type_create_subarray(3, bigsizes, subsizes, starts,
+            MPI_ORDER_C, MPI_DOUBLE, &mysubarray);
+        MPI_Type_commit(&mysubarray);
+
+        MPI_Recv(&(arr[0]), 1, mysubarray, getScalarRank(source), tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Type_free(&mysubarray);
+    }
 };

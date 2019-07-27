@@ -101,9 +101,9 @@ public:
         return grid;
     }
 
-    virtual void applyMask() {};
+    void applyMask();
 
-    void ExchangeGuard();
+    void exchangeGuard();
 
     void showMessage(std::string message) {
         std::cout << "rank " << mpiWrapper3d.getScalarRank(rank) << ": " << message << std::endl;
@@ -130,9 +130,9 @@ protected:
     void createGrid(Grid3d& commonGrid);
     void createGrid(vec3<int> _commonSize, const StartConditions& _startConditions);
 
-    Status send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, const Grid3d& grFrom,
-        MPI_Request& request);
-    Status recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Grid3d& grTo);
+    virtual Status send(vec3<int> n1, vec3<int> n2, double*& arr, vec3<int> dest, int tag, Grid3d& grFrom,
+        MPI_Request& request) {};
+    virtual Status recv(vec3<int> n1, vec3<int> n2, vec3<int> source, int tag, Grid3d& grTo) {};
     void sendToOneProcess(vec3<int> dest);
     void recvFromAllProcesses(Grid3d& commonGrid);
 
@@ -148,4 +148,6 @@ protected:
     void exchangeTwoProcesses(Coordinate coord);
     virtual void getBoardsForExchange(int& sl1, int& sl2, int& sr1, int& sr2,
         int& rl1, int& rl2, int& rr1, int& rr2, Coordinate coord) {};
+
+    virtual void applyMask(Field f, Coordinate c) {};
 };

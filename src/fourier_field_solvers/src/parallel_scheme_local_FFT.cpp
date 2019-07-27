@@ -5,9 +5,10 @@
 #include "simple_types.h"
 #include "filter.h"
 
+static int ch = 0;
 
 void parallelSchemeOneExchange(MPIWorker& worker, const FieldSolver& fieldSolver, int numIter, double dt,
-    FileWriter& fileWriter) {
+    FileWriter& fileWriter, bool writeFile) {
     worker.applyMask();
 
     fourierTransform(worker.getGrid(), RtoC);
@@ -15,9 +16,13 @@ void parallelSchemeOneExchange(MPIWorker& worker, const FieldSolver& fieldSolver
         fieldSolver(worker.getGrid(), dt);
     fourierTransform(worker.getGrid(), CtoR);
 
-    fileWriter.write(worker.getGrid(), "iter_rank_" + std::to_string(MPIWrapper::MPIRank()) + "_before_exc.csv", Double);
-    worker.ExchangeGuard();
-    fileWriter.write(worker.getGrid(), "iter_rank_" + std::to_string(MPIWrapper::MPIRank()) + "_after_exc.csv", Double);
+    if (writeFile)
+        fileWriter.write(worker.getGrid(), "iter_rank_" + std::to_string(MPIWrapper::MPIRank()) +
+            "_before_last_exc.csv", Double);
+    worker.exchangeGuard();
+    if (writeFile)
+        fileWriter.write(worker.getGrid(), "iter_rank_" + std::to_string(MPIWrapper::MPIRank()) +
+            "_after_last_exc.csv", Double);
 }
 
 void parallelScheme(MPIWorker& worker, const FieldSolver& fieldSolver, int numIter, int maxIterBetweenExchange,
@@ -26,8 +31,14 @@ void parallelScheme(MPIWorker& worker, const FieldSolver& fieldSolver, int numIt
     int numExchanges = numIter / maxIterBetweenExchange;
     int numIterBeforeLastExchange = numIter % maxIterBetweenExchange;
 
-    for (int i = 0; i < numExchanges; i++)
-        parallelSchemeOneExchange(worker, fieldSolver, maxIterBetweenExchange, dt, fileWriter);
-    if (numIterBeforeLastExchange != 0)
-        parallelSchemeOneExchange(worker, fieldSolver, numIterBeforeLastExchange, dt, fileWriter);
+    for (int i = 0; i < numExchanges - 1; i++)
+        parallelSchemeOneExchange(worker, fieldSolver, maxIterBetweenExchange, dt, fileWriter, false);
+
+    if (numIterBeforeLastExchange != 0) {
+        parallelSchemeOneExchange(worker, fieldSolver, maxIterBetweenExchange, dt, fileWriter, false);
+        parallelSchemeOneExchange(worker, fieldSolver, numIterBeforeLastExchange, dt, fileWriter, true);
+    }
+    else {
+        parallelSchemeOneExchange(worker, fieldSolver, maxIterBetweenExchange, dt, fileWriter, true);
+    }
 }

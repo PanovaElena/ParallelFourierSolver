@@ -118,9 +118,9 @@ public:
 
         if (MPIWrapper::MPISize() != np.x*np.y*np.z) return Status::ERROR;
 
-        if (m.find("-scheme") != m.end() && m.find("-scheme")->second == "copy")
-            mpiWorker = new MPIWorkerCopy();
-        else mpiWorker = new MPIWorkerSum();
+        if (m.find("-scheme") != m.end() && m.find("-scheme")->second == "sum")
+            mpiWorker = new MPIWorkerSum();
+        else mpiWorker = new MPIWorkerCopy();
 
         MPIWrapper3d mw(np);
         mpiWorker->setMPIWrapper3d(MPIWrapper3d(np));
