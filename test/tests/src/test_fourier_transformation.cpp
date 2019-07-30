@@ -12,14 +12,25 @@ public:
     double X = 6, Y = 8, Z = 10;
     Grid3d grid;
 
+    double f(int index, Coordinate coord) {
+        const double A = 10;
+        switch (coord) {
+        case Coordinate::x:
+            return A * sin(2 * constants::pi*index / nx);
+        case Coordinate::y:
+            return A * sin(2 * constants::pi*index / nz);
+        case Coordinate::z:
+            return A * sin(2 * constants::pi*index / ny);
+        }
+    }
+
     TestFourierTransform() : grid({ nx, ny, nz }, { 0, 0, 0 }, { X, Y, Z }) {
-        double A = 10;
         for (int i = 0; i < nx; i++)
             for (int j = 0; j < ny; j++)
                 for (int k = 0; k < nz; k++) {
-                    double x = A * sin(2 * constants::pi*k / nx);
-                    double y = A * sin(2 * constants::pi*i / nz);
-                    double z = A * sin(2 * constants::pi*j / ny);
+                    double x = f(k, Coordinate::x);
+                    double y = f(k, Coordinate::y);
+                    double z = f(k, Coordinate::z);
 
                     grid.E[0](i, j, k) = grid.B[0](i, j, k) = x;
                     grid.E[1](i, j, k) = grid.B[1](i, j, k) = y;
@@ -35,6 +46,16 @@ public:
         Grid3d grid2 = grid;
 
         fourierTransform(grid, field, coord, RtoC);
+
+        /*bool flag = true;
+        for (int i = 0; i < grid.sizeReal().x; i++)
+            for (int j = 0; j < grid.sizeReal().y; j++)
+                for (int k = 0; k < grid.sizeReal().z; k++)
+                    if ((grid.*p.*m)(i, j, k) != f(k, coord))
+                        flag = false;
+        if (flag)
+            std::cout << "NOT SPOIL" << std::endl;*/
+
         fourierTransform(grid, field, coord, CtoR);
 
         for (int i = 0; i < grid.sizeReal().x; i++)
