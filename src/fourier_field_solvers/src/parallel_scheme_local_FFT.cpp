@@ -5,8 +5,6 @@
 #include "simple_types.h"
 #include "filter.h"
 
-static int ch = 0;
-
 void parallelSchemeOneExchange(MPIWorker& worker, const FieldSolver& fieldSolver, int numIter, double dt,
     FileWriter& fileWriter, bool writeFile) {
     worker.applyMask();
