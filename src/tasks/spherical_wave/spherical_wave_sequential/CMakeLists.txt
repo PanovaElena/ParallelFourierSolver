@@ -1,1 +1,1 @@
-create_executable( spherical_wave_sequential SPHERICAL_WAVE_INCLUDE )
+create_executable( spherical_wave_sequential )

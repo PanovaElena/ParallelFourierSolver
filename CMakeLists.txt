@@ -6,6 +6,8 @@ option( USE_MPI_FFT "using fft with mpi" OFF )
 option( USE_OMP "using omp" ON )
 option( USE_TESTS "using tests" ON )
 
+# set FFTW_DIR if fftw has already installed
+
 
 set( PROJECT "parallel_fourier_solvers" )
 project( ${PROJECT} )
@@ -17,7 +19,6 @@ add_definitions( -DROOT_DIR="${CMAKE_SOURCE_DIR}" )
 
 set( INSTALL_DIR "${CMAKE_BINARY_DIR}/3rdparty" )
 file( MAKE_DIRECTORY "${INSTALL_DIR}" )
-
 
 if ( DCMAKE_CXX_COMPILER MATCHES CMAKE_CXX_COMPILER-NOTFOUND )
     message( WARNING "Cannot find ${DCMAKE_CXX_COMPILER} compiler" )
@@ -51,31 +52,25 @@ endif()
 
 # mpi
 if ( WIN32 )
-    if ( NOT MPI_LIBRARIES OR NOT MPI_INCLUDE_PATH)
-	    set( MPI_LIBRARIES "$ENV{I_MPI_ROOT}/intel64/lib/*.lib" )
-	    set( MPI_INCLUDE_PATH "$ENV{I_MPI_ROOT}/intel64/include" )
-	endif()
-	include_directories( ${MPI_INCLUDE_PATH} )
-	add_element_to_global_property( ALL_LIBS "${MPI_LIBRARIES}" )
-    message( STATUS "Found MPI: ${MPI_LIBRARIES}" )
-else()
+    if ( NOT MPI_CXX_LIBRARIES OR NOT MPI_CXX_INCLUDE_DIRS)
+        set( MPI_CXX_LIBRARIES "$ENV{I_MPI_ROOT}/lib64/*.lib" )
+        set( MPI_CXX_INCLUDE_DIRS "$ENV{I_MPI_ROOT}/include64" )
+    endif()
+    message( STATUS "Found MPI: ${MPI_CXX_LIBRARIES}" )
+elseif( UNIX )
     find_package( MPI )
     if ( MPI_FOUND )
-        find_library( MPI_LIB mpi ${MPI_LIBRARIES} ) 
-        add_element_to_global_property( ALL_LIBS "${MPI_LIB}" )
-        include_directories( ${MPI_INCLUDE_PATH} )
+        message( STATUS "Found MPI: ${MPI_CXX_LIBRARIES}" )
     else()
-        message( STATUS "Cannot find MPI, I_MPI_ROOT is used" )
-        set( I_MPI_ROOT $ENV{I_MPI_ROOT} )
-        if ( I_MPI_ROOT )
-            set( MPI_LIBRARIES "${I_MPI_ROOT}/intel64/lib" )
-            find_library( MPI_LIB mpi "${MPI_LIBRARIES}" ) 
-            set( MPI_INCLUDE_PATH "${I_MPI_ROOT}/intel64/include" )
-	    include_directories( ${MPI_INCLUDE_PATH} )
-            add_element_to_global_property( ALL_LIBS "${MPI_LIB}" )
-        else()
-            message( WARNING "I_MPI_ROOT is not defined!" )
+        message( STATUS "Cannot find MPI, mpi wrappers (mpicc ect.) are used" )
+        set( MPI_CXX_INCLUDE_DIRS "" )
+        set( MPI_CXX_LIBRARIES "" ) 
+        if (${CMAKE_CXX_COMPILER} MATCHES "icc.*$")  # ICC
+            set(CMAKE_CXX_COMPILER "mpiicc")
+        elseif(${CMAKE_CXX_COMPILER} MATCHES "gcc.*$")  # GCC
+            set(CMAKE_CXX_COMPILER "mpicc")
         endif()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static_mpi")
     endif()
 endif()
 
@@ -97,37 +92,61 @@ endif()
 if ( USE_MKL )
     find_package( MKL )
     if ( MKL_FOUND )
-        include_directories( ${MKL_INCLUDE_DIRS} )
-        add_element_to_global_property( ALL_LIBS "${MKL_LIBRARIES}" )
-	else()	
-		message( WARNING "Cannot find MKL" )
-	endif()
+        set( FFT_INCLUDES ${MKL_INCLUDE_DIRS} )
+        set( FFT_LIBRARIES ${MKL_LIBRARIES} )
+    else()    
+        message( WARNING "Cannot find MKL" )
+    endif()
 endif()
 
 # fftw
 if ( USE_FFTW )
+
+    if( NOT FFTW_DIR )
     
-    set( FFTW_VERSION 3.3.8 )
-    include( ExternalProject )
-    ExternalProject_Add( project_fftw
-        URL "http://fftw.org/fftw-${FFTW_VERSION}.tar.gz"
-        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/fftw
-        CMAKE_ARGS
-            "-DCMAKE_CFLAGS=${CMAKE_C_FLAGS}"
-            "-DBUILD_SHARED_LIBS=OFF"
-            "-DENABLE_AVX2=ON"
-            "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}/fftw" 
-            "-DENABLE_OPENMP=ON"
-            "-DBUILD_TESTS=OFF"
-            )
-    install( DIRECTORY "${INSTALL_DIR}" DESTINATION . )
+        set( FFTW_VERSION 3.3.8 )
+        message( STATUS "Downloading fftw-${FFTW_VERSION}" )
+        include( ExternalProject )
+        ExternalProject_Add( project_fftw
+            URL "http://fftw.org/fftw-${FFTW_VERSION}.tar.gz"
+            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/fftw
+            CMAKE_ARGS
+                "-DCMAKE_CFLAGS=${CMAKE_C_FLAGS}"
+                "-DBUILD_SHARED_LIBS=OFF"
+                "-DENABLE_AVX2=ON"
+                "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}/fftw"
+                "-DENABLE_OPENMP=ON"
+                "-DBUILD_TESTS=OFF"
+                )
+        install( DIRECTORY "${INSTALL_DIR}" DESTINATION . )
+        
+        set( FFTW3_LIB ${INSTALL_DIR}/fftw/lib/${CMAKE_STATIC_LIBRARY_PREFIX}fftw3${CMAKE_STATIC_LIBRARY_SUFFIX})
+        set( FFTW3_OMP_LIB ${INSTALL_DIR}/fftw/lib/${CMAKE_STATIC_LIBRARY_PREFIX}fftw3_omp${CMAKE_STATIC_LIBRARY_SUFFIX})
+        
+        set( FFT_INCLUDES ${INSTALL_DIR}/fftw/include )
+        set( FFT_LIBRARIES ${FFTW3_OMP_LIB} ${FFTW3_LIB} )
+        
+    else() # FFTW_DIR
+
+        set( FFTW_LIBRARIES_PATH ${FFTW_DIR}/lib )
+        find_library( FFTW3_LIB NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}fftw3${CMAKE_STATIC_LIBRARY_SUFFIX} fftw3 PATHS ${FFTW_LIBRARIES_PATH} )
+        find_library( FFTW3_OMP_LIB NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}fftw3_omp${CMAKE_STATIC_LIBRARY_SUFFIX} fftw3_omp PATHS ${FFTW_LIBRARIES_PATH} )
+        if( USE_MPI_FFT )
+            find_library( FFTW3_MPI_LIB NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}fftw3_mpi${CMAKE_STATIC_LIBRARY_SUFFIX} fftw3_mpi PATHS ${FFTW_LIBRARIES_PATH} )
+        endif()
+        
+        if ( FFTW3_LIB AND FFTW3_OMP_LIB )
+            set( FFT_INCLUDES ${FFTW_DIR}/include )
+            if( USE_MPI_FFT AND NOT FFTW3_MPI_LIB )
+                message( WARNING "Cannot find fftw3_mpi lib")
+            endif()
+            set( FFT_LIBRARIES ${FFTW3_MPI_LIB} ${FFTW3_OMP_LIB} ${FFTW3_LIB} )
+        else()
+            message( WARNING "Cannot find fftw libs")
+        endif()
+        
+    endif() # FFTW_DIR
     
-    set( FFTW_DIR ${INSTALL_DIR}/fftw )
-    include_directories( ${FFTW_DIR}/include )
-	set( FFTW3_LIB ${FFTW_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}fftw3${CMAKE_STATIC_LIBRARY_SUFFIX})
-	set( FFTW3_OMP_LIB ${FFTW_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}fftw3_omp${CMAKE_STATIC_LIBRARY_SUFFIX})
-    add_element_to_global_property( ALL_LIBS "${FFTW3_LIB};${FFTW3_OMP_LIB}" )
-	
 endif()
 
 

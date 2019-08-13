@@ -1,1 +1,1 @@
-create_executable( running_wave_parallel RUNNING_WAVE_INCLUDE )
+create_executable( running_wave_parallel )
