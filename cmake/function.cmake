@@ -1,6 +1,6 @@
 function( add_element_to_global_property NAME_PROPERTY ELEMENT )
     get_property( PROP GLOBAL PROPERTY ${NAME_PROPERTY} )
-    list( APPEND PROP ${ELEMENT} )
+    set(PROP ${PROP} ${ELEMENT} )
     set_property ( GLOBAL PROPERTY ${NAME_PROPERTY} ${PROP} )
     
 endfunction()
@@ -24,10 +24,10 @@ endfunction()
 
 function( create_executable TARGET)
     if ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src" )
-        set( TARGET_SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp )
+        set( TARGET_SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp )
     endif()
     if ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/include" )
-        set( TARGET_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include )
+        set( TARGET_INCLUDE_DIRS ${TARGET_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/include )
         set( TARGET_INCLUDE_FILES ${TARGET_INCLUDE_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h )
     endif()
     if ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../include" )
@@ -67,7 +67,7 @@ function( create_executable TARGET)
     endif()
     target_link_libraries( ${TARGET} ${ALL_TARGET_LIBS} )
     
-    add_element_to_global_property( MY_TEST_INCLUDES ${TARGET_INCLUDE_DIRS} )
+    add_element_to_global_property( MY_TEST_INCLUDES "${TARGET_INCLUDE_DIRS}" )
 
 endfunction()
 
