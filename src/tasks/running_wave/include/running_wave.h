@@ -76,9 +76,9 @@ struct ParametersForRunningWave : public ParallelTaskParameters {
         fileWriter.initialize("./", E, y, Section(Section::XOY, Section::center, Section::XOZ, Section::center));
     }
 
-    void print() const {
-        ParallelTaskParameters::print();
-        std::cout <<
+    void print(std::ostream& ost = std::cout) const {
+        ParallelTaskParameters::print(ost);
+        ost <<
             "lambda = " << lambda << "\n" <<
             "angle = " << angle << "\n" <<
             "dimension of output data = " << dimensionOfOutputData << "\n" <<

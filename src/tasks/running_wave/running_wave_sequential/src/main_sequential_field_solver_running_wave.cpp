@@ -9,6 +9,13 @@
 
 void testBody(RunningWave& runningWave) {
 
+    runningWave.params.fileWriter.setField(E);
+    runningWave.params.fileWriter.setCoord(y);
+    runningWave.params.fileWriter.write(runningWave.gr, "sequential_before_E.csv", Double, "writing...");
+    runningWave.params.fileWriter.setField(B);
+    runningWave.params.fileWriter.setCoord(z);
+    runningWave.params.fileWriter.write(runningWave.gr, "sequential_before_B.csv", Double, "writing...");
+
     double t1 = omp_get_wtime();
 
     transformGridIfNecessary(runningWave.params.fieldSolver, runningWave.gr, RtoC);
@@ -23,7 +30,13 @@ void testBody(RunningWave& runningWave) {
 
     std::cout << "Time of sequential version is " << t2 - t1 << std::endl;
 
-    runningWave.params.fileWriter.write(runningWave.gr, "sequential_result.csv", Double, "writing...");
+    runningWave.params.fileWriter.setField(E);
+    runningWave.params.fileWriter.setCoord(y);
+    runningWave.params.fileWriter.write(runningWave.gr, "sequential_result_E.csv", Double, "writing...");
+    runningWave.params.fileWriter.setField(B);
+    runningWave.params.fileWriter.setCoord(z);
+    runningWave.params.fileWriter.write(runningWave.gr, "sequential_result_B.csv", Double, "writing...");
+
 }
 
 int main(int argc, char** argv) {

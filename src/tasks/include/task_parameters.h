@@ -81,29 +81,29 @@ struct ParallelTaskParameters : public TaskParameters {
         return nSeqSteps + nParSteps;
     }
 
-    void print() const {
+    void print(std::ostream& ost = std::cout) const {
 
-		int numExchanges = nParSteps / nDomainSteps;
-		int numIterBeforeLastExchange = nParSteps % nDomainSteps;
+        int numExchanges = nParSteps / nDomainSteps;
+        int numIterBeforeLastExchange = nParSteps % nDomainSteps;
 
-		std::cout <<
-			"field solver = " << fieldSolver.to_string() << "\n" <<
-			"dt = " << dt << "\n" <<
+        ost <<
+            "field solver = " << fieldSolver.to_string() << "\n" <<
+            "dt = " << dt << "\n" <<
             "a = " << a << "\n" <<
             "b = " << (a + d * (const vec3<double>)n) << "\n" <<
-			"n = " << n << "\n" <<
-			"d = " << d << "\n" <<
-			"guard = " << guard << "\n" <<
-			"mask = " << mask.to_string() << "\n" <<
-			"mask width = " << mask.getMaskWidth() << "\n" <<
-			"filter = " << filter.to_string() << "\n" <<
-			"filter width = " << filter.getWidth() << "\n" <<
-			"number of zero frequences for filter = " << filter.getNumZeroFreq() << "\n" <<
-			"number of steps = " << getNSteps() << "\n" <<
-			"number of sequential steps = " << nSeqSteps << "\n" <<
-			"number of parallel steps = " << nParSteps << "\n" <<
-			"number of steps between exchanges = " << nDomainSteps << "\n" <<
-			"number of exchanges = " << numExchanges + 1 << "\n" <<
-		    "number of iterations before last exchange = " << numIterBeforeLastExchange << "\n";
+            "n = " << n << "\n" <<
+            "d = " << d << "\n" <<
+            "guard = " << guard << "\n" <<
+            "mask = " << mask.to_string() << "\n" <<
+            "mask width = " << mask.getMaskWidth() << "\n" <<
+            "filter = " << filter.to_string() << "\n" <<
+            "filter width = " << filter.getWidth() << "\n" <<
+            "number of zero frequences for filter = " << filter.getNumZeroFreq() << "\n" <<
+            "number of steps = " << getNSteps() << "\n" <<
+            "number of sequential steps = " << nSeqSteps << "\n" <<
+            "number of parallel steps = " << nParSteps << "\n" <<
+            "number of steps between exchanges = " << nDomainSteps << "\n" <<
+            "number of exchanges = " << numExchanges + 1 << "\n" <<
+            "number of iterations before last exchange = " << numIterBeforeLastExchange << "\n";
     }
 };

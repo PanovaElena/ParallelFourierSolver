@@ -59,9 +59,9 @@ struct ParametersForSphericalWave : public ParallelTaskParameters {
         fileWriter.initialize("./", E, z, Section(Section::XOY, Section::center));
     }
 
-    void print() const {
-        ParallelTaskParameters::print();
-        std::cout <<
+    void print(std::ostream& ost = std::cout) const {
+        ParallelTaskParameters::print(ost);
+        ost <<
             "coordinate of source = " << source.coord << "\n" <<
             "omega = " << source.omega << "\n" <<
             "omega of envelope = " << source.omegaEnv << "\n" <<

@@ -7,7 +7,6 @@ void refreshE_PSTD(Grid3d& gr, double dt) {
 #pragma omp parallel for
     for (int i = 0; i < gr.sizeComplex().x; i++)
         for (int j = 0; j < gr.sizeComplex().y; j++)
-#pragma omp simd
             for (int k = 0; k < gr.sizeComplex().z; k++) {
 
                 vec3<MyComplex> K = getFreqVector(vec3<int>(i, j, k), gr);
@@ -21,7 +20,6 @@ void refreshB_PSTD(Grid3d& gr, double dt) {
 #pragma omp parallel for
     for (int i = 0; i < gr.sizeComplex().x; i++)
         for (int j = 0; j < gr.sizeComplex().y; j++)
-#pragma omp simd
             for (int k = 0; k < gr.sizeComplex().z; k++) {
 
                 vec3<MyComplex> K = getFreqVector(vec3<int>(i, j, k), gr);

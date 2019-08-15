@@ -5,7 +5,6 @@ void MPIWorkerSum::applyMask(Field f, Coordinate c) {
 #pragma omp parallel for
     for (int i = 0; i < grid.sizeReal().x; i++)
         for (int j = 0; j < grid.sizeReal().y; j++)
-#pragma omp simd
             for (int k = 0; k < grid.sizeReal().z; k++)
                 ((grid.*getMemberPtrField<double>(f)).*getMemberPtrFieldCoord<double>(c))(i, j, k) *=
                     mask(vec3<int>(i, j, k), getMainDomainSize(), getGuardSize());
